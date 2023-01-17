@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"yeahson":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.66.1/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"struct\" href=\"yeahson/struct.Error.html\" title=\"struct yeahson::Error\">Error</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.66.1/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"enum\" href=\"yeahson/enum.ErrorKind.html\" title=\"enum yeahson::ErrorKind\">ErrorKind</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
