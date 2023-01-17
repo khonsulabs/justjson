@@ -1,10 +1,8 @@
-# YeahSon
-
 
 [![crate version](https://img.shields.io/crates/v/yeahson.svg)](https://crates.io/crates/yeahson)
 [![Live Build Status](https://img.shields.io/github/actions/workflow/status/khonsulabs/yeahson/rust.yml?branch=main)](https://github.com/khonsulabs/yeahson/actions?query=workflow:Tests)
 [![HTML Coverage Report for `main` branch](https://khonsulabs.github.io/yeahson/coverage/badge.svg)](https://khonsulabs.github.io/yeahson/coverage/)
-[![Documentation](https://img.shields.io/badge/docs-main-informational)](https://khonsulabs.github.io/yeahson/main/yeahson)
+[![Documentation](https://img.shields.io/badge/docs-main-informational)]($docs-base$)
 
 An efficient JSON [`Value`][value] parser for Rust.
 
@@ -90,17 +88,9 @@ This crate uses unsafe code only when converting from raw incoming data to UTF-8
 data. The parser fully verifies that the data is valid UTF-8 before these
 functions are used.
 
-[value]: https://khonsulabs.github.io/yeahson/main/yeahson/enum.Value.html
-[string]: https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonString.html
-[number]: https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonNumber.html
+[value]: $value$
+[string]: $string$
+[number]: $number$
 [json-ld]: https://www.w3.org/TR/json-ld11/#compacted-document-form
 [fediverse]: https://en.wikipedia.org/wiki/Fediverse
 [activitypub]: https://www.w3.org/TR/activitypub/
-
-## Open-source Licenses
-
-This project, like all projects from [Khonsu Labs](https://khonsulabs.com/), are
-open-source. This repository is available under the [MIT License](./LICENSE-MIT)
-or the [Apache License 2.0](./LICENSE-APACHE).
-
-To learn more about contributing, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

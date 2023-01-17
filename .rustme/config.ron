@@ -1,0 +1,55 @@
+Configuration(
+    files: {
+        "../README.md":  [
+            "header.md",
+            "docs.md",
+            "https://github.com/khonsulabs/.github/raw/main/snippets/readme-footer.md",
+        ],
+        "../src/.crate-docs.md":  (
+            for_docs: true,
+            sections: [
+                "docs.md",
+            ]
+        ),
+        "../CONTRIBUTING.md":  [
+            "https://github.com/khonsulabs/.github/raw/main/docs/CONTRIBUTING.md",
+        ],
+        "../CODE_OF_CONDUCT.md":  [
+            "https://github.com/khonsulabs/.github/raw/main/docs/CODE_OF_CONDUCT.md",
+        ],
+        "../LICENSE-APACHE":  [
+            "https://github.com/khonsulabs/.github/raw/main/licenses/LICENSE-APACHE",
+        ],
+        "../LICENSE-MIT":  [
+            "https://github.com/khonsulabs/.github/raw/main/licenses/LICENSE-MIT",
+        ],
+    },
+    glossaries: [
+        "https://github.com/khonsulabs/.github/raw/main/snippets/glossary.ron",
+        {
+            "docs-base": (
+                default: "https://khonsulabs.github.io/yeahson/main/yeahson",
+                release: "https://docs.rs/yeahson",
+            ),
+            "src-base": (
+                default: "https://github.com/khonsulabs/yeahson/blob/main",
+                release: "https://github.com/khonsulabs/yeahson/blob/v0.1.0",
+            ),
+            "value": (
+                default: "https://khonsulabs.github.io/yeahson/main/yeahson/enum.Value.html",
+                release: "https://docs.rs/yeahson/*/yeahson/enum.Value.html",
+                for_docs: "crate::Value",
+            ),
+            "string": (
+                default: "https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonString.html",
+                release: "https://docs.rs/yeahson/*/yeahson/struct.JsonString.html",
+                for_docs: "crate::JsonString",
+            ),
+            "number": (
+                default: "https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonNumber.html",
+                release: "https://docs.rs/yeahson/*/yeahson/struct.JsonNumber.html",
+                for_docs: "crate::JsonNumber",
+            ),
+        }
+    ],
+)

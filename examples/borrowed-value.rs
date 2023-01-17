@@ -11,9 +11,16 @@ fn yeahson_parse(json: &str) -> yeahson::Value<&str> {
 }
 
 fn main() {
+    // TODO this isn't actually an example... it was a way to get criterion out
+    // of the way for profiling.
     const ITERS: usize = 1000000;
     let mut vec = Vec::with_capacity(ITERS);
     for _ in 0..ITERS {
         vec.push(yeahson_parse(SMALL_OBJECT));
     }
+}
+
+#[test]
+fn runs() {
+    main();
 }
