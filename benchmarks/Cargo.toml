@@ -1,0 +1,18 @@
+[package]
+name = "benchmarks"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+criterion = { version = "0.4.0", features = ["html_reports"] }
+serde_json = "1.0.91"
+yeahson = { path = ".." }
+tinyjson = "2.5.1"
+locspan = "*"
+
+
+[[bench]]
+name = "benchmarks"
+harness = false
