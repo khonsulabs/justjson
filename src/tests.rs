@@ -1,23 +1,23 @@
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
 
 #[track_caller]
-fn test_event_sequence_slice(source: &[u8], value: Value<&str>) {
+fn test_event_sequence_slice(source: &[u8], value: &Value<&str>) {
     println!("Testing slice {}", std::str::from_utf8(source).unwrap());
 
-    assert_eq!(Value::from_json_bytes(source).unwrap(), value);
+    assert_eq!(&Value::from_json_bytes(source).unwrap(), value);
 }
 
 #[track_caller]
-fn test_event_sequence_read(source: &[u8], value: Value<&str>) {
+fn test_event_sequence_read(source: &[u8], value: &Value<&str>) {
     println!("Testing read {}", std::str::from_utf8(source).unwrap());
 
-    assert_eq!(Value::from_reader(source).unwrap(), value);
+    assert_eq!(&Value::from_reader(source).unwrap(), value);
 }
 
 macro_rules! test_event_sequence {
     ($src:expr, $sequence:expr) => {{
-        test_event_sequence_slice($src, $sequence);
-        test_event_sequence_read($src, $sequence);
+        test_event_sequence_slice($src, &$sequence);
+        test_event_sequence_read($src, &$sequence);
     }};
     ($src:expr, $sequence:expr ,) => {{
         test_event_sequence!($src, $sequence);
@@ -88,13 +88,13 @@ fn escapey_string() {
             source: r#""\"\\\/\b\f\n\r\t\u25eF""#,
             info: JsonStringInfo::new(true, 11),
         }),
-    )
+    );
     // TODO test decoded length
 }
 
 #[test]
 fn empty_object() {
-    test_event_sequence!(b"{}", Value::Object(Object::new()))
+    test_event_sequence!(b"{}", Value::Object(Object::new()));
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn one_mapping() {
             },
             Value::Boolean(true)
         )]))
-    )
+    );
 }
 
 #[test]
@@ -131,7 +131,7 @@ fn two_mappings() {
                 Value::Null
             )
         ]))
-    )
+    );
 }
 
 #[test]
@@ -154,7 +154,7 @@ fn spaced_out_object() {
                 Value::Null
             )
         ]))
-    )
+    );
 }
 
 #[test]

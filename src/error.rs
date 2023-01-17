@@ -19,12 +19,14 @@ impl From<Utf8Error> for Error {
 
 impl Error {
     /// Returns the kind of the error.
+    #[must_use]
     pub const fn kind(&self) -> &ErrorKind {
         &self.kind
     }
 
     /// Returns the offset of the error, which is the byte position nearest to
     /// where the error occurred.
+    #[must_use]
     pub const fn offset(&self) -> usize {
         self.offset
     }

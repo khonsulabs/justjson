@@ -89,39 +89,29 @@ impl<Backing> Value<Backing> {
     where
         Source: JsonSource<Backing = Backing>,
     {
-        let value = loop {
-            match source.read_next_non_ws()? {
-                (_, b'"') => {
-                    source.buffer_byte(b'"');
-                    break Value::String(Self::read_string_from_source(source, safe_strings)?);
-                }
-                (_, b'{') => {
-                    break Value::Object(Self::read_object_from_source(source, safe_strings)?)
-                }
-                (_, b'[') => {
-                    break Value::Array(Self::read_array_from_source(source, safe_strings)?)
-                }
-                (offset, ch) if ch == b'-' || ch == b'+' => {
-                    source.buffer_byte(ch);
-                    break Value::Number(Self::read_number_from_source(source, true, offset)?);
-                }
-                (offset, ch) if (b'0'..=b'9').contains(&ch) => {
-                    source.buffer_byte(ch);
-                    break Value::Number(Self::read_number_from_source(source, false, offset)?);
-                }
-                (_, b't') => {
-                    break Self::read_literal_from_source(source, b"rue", Value::Boolean(true))?
-                }
-                (_, b'f') => {
-                    break Self::read_literal_from_source(source, b"alse", Value::Boolean(false))?
-                }
-                (_, b'n') => break Self::read_literal_from_source(source, b"ull", Value::Null)?,
-                (offset, other) => {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::Unexpected(other),
-                    })
-                }
+        let value = match source.read_next_non_ws()? {
+            (_, b'"') => {
+                source.buffer_byte(b'"');
+                Value::String(Self::read_string_from_source(source, safe_strings)?)
+            }
+            (_, b'{') => Value::Object(Self::read_object_from_source(source, safe_strings)?),
+            (_, b'[') => Value::Array(Self::read_array_from_source(source, safe_strings)?),
+            (offset, ch) if ch == b'-' || ch == b'+' => {
+                source.buffer_byte(ch);
+                Value::Number(Self::read_number_from_source(source, true, offset)?)
+            }
+            (offset, ch) if (b'0'..=b'9').contains(&ch) => {
+                source.buffer_byte(ch);
+                Value::Number(Self::read_number_from_source(source, false, offset)?)
+            }
+            (_, b't') => Self::read_literal_from_source(source, b"rue", Value::Boolean(true))?,
+            (_, b'f') => Self::read_literal_from_source(source, b"alse", Value::Boolean(false))?,
+            (_, b'n') => Self::read_literal_from_source(source, b"ull", Value::Null)?,
+            (offset, other) => {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::Unexpected(other),
+                })
             }
         };
 
@@ -142,12 +132,10 @@ impl<Backing> Value<Backing> {
 
         match source.read_next_non_ws() {
             Err(err) if matches!(err.kind, ErrorKind::UnexpectedEof) => Ok(value),
-            Ok((offset, _)) => {
-                return Err(Error {
-                    offset,
-                    kind: ErrorKind::TrailingNonWhitespace,
-                })
-            }
+            Ok((offset, _)) => Err(Error {
+                offset,
+                kind: ErrorKind::TrailingNonWhitespace,
+            }),
             Err(other) => Err(other),
         }
     }
@@ -170,12 +158,12 @@ impl<Backing> Value<Backing> {
                 } else if byte == b'}' {
                     if object.0.is_empty() {
                         break;
-                    } else {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::ExpectedObjectKey,
-                        });
                     }
+
+                    return Err(Error {
+                        offset,
+                        kind: ErrorKind::ExpectedObjectKey,
+                    });
                 } else if matches!(byte, b'+' | b'-' | b'{' | b'[' | b't' | b'f' | b'n')
                     || byte.is_ascii_digit()
                 {
@@ -246,7 +234,7 @@ impl<Backing> Value<Backing> {
                 let value = if byte == b']' {
                     if !values.is_empty() {
                         return Err(Error {
-                            offset: offset,
+                            offset,
                             kind: ErrorKind::IllegalTrailingComma,
                         });
                     }
@@ -276,7 +264,7 @@ impl<Backing> Value<Backing> {
 
         inner(source).map_err(|mut err| {
             if matches!(err.kind, ErrorKind::UnexpectedEof) {
-                err.kind = ErrorKind::UnclosedArray
+                err.kind = ErrorKind::UnclosedArray;
             }
             err
         })
@@ -357,8 +345,8 @@ impl<Backing> Value<Backing> {
                         }
 
                         let mut utf8_bytes = [byte; 4];
-                        for index in 1..expected_bytes {
-                            utf8_bytes[index] = source.read_byte_buffered()?.1;
+                        for byte in utf8_bytes.iter_mut().take(expected_bytes).skip(1) {
+                            *byte = source.read_byte_buffered()?.1;
                         }
                         string_info.add_bytes(expected_bytes);
                         if let Err(err) = std::str::from_utf8(&utf8_bytes[..expected_bytes]) {
@@ -497,6 +485,7 @@ impl<Backing> Value<Backing> {
     }
 }
 
+#[allow(clippy::inconsistent_digit_grouping)]
 static HEX_OFFSET_TABLE: [u8; 256] = {
     const ERR: u8 = u8::MAX;
     [
@@ -599,6 +588,7 @@ impl<Backing> Default for Object<Backing> {
 
 impl<Backing> Object<Backing> {
     /// Returns an empty object.
+    #[must_use]
     pub const fn new() -> Self {
         Self(Vec::new())
     }
@@ -886,7 +876,7 @@ where
                     self.offset += 1;
                     Ok((offset, byte))
                 }
-                Err(other) => return Err(self.error(ErrorKind::from(other))),
+                Err(other) => Err(self.error(ErrorKind::from(other))),
             }
         }
     }

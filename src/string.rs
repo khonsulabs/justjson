@@ -38,7 +38,7 @@ impl<'a> JsonString<&'a str> {
     ///
     /// # Errors
     ///
-    /// Returns [`ErrorKind::ExpectedString] if a non-string value is
+    /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
     pub fn from_json(json: &'a str) -> std::result::Result<Self, Error> {
         if let Value::String(str) = Value::from_json(json)? {
@@ -111,7 +111,7 @@ where
             true
         } else {
             // Direct string comparison excluding the quotes.
-            &source[1..unescaped_length + 1] == *other
+            &source[1..=unescaped_length] == *other
         }
     }
 }
@@ -162,6 +162,7 @@ impl JsonStringInfo {
     pub const NONE: Self = Self::new(false, 0);
 
     /// Returns a new instance with the initial values provided.
+    #[must_use]
     pub const fn new(has_escapes: bool, unescaped_length: usize) -> Self {
         // assert_eq!(
         //     unescaped_length & Self::HAS_ESCAPES_MASK,
@@ -177,11 +178,13 @@ impl JsonStringInfo {
     }
 
     /// Returns whether the string has any escape sequences.
+    #[must_use]
     pub const fn has_escapes(self) -> bool {
         self.0 & Self::HAS_ESCAPES_MASK != 0
     }
 
     /// Returns the length of the string after decoding any escape sequences.
+    #[must_use]
     pub const fn unescaped_length(self) -> usize {
         self.0 & Self::UNESCAPED_BYTES_MASK
     }
