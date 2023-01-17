@@ -205,6 +205,9 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     error::{Error, ErrorKind},
     value::Value,
@@ -245,7 +248,7 @@
     ///
     /// # Errors
     ///
-    /// Returns [`ErrorKind::ExpectedString] if a non-string value is
+    /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
     </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; std::result::Result&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">if let </span>Value::String(str) = Value::from_json(json)<span class="question-mark">? </span>{
@@ -318,7 +321,7 @@
             <span class="bool-val">true
         </span>} <span class="kw">else </span>{
             <span class="comment">// Direct string comparison excluding the quotes.
-            </span><span class="kw-2">&amp;</span>source[<span class="number">1</span>..unescaped_length + <span class="number">1</span>] == <span class="kw-2">*</span>other
+            </span><span class="kw-2">&amp;</span>source[<span class="number">1</span>..=unescaped_length] == <span class="kw-2">*</span>other
         }
     }
 }
@@ -369,6 +372,7 @@
     </span><span class="kw">pub const </span>NONE: <span class="self">Self </span>= <span class="self">Self</span>::new(<span class="bool-val">false</span>, <span class="number">0</span>);
 
     <span class="doccomment">/// Returns a new instance with the initial values provided.
+    </span><span class="attribute">#[must_use]
     </span><span class="kw">pub const fn </span>new(has_escapes: bool, unescaped_length: usize) -&gt; <span class="self">Self </span>{
         <span class="comment">// assert_eq!(
         //     unescaped_length &amp; Self::HAS_ESCAPES_MASK,
@@ -384,11 +388,13 @@
     }
 
     <span class="doccomment">/// Returns whether the string has any escape sequences.
+    </span><span class="attribute">#[must_use]
     </span><span class="kw">pub const fn </span>has_escapes(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="self">Self</span>::HAS_ESCAPES_MASK != <span class="number">0
     </span>}
 
     <span class="doccomment">/// Returns the length of the string after decoding any escape sequences.
+    </span><span class="attribute">#[must_use]
     </span><span class="kw">pub const fn </span>unescaped_length(<span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="self">Self</span>::UNESCAPED_BYTES_MASK
     }

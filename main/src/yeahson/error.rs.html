@@ -128,6 +128,8 @@
 <span id="128">128</span>
 <span id="129">129</span>
 <span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{io, str::Utf8Error};
 
 <span class="doccomment">/// A JSON parsing error with location information.
@@ -149,12 +151,14 @@
 
 <span class="kw">impl </span>Error {
     <span class="doccomment">/// Returns the kind of the error.
+    </span><span class="attribute">#[must_use]
     </span><span class="kw">pub const fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ErrorKind {
         <span class="kw-2">&amp;</span><span class="self">self</span>.kind
     }
 
     <span class="doccomment">/// Returns the offset of the error, which is the byte position nearest to
     /// where the error occurred.
+    </span><span class="attribute">#[must_use]
     </span><span class="kw">pub const fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.offset
     }
