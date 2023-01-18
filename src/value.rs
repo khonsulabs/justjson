@@ -1,6 +1,7 @@
 use std::{
     fmt::{self, Display},
     iter::Peekable,
+    ops::{Deref, DerefMut},
     slice,
 };
 
@@ -218,7 +219,7 @@ impl<'a> Value<&'a str> {
 
                 let value = Self::read_from_source(source, state)?;
 
-                object.0.push((key, value));
+                object.0.push(Entry { key, value });
                 match source.next_non_ws()? {
                     (_, b',') => {}
                     (_, b'}') => break,
@@ -513,6 +514,61 @@ impl<Backing> Value<Backing>
 where
     Backing: AsRef<str>,
 {
+    /// Returns the [`Object`] inside of this value, if this is a
+    /// [`Value::Object`].
+    pub fn as_object(&self) -> Option<&Object<Backing>> {
+        if let Self::Object(obj) = self {
+            Some(obj)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the [`JsonString`] inside of this value, if this is a
+    /// [`Value::String`].
+    pub fn as_string(&self) -> Option<&JsonString<Backing>> {
+        if let Self::String(obj) = self {
+            Some(obj)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the [`JsonNumber`] inside of this value, if this is a
+    /// [`Value::Number`].
+    pub fn as_number(&self) -> Option<&JsonNumber<Backing>> {
+        if let Self::Number(obj) = self {
+            Some(obj)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the `bool` inside of this value, if this is a
+    /// [`Value::Boolean`].
+    pub fn as_bool(&self) -> Option<bool> {
+        if let Self::Boolean(value) = self {
+            Some(*value)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the slice of values inside of this value, if this is a
+    /// [`Value::Array`].
+    pub fn as_array(&self) -> Option<&[Self]> {
+        if let Self::Array(value) = self {
+            Some(value)
+        } else {
+            None
+        }
+    }
+
+    /// Returns true if this value is `null`/[`Value::Null`].
+    pub fn is_null(&self) -> bool {
+        matches!(self, Value::Null)
+    }
+
     fn write_json<W: fmt::Write, const PRETTY: bool>(
         &self,
         indentation: &str,
@@ -546,10 +602,10 @@ where
 
         if !obj.0.is_empty() {
             state.new_line()?;
-            for (index, (key, value)) in obj.0.iter().enumerate() {
-                state.write(key.source.as_ref())?;
+            for (index, entry) in obj.0.iter().enumerate() {
+                state.write(entry.key.source.as_ref())?;
                 state.write_colon()?;
-                value.write_json_value(state)?;
+                entry.value.write_json_value(state)?;
                 if index != obj.0.len() - 1 {
                     state.write(",")?;
                 }
@@ -635,6 +691,29 @@ where
     ) -> fmt::Result {
         self.write_json::<W, true>(indentation, line_ending, destination)
     }
+}
+
+#[test]
+fn value_ases() {
+    assert!(Value::<&str>::Boolean(true).as_bool().unwrap());
+    assert_eq!(
+        Value::<&str>::String(JsonString::from_json("\"\"").unwrap())
+            .as_string()
+            .unwrap(),
+        ""
+    );
+    assert_eq!(
+        Value::<&str>::Object(Object::new()).as_object().unwrap(),
+        &Object::new()
+    );
+    assert_eq!(Value::<&str>::Array(Vec::new()).as_array().unwrap(), &[]);
+
+    assert!(Value::<&str>::Null.is_null());
+    assert!(!Value::<&str>::Boolean(true).is_null());
+    assert_eq!(Value::<&str>::Null.as_bool(), None);
+    assert_eq!(Value::<&str>::Null.as_number(), None);
+    assert_eq!(Value::<&str>::Null.as_string(), None);
+    assert_eq!(Value::<&str>::Null.as_object(), None);
 }
 
 impl<Backing> Display for Value<Backing>
@@ -880,7 +959,7 @@ impl<'a> PartialEq<Value<&'a str>> for Value<String> {
 
 /// A JSON Object (list of key-value pairs).
 #[derive(Debug, Eq, PartialEq)]
-pub struct Object<Backing>(Vec<(JsonString<Backing>, Value<Backing>)>);
+pub struct Object<Backing>(Vec<Entry<Backing>>);
 
 impl<Backing> Default for Object<Backing> {
     fn default() -> Self {
@@ -893,6 +972,20 @@ impl<Backing> Object<Backing> {
     #[must_use]
     pub const fn new() -> Self {
         Self(Vec::new())
+    }
+}
+
+impl<Backing> Deref for Object<Backing> {
+    type Target = [Entry<Backing>];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<Backing> DerefMut for Object<Backing> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -918,6 +1011,14 @@ impl<Backing> Object<Backing> {
 
 impl<Backing> FromIterator<(JsonString<Backing>, Value<Backing>)> for Object<Backing> {
     fn from_iter<T: IntoIterator<Item = (JsonString<Backing>, Value<Backing>)>>(iter: T) -> Self {
+        iter.into_iter()
+            .map(|(key, value)| Entry { key, value })
+            .collect()
+    }
+}
+
+impl<Backing> FromIterator<Entry<Backing>> for Object<Backing> {
+    fn from_iter<T: IntoIterator<Item = Entry<Backing>>>(iter: T) -> Self {
         Self(iter.into_iter().collect())
     }
 }
@@ -929,8 +1030,14 @@ impl<'a> PartialEq<Object<&'a str>> for Object<String> {
                 .0
                 .iter()
                 .zip(other.0.iter())
-                .all(|(a, b)| a.0 == b.0 && a.1 == b.1)
+                .all(|(a, b)| a.key == b.key && a.value == b.value)
     }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct Entry<Backing> {
+    pub key: JsonString<Backing>,
+    pub value: Value<Backing>,
 }
 
 #[test]

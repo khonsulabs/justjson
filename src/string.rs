@@ -58,6 +58,15 @@ impl<'a> PartialEq<JsonString<&'a str>> for JsonString<String> {
     }
 }
 
+impl<'a, 'b, T> PartialEq<&'a str> for &'b JsonString<T>
+where
+    T: AsRef<str>,
+{
+    fn eq(&self, other: &&'a str) -> bool {
+        (*self) == other
+    }
+}
+
 impl<'a, T> PartialEq<&'a str> for JsonString<T>
 where
     T: AsRef<str>,
