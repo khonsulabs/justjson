@@ -889,115 +889,7 @@
 <span id="889">889</span>
 <span id="890">890</span>
 <span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
-<span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
-<span id="927">927</span>
-<span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
-<span id="946">946</span>
-<span id="947">947</span>
-<span id="948">948</span>
-<span id="949">949</span>
-<span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
-<span id="957">957</span>
-<span id="958">958</span>
-<span id="959">959</span>
-<span id="960">960</span>
-<span id="961">961</span>
-<span id="962">962</span>
-<span id="963">963</span>
-<span id="964">964</span>
-<span id="965">965</span>
-<span id="966">966</span>
-<span id="967">967</span>
-<span id="968">968</span>
-<span id="969">969</span>
-<span id="970">970</span>
-<span id="971">971</span>
-<span id="972">972</span>
-<span id="973">973</span>
-<span id="974">974</span>
-<span id="975">975</span>
-<span id="976">976</span>
-<span id="977">977</span>
-<span id="978">978</span>
-<span id="979">979</span>
-<span id="980">980</span>
-<span id="981">981</span>
-<span id="982">982</span>
-<span id="983">983</span>
-<span id="984">984</span>
-<span id="985">985</span>
-<span id="986">986</span>
-<span id="987">987</span>
-<span id="988">988</span>
-<span id="989">989</span>
-<span id="990">990</span>
-<span id="991">991</span>
-<span id="992">992</span>
-<span id="993">993</span>
-<span id="994">994</span>
-<span id="995">995</span>
-<span id="996">996</span>
-<span id="997">997</span>
-<span id="998">998</span>
-<span id="999">999</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{io::Read, iter::Peekable, slice};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{iter::Peekable, slice};
 
 <span class="kw">use crate</span>::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
@@ -1029,7 +921,16 @@
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
     </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="self">Self</span>::from_source(JsonSlice::from(json))
+        <span class="self">Self</span>::from_json_with_config(json, ParseConfig::default())
+    }
+
+    <span class="doccomment">/// Parses a JSON value from `json` using the settings from`config`,
+    /// returning a `Value&lt;&amp;str&gt;` that borrows data from `json`.
+    ///
+    /// Because the `str` type guarantees that `json` is valid UTF-8, no
+    /// additional unicode checks are performed on unescaped unicode sequences.
+    </span><span class="kw">pub fn </span>from_json_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="self">Self</span>::from_bytes::&lt;<span class="bool-val">true</span>&gt;(json.as_bytes(), config)
     }
 
     <span class="doccomment">/// Parses a JSON value from `json`, returning a `Value&lt;&amp;str&gt;` that borrows
@@ -1037,8 +938,19 @@
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
+    ///
+    /// This function is equivalent to calling
     </span><span class="kw">pub fn </span>from_json_bytes(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="self">Self</span>::from_source(JsonSlice::from(json))
+        <span class="self">Self</span>::from_json_bytes_with_config(json, ParseConfig::default())
+    }
+
+    <span class="doccomment">/// Parses a JSON value from `json` using the settings from`config`,
+    /// returning a `Value&lt;&amp;str&gt;` that borrows data from `json`.
+    ///
+    /// This function verifies that `json` is valid UTF-8 while parsing the
+    /// JSON.
+    </span><span class="kw">pub fn </span>from_json_bytes_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="self">Self</span>::from_bytes::&lt;<span class="bool-val">false</span>&gt;(json, config)
     }
 
     <span class="comment">// pub fn into_owned(self) -&gt; Value&lt;&#39;static&gt; {
@@ -1065,51 +977,50 @@
     //     }
     // }
 </span>}
-<span class="kw">impl </span>Value&lt;String&gt; {
-    <span class="doccomment">/// Parses a JSON value from `reader`, returning a `Value&lt;String&gt;`. This
-    /// function cannot borrow data from `reader`.
-    ///
-    /// This function does not perform any buffering and reads one byte at a
-    /// time. A buffered reader such as [`std::io::BufReader`] should almost
-    /// certainly be used when calling this function.
-    ///
-    /// This function verifies that all bytes read from `reader` are valid UTF-8
-    /// while parsing the JSON.
-    </span><span class="kw">pub fn </span>from_reader&lt;R: Read&gt;(reader: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="self">Self</span>::from_source(JsonReader::new(reader))
-    }
-}
 
-<span class="kw">impl</span>&lt;Backing&gt; Value&lt;Backing&gt; {
-    <span class="kw">fn </span>read_from_source&lt;Source&gt;(
-        source: <span class="kw-2">&amp;mut </span>Source,
-        safe_strings: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
-    <span class="kw">where
-        </span>Source: JsonSource&lt;Backing = Backing&gt;,
-    {
-        <span class="kw">let </span>value = <span class="kw">match </span>source.read_next_non_ws()<span class="question-mark">? </span>{
-            (<span class="kw">_</span>, <span class="string">b&#39;&quot;&#39;</span>) =&gt; {
-                source.buffer_byte(<span class="string">b&#39;&quot;&#39;</span>);
-                Value::String(<span class="self">Self</span>::read_string_from_source(source, safe_strings)<span class="question-mark">?</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
+    <span class="kw">fn </span>read_from_source&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
+        state: <span class="kw-2">&amp;mut </span>ParseState,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="kw">let </span>(offset, byte) = source.next_non_ws()<span class="question-mark">?</span>;
+        <span class="self">Self</span>::read_from_first_byte(offset, byte, source, state)
+    }
+
+    <span class="kw">fn </span>read_from_first_byte&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        offset: usize,
+        first: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8,
+        source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
+        state: <span class="kw-2">&amp;mut </span>ParseState,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="kw">let </span>value = <span class="kw">match </span>(offset, first) {
+            (offset, <span class="string">b&#39;&quot;&#39;</span>) =&gt; Value::String(<span class="self">Self</span>::read_string_from_source(source, offset)<span class="question-mark">?</span>),
+            (offset, <span class="string">b&#39;{&#39;</span>) =&gt; {
+                state.begin_nest().map_err(|kind| Error { offset, kind })<span class="question-mark">?</span>;
+                Value::Object(<span class="self">Self</span>::read_object_from_source(source, state)<span class="question-mark">?</span>)
             }
-            (<span class="kw">_</span>, <span class="string">b&#39;{&#39;</span>) =&gt; Value::Object(<span class="self">Self</span>::read_object_from_source(source, safe_strings)<span class="question-mark">?</span>),
-            (<span class="kw">_</span>, <span class="string">b&#39;[&#39;</span>) =&gt; Value::Array(<span class="self">Self</span>::read_array_from_source(source, safe_strings)<span class="question-mark">?</span>),
-            (offset, ch) <span class="kw">if </span>ch == <span class="string">b&#39;-&#39; </span>|| ch == <span class="string">b&#39;+&#39; </span>=&gt; {
-                source.buffer_byte(ch);
-                Value::Number(<span class="self">Self</span>::read_number_from_source(source, <span class="bool-val">true</span>, offset)<span class="question-mark">?</span>)
+            (offset, <span class="string">b&#39;[&#39;</span>) =&gt; {
+                state.begin_nest().map_err(|kind| Error { offset, kind })<span class="question-mark">?</span>;
+                Value::Array(<span class="self">Self</span>::read_array_from_source(source, state)<span class="question-mark">?</span>)
             }
-            (offset, ch) <span class="kw">if </span>(<span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>).contains(<span class="kw-2">&amp;</span>ch) =&gt; {
-                source.buffer_byte(ch);
-                Value::Number(<span class="self">Self</span>::read_number_from_source(source, <span class="bool-val">false</span>, offset)<span class="question-mark">?</span>)
-            }
+            (offset, ch) <span class="kw">if </span>ch == <span class="kw-2">&amp;</span><span class="string">b&#39;-&#39; </span>|| ch == <span class="kw-2">&amp;</span><span class="string">b&#39;+&#39; </span>=&gt; Value::Number(
+                <span class="self">Self</span>::read_number_from_source(source, InitialNumberState::Sign, offset)<span class="question-mark">?</span>,
+            ),
+            (offset, <span class="string">b&#39;0&#39;</span>) =&gt; Value::Number(<span class="self">Self</span>::read_number_from_source(
+                source,
+                InitialNumberState::Zero,
+                offset,
+            )<span class="question-mark">?</span>),
+            (offset, ch) <span class="kw">if </span>(<span class="string">b&#39;1&#39;</span>..=<span class="string">b&#39;9&#39;</span>).contains(ch) =&gt; Value::Number(
+                <span class="self">Self</span>::read_number_from_source(source, InitialNumberState::Digit, offset)<span class="question-mark">?</span>,
+            ),
             (<span class="kw">_</span>, <span class="string">b&#39;t&#39;</span>) =&gt; <span class="self">Self</span>::read_literal_from_source(source, <span class="string">b&quot;rue&quot;</span>, Value::Boolean(<span class="bool-val">true</span>))<span class="question-mark">?</span>,
             (<span class="kw">_</span>, <span class="string">b&#39;f&#39;</span>) =&gt; <span class="self">Self</span>::read_literal_from_source(source, <span class="string">b&quot;alse&quot;</span>, Value::Boolean(<span class="bool-val">false</span>))<span class="question-mark">?</span>,
             (<span class="kw">_</span>, <span class="string">b&#39;n&#39;</span>) =&gt; <span class="self">Self</span>::read_literal_from_source(source, <span class="string">b&quot;ull&quot;</span>, Value::Null)<span class="question-mark">?</span>,
             (offset, other) =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                     offset,
-                    kind: ErrorKind::Unexpected(other),
+                    kind: ErrorKind::Unexpected(<span class="kw-2">*</span>other),
                 })
             }
         };
@@ -1117,19 +1028,24 @@
         <span class="prelude-val">Ok</span>(value)
     }
 
-    <span class="kw">fn </span>from_source&lt;Source&gt;(<span class="kw-2">mut </span>source: Source) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
-    <span class="kw">where
-        </span>Source: JsonSource&lt;Backing = Backing&gt;,
-    {
-        <span class="kw">let </span>safe_string_bytes = <span class="kw">if </span>source.guaranteed_utf8() {
-            SAFE_STRING_BYTES
-        } <span class="kw">else </span>{
-            SAFE_STRING_BYTES_VERIFY_UTF8
-        };
+    <span class="kw">fn </span>from_bytes&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+        config: ParseConfig,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>state = ParseState::from(config);
+        <span class="kw">let </span><span class="kw-2">mut </span>source = ByteIterator::&lt;GUARANTEED_UTF8&gt;::new(source);
+        <span class="kw">let </span>value = <span class="self">Self</span>::read_from_source(<span class="kw-2">&amp;mut </span>source, <span class="kw-2">&amp;mut </span>state)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>value = <span class="self">Self</span>::read_from_source(<span class="kw-2">&amp;mut </span>source, safe_string_bytes)<span class="question-mark">?</span>;
+        <span class="kw">if </span>!state.config.allow_all_types_at_root
+            &amp;&amp; !<span class="macro">matches!</span>(value, Value::Object(<span class="kw">_</span>) | Value::Array(<span class="kw">_</span>))
+        {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                offset: <span class="number">0</span>,
+                kind: ErrorKind::PayloadsShouldBeObjectOrArray,
+            });
+        }
 
-        <span class="kw">match </span>source.read_next_non_ws() {
+        <span class="kw">match </span>source.next_non_ws() {
             <span class="prelude-val">Err</span>(err) <span class="kw">if </span><span class="macro">matches!</span>(err.kind, ErrorKind::UnexpectedEof) =&gt; <span class="prelude-val">Ok</span>(value),
             <span class="prelude-val">Ok</span>((offset, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(Error {
                 offset,
@@ -1139,29 +1055,25 @@
         }
     }
 
-    <span class="kw">fn </span>read_object_from_source&lt;Source&gt;(
-        source: <span class="kw-2">&amp;mut </span>Source,
-        safe_strings: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;Backing&gt;, Error&gt;
-    <span class="kw">where
-        </span>Source: JsonSource&lt;Backing = Backing&gt;,
-    {
-        <span class="kw">let </span>inner = |source: <span class="kw-2">&amp;mut </span>Source| {
+    <span class="kw">fn </span>read_object_from_source&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
+        state: <span class="kw-2">&amp;mut </span>ParseState,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;, Error&gt; {
+        <span class="kw">let </span>inner = |source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;, state: <span class="kw-2">&amp;mut </span>ParseState| {
             <span class="kw">let </span><span class="kw-2">mut </span>object = Object::default();
             <span class="kw">loop </span>{
-                <span class="kw">let </span>(offset, byte) = source.read_next_non_ws()<span class="question-mark">?</span>;
+                <span class="kw">let </span>(offset, byte) = source.next_non_ws()<span class="question-mark">?</span>;
 
-                <span class="kw">let </span>key = <span class="kw">if </span>byte == <span class="string">b&#39;&quot;&#39; </span>{
-                    source.buffer_byte(<span class="string">b&#39;&quot;&#39;</span>);
-                    <span class="self">Self</span>::read_string_from_source(source, safe_strings)<span class="question-mark">?
-                </span>} <span class="kw">else if </span>byte == <span class="string">b&#39;}&#39; </span>{
-                    <span class="kw">if </span>object.<span class="number">0</span>.is_empty() {
+                <span class="kw">let </span>key = <span class="kw">if </span>byte == <span class="kw-2">&amp;</span><span class="string">b&#39;&quot;&#39; </span>{
+                    <span class="self">Self</span>::read_string_from_source(source, offset)<span class="question-mark">?
+                </span>} <span class="kw">else if </span>byte == <span class="kw-2">&amp;</span><span class="string">b&#39;}&#39; </span>{
+                    <span class="kw">if </span>object.<span class="number">0</span>.is_empty() &amp;&amp; !state.config.allow_trailing_commas {
                         <span class="kw">break</span>;
                     }
 
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                         offset,
-                        kind: ErrorKind::ExpectedObjectKey,
+                        kind: ErrorKind::IllegalTrailingComma,
                     });
                 } <span class="kw">else if </span><span class="macro">matches!</span>(byte, <span class="string">b&#39;+&#39; </span>| <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;{&#39; </span>| <span class="string">b&#39;[&#39; </span>| <span class="string">b&#39;t&#39; </span>| <span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;n&#39;</span>)
                     || byte.is_ascii_digit()
@@ -1177,7 +1089,7 @@
                     });
                 };
 
-                <span class="kw">match </span>source.read_next_non_ws() {
+                <span class="kw">match </span>source.next_non_ws() {
                     <span class="prelude-val">Ok</span>((<span class="kw">_</span>, <span class="string">b&#39;:&#39;</span>)) =&gt; {}
                     <span class="prelude-val">Ok</span>((offset, <span class="kw">_</span>)) =&gt; {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
@@ -1191,10 +1103,10 @@
                     }
                 }
 
-                <span class="kw">let </span>value = <span class="self">Self</span>::read_from_source(source, safe_strings)<span class="question-mark">?</span>;
+                <span class="kw">let </span>value = <span class="self">Self</span>::read_from_source(source, state)<span class="question-mark">?</span>;
 
                 object.<span class="number">0</span>.push((key, value));
-                <span class="kw">match </span>source.read_next_non_ws()<span class="question-mark">? </span>{
+                <span class="kw">match </span>source.next_non_ws()<span class="question-mark">? </span>{
                     (<span class="kw">_</span>, <span class="string">b&#39;,&#39;</span>) =&gt; {}
                     (<span class="kw">_</span>, <span class="string">b&#39;}&#39;</span>) =&gt; <span class="kw">break</span>,
                     (offset, <span class="kw">_</span>) =&gt; {
@@ -1208,45 +1120,41 @@
 
             <span class="prelude-val">Ok</span>(object)
         };
-        inner(source).map_err(|<span class="kw-2">mut </span>err| {
+        <span class="kw">let </span>result = inner(source, state).map_err(|<span class="kw-2">mut </span>err| {
             <span class="kw">if </span><span class="macro">matches!</span>(err.kind, ErrorKind::UnexpectedEof) {
                 err.kind = ErrorKind::UnclosedObject;
             }
             err
-        })
+        });
+        state.end_nest();
+        result
     }
 
-    <span class="kw">fn </span>read_array_from_source&lt;Source&gt;(
-        source: <span class="kw-2">&amp;mut </span>Source,
-        safe_strings: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Value&lt;Backing&gt;&gt;, Error&gt;
-    <span class="kw">where
-        </span>Source: JsonSource&lt;Backing = Backing&gt;,
-    {
-        <span class="kw">let </span>inner = |source: <span class="kw-2">&amp;mut </span>Source| {
+    <span class="kw">fn </span>read_array_from_source&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
+        state: <span class="kw-2">&amp;mut </span>ParseState,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;&gt;, Error&gt; {
+        <span class="kw">let </span>inner = |source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;, state: <span class="kw-2">&amp;mut </span>ParseState| {
             <span class="kw">let </span><span class="kw-2">mut </span>values = Vec::new();
             <span class="kw">loop </span>{
-                <span class="kw">let </span>(offset, byte) = source
-                    .peek_next_non_ws()<span class="question-mark">?
-                    </span>.ok_or_else(|| source.read_byte().expect_err(<span class="string">&quot;eof expected&quot;</span>))<span class="question-mark">?</span>;
+                <span class="kw">let </span>(offset, byte) = source.next_non_ws()<span class="question-mark">?</span>;
 
-                <span class="kw">let </span>value = <span class="kw">if </span>byte == <span class="string">b&#39;]&#39; </span>{
-                    <span class="kw">if </span>!values.is_empty() {
+                <span class="kw">let </span>value = <span class="kw">if </span>byte == <span class="kw-2">&amp;</span><span class="string">b&#39;]&#39; </span>{
+                    <span class="kw">if </span>!values.is_empty() &amp;&amp; !state.config.allow_trailing_commas {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                             offset,
                             kind: ErrorKind::IllegalTrailingComma,
                         });
                     }
 
-                    source.read_byte()<span class="question-mark">?</span>;
                     <span class="kw">break</span>;
                 } <span class="kw">else </span>{
-                    <span class="self">Self</span>::read_from_source(source, safe_strings)<span class="question-mark">?
+                    <span class="self">Self</span>::read_from_first_byte(offset, byte, source, state)<span class="question-mark">?
                 </span>};
 
                 values.push(value);
 
-                <span class="kw">match </span>source.read_next_non_ws()<span class="question-mark">? </span>{
+                <span class="kw">match </span>source.next_non_ws()<span class="question-mark">? </span>{
                     (<span class="kw">_</span>, <span class="string">b&#39;,&#39;</span>) =&gt; {}
                     (<span class="kw">_</span>, <span class="string">b&#39;]&#39;</span>) =&gt; <span class="kw">break</span>,
                     (offset, <span class="kw">_</span>) =&gt; {
@@ -1261,36 +1169,46 @@
             <span class="prelude-val">Ok</span>(values)
         };
 
-        inner(source).map_err(|<span class="kw-2">mut </span>err| {
+        <span class="kw">let </span>result = inner(source, state).map_err(|<span class="kw-2">mut </span>err| {
             <span class="kw">if </span><span class="macro">matches!</span>(err.kind, ErrorKind::UnexpectedEof) {
                 err.kind = ErrorKind::UnclosedArray;
             }
             err
-        })
+        });
+        state.end_nest();
+        result
     }
 
-    <span class="kw">fn </span>read_string_from_source&lt;Source&gt;(
-        source: <span class="kw-2">&amp;mut </span>Source,
-        safe_strings: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonString&lt;Backing&gt;, Error&gt;
-    <span class="kw">where
-        </span>Source: JsonSource&lt;Backing = Backing&gt;,
-    {
+    <span class="attribute">#[allow(unsafe_code)]
+    </span><span class="kw">fn </span>read_string_from_source&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
+        start: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;, Error&gt; {
+        <span class="kw">let </span>safe_strings = <span class="kw">if </span>GUARANTEED_UTF8 {
+            SAFE_STRING_BYTES
+        } <span class="kw">else </span>{
+            SAFE_STRING_BYTES_VERIFY_UTF8
+        };
         <span class="kw">let </span><span class="kw-2">mut </span>string_info = JsonStringInfo::NONE;
+
         <span class="kw">loop </span>{
-            <span class="kw">let </span>(offset, byte) = source.read_byte_buffered().map_err(|<span class="kw-2">mut </span>err| {
-                <span class="kw">if </span><span class="macro">matches!</span>(err.kind, ErrorKind::UnexpectedEof) {
-                    <span class="comment">// Give a better error message
-                    </span>err.kind = ErrorKind::UnclosedString;
-                }
-                err
+            <span class="kw">let </span>(offset, byte) = source.next().ok_or(Error {
+                offset: source.offset,
+                kind: ErrorKind::UnclosedString,
             })<span class="question-mark">?</span>;
-            <span class="kw">if </span>safe_strings[usize::from(byte)] {
+            <span class="kw">if </span>safe_strings[usize::from(<span class="kw-2">*</span>byte)] {
                 string_info.add_bytes(<span class="number">1</span>);
             } <span class="kw">else </span>{
                 <span class="kw">match </span>byte {
-                    <span class="string">b&#39;&quot;&#39; </span>=&gt; <span class="kw">break </span><span class="prelude-val">Ok</span>(source.take_string(string_info)),
-                    <span class="string">b&#39;\\&#39; </span>=&gt; <span class="kw">match </span>source.read_byte_buffered()<span class="question-mark">? </span>{
+                    <span class="string">b&#39;&quot;&#39; </span>=&gt; {
+                        <span class="kw">break </span><span class="prelude-val">Ok</span>(JsonString {
+                            source: <span class="kw">unsafe </span>{
+                                std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span>source.bytes[start..=offset])
+                            },
+                            info: string_info,
+                        })
+                    }
+                    <span class="string">b&#39;\\&#39; </span>=&gt; <span class="kw">match </span>source.read()<span class="question-mark">? </span>{
                         (<span class="kw">_</span>, ch)
                             <span class="kw">if </span><span class="macro">matches!</span>(
                                 ch,
@@ -1303,8 +1221,8 @@
                             <span class="comment">// 4 hexadecimal digits.
                             </span><span class="kw">let </span><span class="kw-2">mut </span>decoded = <span class="number">0_u16</span>;
                             <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
-                                <span class="kw">let </span>(offset, digit) = source.read_byte_buffered()<span class="question-mark">?</span>;
-                                <span class="kw">let </span>nibble = HEX_OFFSET_TABLE[usize::from(digit)];
+                                <span class="kw">let </span>(offset, digit) = source.read()<span class="question-mark">?</span>;
+                                <span class="kw">let </span>nibble = HEX_OFFSET_TABLE[usize::from(<span class="kw-2">*</span>digit)];
                                 <span class="kw">if </span>nibble == u8::MAX {
                                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                                         offset,
@@ -1335,21 +1253,22 @@
                     },
                     <span class="number">128</span>..=<span class="number">255 </span>=&gt; {
                         <span class="comment">// Manual UTF-8 validation
-                        </span><span class="kw">let </span>expected_bytes = byte.leading_ones() <span class="kw">as </span>usize;
-                        <span class="kw">if </span>expected_bytes &gt; <span class="number">4 </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                                offset,
-                                kind: ErrorKind::Unexpected(byte),
-                            });
+                        </span><span class="kw">let </span>utf8_start = offset;
+                        <span class="kw">while let </span><span class="prelude-val">Some</span>(byte) = source.peek() {
+                            <span class="kw">if </span>byte &lt; &amp;&amp;<span class="number">128 </span>{
+                                <span class="kw">break</span>;
+                            }
+
+                            source.next();
                         }
 
-                        <span class="kw">let </span><span class="kw-2">mut </span>utf8_bytes = [byte; <span class="number">4</span>];
-                        <span class="kw">for </span>byte <span class="kw">in </span>utf8_bytes.iter_mut().take(expected_bytes).skip(<span class="number">1</span>) {
-                            <span class="kw-2">*</span>byte = source.read_byte_buffered()<span class="question-mark">?</span>.<span class="number">1</span>;
-                        }
-                        string_info.add_bytes(expected_bytes);
-                        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = std::str::from_utf8(<span class="kw-2">&amp;</span>utf8_bytes[..expected_bytes]) {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                        <span class="kw">let </span>unicode_end = source.offset;
+                        string_info.add_bytes(unicode_end - utf8_start);
+                        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                            std::str::from_utf8(<span class="kw-2">&amp;</span>source.bytes[utf8_start..unicode_end])
+                        {
+                            <span class="comment">// The offset on this is incorrect.
+                            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                                 offset,
                                 kind: ErrorKind::from(err),
                             });
@@ -1358,7 +1277,7 @@
                     <span class="number">0</span>..=<span class="number">31 </span>=&gt; {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                             offset,
-                            kind: ErrorKind::Unexpected(byte),
+                            kind: ErrorKind::Unexpected(<span class="kw-2">*</span>byte),
                         })
                     }
                     <span class="string">b&#39; &#39;</span>..=<span class="number">127 </span>=&gt; {
@@ -1369,118 +1288,171 @@
         }
     }
 
-    <span class="kw">fn </span>read_number_from_source&lt;Source&gt;(
-        source: <span class="kw-2">&amp;mut </span>Source,
-        has_explicit_sign: bool,
-        offset: usize,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonNumber&lt;Backing&gt;, Error&gt;
-    <span class="kw">where
-        </span>Source: JsonSource&lt;Backing = Backing&gt;,
-    {
+    <span class="attribute">#[allow(unsafe_code)]
+    </span><span class="kw">fn </span>read_number_from_source&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
+        initial_state: InitialNumberState,
+        start: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonNumber&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;, Error&gt; {
         <span class="comment">// Numbers are the &quot;hardest&quot; in that we have to peek the digits since
         // there is no terminal character. Every other type in JSON has a way to
         // know when the type ends.
 
         // First, if the number began with a sign, we must read an integer
-        // digit.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>read_integer_digit = !has_explicit_sign;
-        <span class="kw">let </span><span class="kw-2">mut </span>last_offset = offset;
-        <span class="kw">while let </span><span class="prelude-val">Some</span>((offset, byte)) = source.peek_byte()<span class="question-mark">? </span>{
-            <span class="kw">if </span>byte.is_ascii_digit() {
-                source.read_byte_buffered()<span class="question-mark">?</span>;
-                last_offset = offset;
-                read_integer_digit = <span class="bool-val">true</span>;
-            } <span class="kw">else </span>{
-                <span class="kw">break</span>;
+        // digit. The JSON spec disallows numbers with leading 0s. If the first
+        // digit is a 0, it must be a decimal with a 0 integer value.
+        </span><span class="kw">if </span>initial_state != InitialNumberState::Zero {
+            <span class="kw">let </span><span class="kw-2">mut </span>read_integer_digit = initial_state == InitialNumberState::Digit;
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(byte) = source.peek() {
+                <span class="kw">if </span>byte.is_ascii_digit() {
+                    source.read()<span class="question-mark">?</span>;
+                    read_integer_digit = <span class="bool-val">true</span>;
+                } <span class="kw">else </span>{
+                    <span class="kw">break</span>;
+                }
+            }
+
+            <span class="kw">if </span>!read_integer_digit {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                    offset: source.offset,
+                    kind: ErrorKind::ExpectedDigit,
+                });
             }
         }
 
-        <span class="kw">if </span>!read_integer_digit {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                offset: last_offset + <span class="number">1</span>,
-                kind: ErrorKind::ExpectedDigit,
-            });
-        }
-
         <span class="comment">// If the next character is a period, this is a floating point literal.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((offset, <span class="string">b&#39;.&#39;</span>)) = source.peek_byte()<span class="question-mark">? </span>{
-            source.read_byte_buffered()<span class="question-mark">?</span>;
-            last_offset = offset;
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b&#39;.&#39;</span>) = source.peek() {
+            source.next();
 
             <span class="comment">// Read one or more decimal digits
             </span><span class="kw">let </span><span class="kw-2">mut </span>read_decimal_digit = <span class="bool-val">false</span>;
-            <span class="kw">while let </span><span class="prelude-val">Some</span>((offset, byte)) = source.peek_byte()<span class="question-mark">? </span>{
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(byte) = source.peek() {
                 <span class="kw">if </span>byte.is_ascii_digit() {
-                    source.read_byte_buffered()<span class="question-mark">?</span>;
-                    last_offset = offset;
+                    source.next();
                     read_decimal_digit = <span class="bool-val">true</span>;
                 } <span class="kw">else </span>{
                     <span class="kw">break</span>;
                 }
             }
 
-            <span class="comment">// Next, we might have an exponent
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>((offset, <span class="string">b&#39;e&#39; </span>| <span class="string">b&#39;E&#39;</span>)) = source.peek_byte()<span class="question-mark">? </span>{
-                source.read_byte_buffered()<span class="question-mark">?</span>;
-                last_offset = offset;
-
-                <span class="comment">// Next, we might have a sign
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>((offset, <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;+&#39;</span>)) = source.peek_byte()<span class="question-mark">? </span>{
-                    source.read_byte_buffered()<span class="question-mark">?</span>;
-                    last_offset = offset;
-                }
-
-                <span class="comment">// Read one or more exponent digits
-                </span><span class="kw">let </span><span class="kw-2">mut </span>read_exponent_digit = <span class="bool-val">false</span>;
-                <span class="kw">while let </span><span class="prelude-val">Some</span>((offset, byte)) = source.peek_byte()<span class="question-mark">? </span>{
-                    <span class="kw">if </span>byte.is_ascii_digit() {
-                        source.read_byte_buffered()<span class="question-mark">?</span>;
-                        last_offset = offset;
-                        read_exponent_digit = <span class="bool-val">true</span>;
-                    } <span class="kw">else </span>{
-                        <span class="kw">break</span>;
-                    }
-                }
-
-                <span class="kw">if </span>!read_exponent_digit {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                        offset: last_offset + <span class="number">1</span>,
-                        kind: ErrorKind::ExpectedExponent,
-                    });
-                }
-            } <span class="kw">else if </span>!read_decimal_digit {
+            <span class="kw">if </span>!read_decimal_digit {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                    offset: last_offset + <span class="number">1</span>,
+                    offset: source.offset,
                     kind: ErrorKind::ExpectedDecimalDigit,
                 });
             }
-
-            <span class="prelude-val">Ok</span>(source.take_number())
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(source.take_number())
         }
+
+        <span class="comment">// Next, we might have an exponent
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b&#39;e&#39; </span>| <span class="string">b&#39;E&#39;</span>) = source.peek() {
+            source.next();
+
+            <span class="comment">// Next, we might have a sign
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;+&#39;</span>) = source.peek() {
+                source.next();
+            }
+
+            <span class="comment">// Read one or more exponent digits
+            </span><span class="kw">let </span><span class="kw-2">mut </span>read_exponent_digit = <span class="bool-val">false</span>;
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(byte) = source.peek() {
+                <span class="kw">if </span>byte.is_ascii_digit() {
+                    source.next();
+                    read_exponent_digit = <span class="bool-val">true</span>;
+                } <span class="kw">else </span>{
+                    <span class="kw">break</span>;
+                }
+            }
+
+            <span class="kw">if </span>!read_exponent_digit {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                    offset: source.offset,
+                    kind: ErrorKind::ExpectedExponent,
+                });
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(JsonNumber {
+            source: <span class="kw">unsafe </span>{ std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span>source.bytes[start..source.offset]) },
+        })
     }
 
-    <span class="kw">fn </span>read_literal_from_source&lt;Source&gt;(
-        source: <span class="kw-2">&amp;mut </span>Source,
+    <span class="kw">fn </span>read_literal_from_source&lt;<span class="kw">const </span>GUARANTEED_UTF8: bool&gt;(
+        source: <span class="kw-2">&amp;mut </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
         remaining_bytes: <span class="kw-2">&amp;</span>[u8],
         value: <span class="self">Self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
-    <span class="kw">where
-        </span>Source: JsonSource&lt;Backing = Backing&gt;,
-    {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">for </span>expected <span class="kw">in </span>remaining_bytes {
-            <span class="kw">let </span>(offset, byte) = source.read_byte()<span class="question-mark">?</span>;
+            <span class="kw">let </span>(offset, byte) = source.read()<span class="question-mark">?</span>;
 
-            <span class="kw">if </span><span class="kw-2">&amp;</span>byte != expected {
+            <span class="kw">if </span>byte != expected {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                     offset,
-                    kind: ErrorKind::Unexpected(byte),
+                    kind: ErrorKind::Unexpected(<span class="kw-2">*</span>byte),
                 });
             }
         }
 
         <span class="prelude-val">Ok</span>(value)
+    }
+}
+
+<span class="attribute">#[derive(Eq, PartialEq, Copy, Clone)]
+</span><span class="kw">enum </span>InitialNumberState {
+    Zero,
+    Digit,
+    Sign,
+}
+
+<span class="kw">struct </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; {
+    bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+    offset: usize,
+    iterator: Peekable&lt;slice::Iter&lt;<span class="lifetime">&#39;a</span>, u8&gt;&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Iterator <span class="kw">for </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt; {
+    <span class="kw">type </span>Item = (usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8);
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="self">self</span>.iterator.next().map(|b| {
+            <span class="kw">let </span>offset = <span class="self">self</span>.offset;
+            <span class="self">self</span>.offset += <span class="number">1</span>;
+            (offset, b)
+        })
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; ByteIterator&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            bytes: slice,
+            offset: <span class="number">0</span>,
+            iterator: slice.iter().peekable(),
+        }
+    }
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;&amp;&amp;<span class="lifetime">&#39;a </span>u8&gt; {
+        <span class="self">self</span>.iterator.peek()
+    }
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8), Error&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.read()<span class="question-mark">? </span>{
+                (<span class="kw">_</span>, <span class="string">b&#39; &#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\r&#39;</span>) =&gt; {}
+                other =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(other),
+            }
+        }
+    }
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8), Error&gt; {
+        <span class="self">self</span>.next().ok_or(Error {
+            offset: <span class="self">self</span>.offset,
+            kind: ErrorKind::UnexpectedEof,
+        })
     }
 }
 
@@ -1665,336 +1637,148 @@
     );
 }
 
-<span class="kw">pub trait </span>JsonSource {
-    <span class="kw">type </span>Backing;
-
-    <span class="kw">fn </span>guaranteed_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-    <span class="kw">fn </span>read_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, u8), Error&gt;;
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>read_next_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, u8), Error&gt; {
-        <span class="kw">loop </span>{
-            <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.read_byte()<span class="question-mark">?</span>;
-            <span class="kw">if </span>!byte.is_ascii_whitespace() {
-                <span class="kw">break </span><span class="prelude-val">Ok</span>((offset, byte));
-            }
-        }
-    }
-
-    <span class="kw">fn </span>read_byte_buffered(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, u8), Error&gt;;
-    <span class="kw">fn </span>peek_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, u8)&gt;, Error&gt;;
-    <span class="kw">fn </span>peek_next_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, u8)&gt;, Error&gt;;
-
-    <span class="kw">fn </span>buffer_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>, byte: u8);
-    <span class="kw">fn </span>take_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, escape_info: JsonStringInfo) -&gt; JsonString&lt;<span class="self">Self</span>::Backing&gt;;
-    <span class="kw">fn </span>take_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; JsonNumber&lt;<span class="self">Self</span>::Backing&gt;;
-}
-
-<span class="kw">pub struct </span>JsonSlice&lt;<span class="lifetime">&#39;a</span>&gt; {
-    from_str: bool,
-    bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-    iterator: Peekable&lt;slice::Iter&lt;<span class="lifetime">&#39;a</span>, u8&gt;&gt;,
-    offset: usize,
-    token_start: <span class="prelude-ty">Option</span>&lt;usize&gt;,
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; JsonSlice&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], from_str: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            from_str,
-            bytes,
-            iterator: bytes.iter().peekable(),
-            offset: <span class="number">0</span>,
-            token_start: <span class="prelude-val">None</span>,
-        }
-    }
-
-    <span class="attribute">#[cold]
-    </span><span class="kw">fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: ErrorKind) -&gt; Error {
-        Error {
-            offset: <span class="self">self</span>.offset,
-            kind,
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; <span class="kw">for </span>JsonSlice&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(bytes, <span class="bool-val">false</span>)
-    }
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonSlice&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(source.as_bytes(), <span class="bool-val">true</span>)
-    }
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; JsonSource <span class="kw">for </span>JsonSlice&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Backing = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str;
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>read_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, u8), Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(byte) = <span class="self">self</span>.iterator.next() {
-            <span class="kw">let </span>offset = <span class="self">self</span>.offset;
-            <span class="self">self</span>.offset += <span class="number">1</span>;
-            <span class="prelude-val">Ok</span>((offset, <span class="kw-2">*</span>byte))
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(<span class="self">self</span>.error(ErrorKind::UnexpectedEof))
-        }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>read_byte_buffered(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, u8), Error&gt; {
-        <span class="kw">let </span>offset = <span class="self">self</span>.offset;
-        <span class="kw">let </span>result = <span class="self">self</span>.read_byte();
-
-        <span class="kw">if </span>result.is_ok() &amp;&amp; <span class="self">self</span>.token_start.is_none() {
-            <span class="self">self</span>.token_start = <span class="prelude-val">Some</span>(offset);
-        }
-
-        result
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>peek_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, u8)&gt;, Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(byte) = <span class="self">self</span>.iterator.peek() {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="self">self</span>.offset, <span class="kw-2">**</span>byte)))
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-        }
-    }
-
-    <span class="attribute">#[allow(unsafe_code)]
-    #[inline]
-    </span><span class="kw">fn </span>take_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, info: JsonStringInfo) -&gt; JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
-        <span class="kw">let </span>token_start = <span class="self">self
-            </span>.token_start
-            .take()
-            .expect(<span class="string">&quot;take_string called without buffering&quot;</span>);
-        JsonString {
-            <span class="comment">// SAFETY: The parser ensures that either Self::guaranteed_utf8()
-            // returns true or that any non-ASCII bytes are valid UTF-8
-            // sequences.
-            </span>source: <span class="kw">unsafe </span>{ std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.bytes[token_start..<span class="self">self</span>.offset]) },
-            info,
-        }
-    }
-
-    <span class="attribute">#[allow(unsafe_code)]
-    #[inline]
-    </span><span class="kw">fn </span>take_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; JsonNumber&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
-        <span class="kw">let </span>token_start = <span class="self">self
-            </span>.token_start
-            .take()
-            .expect(<span class="string">&quot;take_string called without buffering&quot;</span>);
-        JsonNumber {
-            <span class="comment">// SAFETY: The parser only allows ASCII characters through for
-            // numbers.
-            </span>source: <span class="kw">unsafe </span>{ std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.bytes[token_start..<span class="self">self</span>.offset]) },
-        }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>buffer_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _byte: u8) {
-        <span class="self">self</span>.token_start = <span class="prelude-val">Some</span>(<span class="self">self</span>.offset - <span class="number">1</span>);
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>guaranteed_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.from_str
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>peek_next_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, u8)&gt;, Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(peeked) = <span class="self">self</span>.iterator.peek() {
-            <span class="kw">if </span>!peeked.is_ascii_whitespace() {
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="self">self</span>.offset, <span class="kw-2">**</span>peeked)));
-            }
-        }
-
-        <span class="kw">loop </span>{
-            <span class="comment">// Eat the peeked value
-            </span><span class="self">self</span>.read_byte()<span class="question-mark">?</span>;
-
-            <span class="kw">if let </span><span class="prelude-val">Some</span>((offset, peeked)) = <span class="self">self</span>.peek_byte()<span class="question-mark">? </span>{
-                <span class="kw">if </span>!peeked.is_ascii_whitespace() {
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((offset, peeked)));
-                }
-            } <span class="kw">else </span>{
-                <span class="kw">break </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
-            }
-        }
-    }
-}
-
-<span class="kw">pub struct </span>JsonReader&lt;R&gt; {
-    reader: R,
-    offset: usize,
-    peeked_byte: <span class="prelude-ty">Option</span>&lt;(usize, u8)&gt;,
-    buffer: Vec&lt;u8&gt;,
-}
-
-<span class="kw">impl</span>&lt;R&gt; JsonReader&lt;R&gt;
-<span class="kw">where
-    </span>R: Read,
-{
-    <span class="kw">pub const fn </span>new(reader: R) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            reader,
-            offset: <span class="number">0</span>,
-            peeked_byte: <span class="prelude-val">None</span>,
-            buffer: Vec::new(),
-        }
-    }
-
-    <span class="attribute">#[cold]
-    </span><span class="kw">fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: ErrorKind) -&gt; Error {
-        Error {
-            offset: <span class="self">self</span>.offset,
-            kind,
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;R&gt; JsonSource <span class="kw">for </span>JsonReader&lt;R&gt;
-<span class="kw">where
-    </span>R: Read,
-{
-    <span class="kw">type </span>Backing = String;
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>read_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, u8), Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((offset, byte)) = <span class="self">self</span>.peeked_byte.take() {
-            <span class="prelude-val">Ok</span>((offset, byte))
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>offset = <span class="self">self</span>.offset;
-            <span class="kw">let </span><span class="kw-2">mut </span>byte = <span class="number">0</span>;
-            <span class="kw">match </span><span class="self">self</span>.reader.read_exact(slice::from_mut(<span class="kw-2">&amp;mut </span>byte)) {
-                <span class="prelude-val">Ok</span>(()) =&gt; {
-                    <span class="self">self</span>.offset += <span class="number">1</span>;
-                    <span class="prelude-val">Ok</span>((offset, byte))
-                }
-                <span class="prelude-val">Err</span>(other) =&gt; <span class="prelude-val">Err</span>(<span class="self">self</span>.error(ErrorKind::from(other))),
-            }
-        }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>read_byte_buffered(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, u8), Error&gt; {
-        <span class="kw">match </span><span class="self">self</span>.read_byte() {
-            <span class="prelude-val">Ok</span>((offset, byte)) =&gt; {
-                <span class="self">self</span>.buffer.push(byte);
-                <span class="prelude-val">Ok</span>((offset, byte))
-            }
-            other =&gt; other,
-        }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>peek_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, u8)&gt;, Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(byte) = <span class="self">self</span>.peeked_byte {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(byte))
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>peeked = <span class="kw">match </span><span class="self">self</span>.read_byte() {
-                <span class="prelude-val">Ok</span>(read) =&gt; <span class="prelude-val">Some</span>(read),
-                <span class="prelude-val">Err</span>(err) <span class="kw">if </span><span class="macro">matches!</span>(err.kind, ErrorKind::UnexpectedEof) =&gt; <span class="prelude-val">None</span>,
-                <span class="prelude-val">Err</span>(other) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(other),
-            };
-            <span class="self">self</span>.peeked_byte = peeked;
-            <span class="prelude-val">Ok</span>(peeked)
-        }
-    }
-
-    <span class="attribute">#[inline]
-    #[allow(unsafe_code)]
-    </span><span class="kw">fn </span>take_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, info: JsonStringInfo) -&gt; JsonString&lt;String&gt; {
-        <span class="kw">let </span>buffer = <span class="self">self</span>.buffer.clone();
-        <span class="self">self</span>.buffer.clear();
-        JsonString {
-            <span class="comment">// SAFETY: The parser ensures that either Self::guaranteed_utf8()
-            // returns true or that any non-ASCII bytes are valid UTF-8
-            // sequences.
-            </span>source: <span class="kw">unsafe </span>{ String::from_utf8_unchecked(buffer) },
-            info,
-        }
-    }
-
-    <span class="attribute">#[inline]
-    #[allow(unsafe_code)]
-    </span><span class="kw">fn </span>take_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; JsonNumber&lt;String&gt; {
-        <span class="kw">let </span>buffer = <span class="self">self</span>.buffer.clone();
-        <span class="self">self</span>.buffer.clear();
-        JsonNumber {
-            <span class="comment">// SAFETY: The parser only allows ASCII characters through for
-            // numbers.
-            </span>source: <span class="kw">unsafe </span>{ String::from_utf8_unchecked(buffer) },
-        }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>buffer_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>, byte: u8) {
-        <span class="self">self</span>.buffer.push(byte);
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>guaranteed_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="bool-val">false
-    </span>}
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>peek_next_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, u8)&gt;, Error&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((offset, peeked)) = <span class="self">self</span>.peeked_byte {
-            <span class="kw">if </span>!peeked.is_ascii_whitespace() {
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((offset, peeked)));
-            }
-        }
-
-        <span class="kw">loop </span>{
-            <span class="comment">// Eat the peeked value
-            </span><span class="kw">if </span><span class="self">self</span>.peeked_byte.is_some() {
-                <span class="self">self</span>.read_byte()<span class="question-mark">?</span>;
-            }
-
-            <span class="kw">let </span>read = <span class="kw">match </span><span class="self">self</span>.read_byte() {
-                <span class="prelude-val">Ok</span>(read) =&gt; <span class="prelude-val">Some</span>(read),
-                <span class="prelude-val">Err</span>(err) <span class="kw">if </span><span class="macro">matches!</span>(err.kind, ErrorKind::UnexpectedEof) =&gt; <span class="prelude-val">None</span>,
-                <span class="prelude-val">Err</span>(other) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(other),
-            };
-            <span class="self">self</span>.peeked_byte = read;
-            <span class="kw">if let </span><span class="prelude-val">Some</span>((offset, peeked)) = read {
-                <span class="kw">if </span>!peeked.is_ascii_whitespace() {
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((offset, peeked)));
-                }
-            } <span class="kw">else </span>{
-                <span class="kw">break </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
-            }
-        }
-    }
-}
-
 <span class="attribute">#[test]
 </span><span class="kw">fn </span>numbers() {
     <span class="macro">assert_eq!</span>(
-        Value::from_source(JsonSlice::from(<span class="string">&quot;1&quot;</span>)).unwrap(),
+        Value::from_json(<span class="string">&quot;1&quot;</span>).unwrap(),
         Value::Number(JsonNumber { source: <span class="string">&quot;1&quot; </span>})
     );
     <span class="macro">assert_eq!</span>(
-        Value::from_source(JsonSlice::from(<span class="string">&quot;-1&quot;</span>)).unwrap(),
+        Value::from_json(<span class="string">&quot;-1&quot;</span>).unwrap(),
         Value::Number(JsonNumber { source: <span class="string">&quot;-1&quot; </span>})
     );
     <span class="macro">assert_eq!</span>(
-        Value::from_source(JsonSlice::from(<span class="string">&quot;+1.0&quot;</span>)).unwrap(),
+        Value::from_json(<span class="string">&quot;+1.0&quot;</span>).unwrap(),
         Value::Number(JsonNumber { source: <span class="string">&quot;+1.0&quot; </span>})
     );
     <span class="macro">assert_eq!</span>(
-        Value::from_source(JsonSlice::from(<span class="string">&quot;1.0e1&quot;</span>)).unwrap(),
+        Value::from_json(<span class="string">&quot;1.0e1&quot;</span>).unwrap(),
         Value::Number(JsonNumber { source: <span class="string">&quot;1.0e1&quot; </span>})
     );
     <span class="macro">assert_eq!</span>(
-        Value::from_source(JsonSlice::from(<span class="string">&quot;1.0e-10&quot;</span>)).unwrap(),
+        Value::from_json(<span class="string">&quot;1.0e-10&quot;</span>).unwrap(),
         Value::Number(JsonNumber { source: <span class="string">&quot;1.0e-10&quot; </span>})
     );
+}
+
+<span class="doccomment">/// A JSON Value parsing configuration.
+</span><span class="attribute">#[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
+</span><span class="kw">pub struct </span>ParseConfig {
+    <span class="doccomment">/// If true, allows trailing commas when parsing arrays and objects. If
+    /// false, trailing commas will cause an [`ErrorKind::IllegalTrailingComma`]
+    /// to be returned.
+    </span><span class="kw">pub </span>allow_trailing_commas: bool,
+    <span class="doccomment">/// If present, nested arrays and objects will be limited to
+    /// `recursion_limit` levels of nesting. If not present, no checks will be
+    /// performed which can cause a stack overflow with very deeply nested
+    /// payloads.
+    </span><span class="kw">pub </span>recursion_limit: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    <span class="doccomment">/// If true, only arrays or objects will be allowed to parse at the root of
+    /// the JSON payload.
+    </span><span class="kw">pub </span>allow_all_types_at_root: bool,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>ParseConfig {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
+<span class="kw">impl </span>ParseConfig {
+    <span class="doccomment">/// Returns the default configuration:
+    ///
+    /// ```rust
+    /// let config = yeahson::ParseConfig::new();
+    /// assert_eq!(config.allow_trailing_commas, false);
+    /// assert_eq!(config.recursion_limit, Some(128));
+    /// assert_eq!(config.allow_all_types_at_root, true);
+    /// ```
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            allow_trailing_commas: <span class="bool-val">false</span>,
+            recursion_limit: <span class="prelude-val">Some</span>(<span class="number">128</span>),
+            allow_all_types_at_root: <span class="bool-val">true</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns a strict configuration, which differs from the default
+    /// configuration by only allowing objects and arrays at the root:
+    ///
+    /// ```rust
+    /// let config = yeahson::ParseConfig::strict();
+    /// assert_eq!(config.allow_trailing_commas, false);
+    /// assert_eq!(config.recursion_limit, Some(128));
+    /// assert_eq!(config.allow_all_types_at_root, false);
+    /// ```
+    </span><span class="kw">pub const fn </span>strict() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            allow_trailing_commas: <span class="bool-val">false</span>,
+            recursion_limit: <span class="prelude-val">Some</span>(<span class="number">128</span>),
+            allow_all_types_at_root: <span class="bool-val">false</span>,
+        }
+    }
+
+    <span class="doccomment">/// Disables recursuion limit testing.
+    ///
+    /// Note: Malicious payloads may be able to cause stack overflows to occur
+    /// if this is disabled.
+    </span><span class="kw">pub const fn </span>without_recursion_limit(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.recursion_limit = <span class="prelude-val">None</span>;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the maximum recursion limit to `limit`.
+    </span><span class="kw">pub const fn </span>with_recursion_limit(<span class="kw-2">mut </span><span class="self">self</span>, limit: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.recursion_limit = <span class="prelude-val">Some</span>(limit);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets whether to allow all types at the root of the JSON payload. If
+    /// false, only arrays and objects will be allowed at the root of the JSON
+    /// payload.
+    </span><span class="kw">pub const fn </span>allowing_all_types_at_root(<span class="kw-2">mut </span><span class="self">self</span>, allow_all: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.allow_all_types_at_root = allow_all;
+        <span class="self">self
+    </span>}
+}
+
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">struct </span>ParseState {
+    config: ParseConfig,
+    remaining_depth: usize,
+}
+
+<span class="kw">impl </span>ParseState {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>begin_nest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
+        <span class="kw">if </span><span class="self">self</span>.config.recursion_limit.is_some() {
+            <span class="kw">if </span><span class="self">self</span>.remaining_depth &gt; <span class="number">0 </span>{
+                <span class="self">self</span>.remaining_depth -= <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ErrorKind::RecursionLimitReached);
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>end_nest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.config.recursion_limit.is_some() {
+            <span class="self">self</span>.remaining_depth += <span class="number">1</span>;
+        }
+    }
+}
+
+<span class="kw">impl </span>From&lt;ParseConfig&gt; <span class="kw">for </span>ParseState {
+    <span class="kw">fn </span>from(config: ParseConfig) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            remaining_depth: config.recursion_limit.unwrap_or(usize::MAX),
+            config,
+        }
+    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="yeahson" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

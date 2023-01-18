@@ -130,6 +130,16 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{io, str::Utf8Error};
 
 <span class="doccomment">/// A JSON parsing error with location information.
@@ -240,6 +250,16 @@
     <span class="doccomment">/// A string was expected, but another type was found.
     </span><span class="attribute">#[error(<span class="string">&quot;expected a string&quot;</span>)]
     </span>ExpectedString,
+    <span class="doccomment">/// The JSON being parsed has more depth than the parser was configured to
+    /// allow.
+    </span><span class="attribute">#[error(<span class="string">&quot;the recursion limit has been reached&quot;</span>)]
+    </span>RecursionLimitReached,
+    <span class="doccomment">/// A value that wasn&#39;t an object or array was contained in a JSON payload.
+    ///
+    /// This error is only returned when the `allow_all_types_at_root`
+    /// configuration is set to `false`.
+    </span><span class="attribute">#[error(<span class="string">&quot;the recursion limit has been reached&quot;</span>)]
+    </span>PayloadsShouldBeObjectOrArray,
 }
 
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>ErrorKind {
