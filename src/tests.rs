@@ -1,79 +1,62 @@
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
 
 #[track_caller]
-fn test_event_sequence_slice(source: &[u8], value: &Value<&str>) {
+fn test_json_parse(source: &[u8], value: &Value<&str>) {
     println!("Testing slice {}", std::str::from_utf8(source).unwrap());
 
     assert_eq!(&Value::from_json_bytes(source).unwrap(), value);
 }
 
-#[track_caller]
-fn test_event_sequence_read(source: &[u8], value: &Value<&str>) {
-    println!("Testing read {}", std::str::from_utf8(source).unwrap());
-
-    assert_eq!(&Value::from_reader(source).unwrap(), value);
-}
-
-macro_rules! test_event_sequence {
-    ($src:expr, $sequence:expr) => {{
-        test_event_sequence_slice($src, &$sequence);
-        test_event_sequence_read($src, &$sequence);
-    }};
-    ($src:expr, $sequence:expr ,) => {{
-        test_event_sequence!($src, $sequence);
-    }};
-}
-
 #[test]
 fn keywords() {
-    test_event_sequence!(b"true", Value::Boolean(true));
-    test_event_sequence!(b"false", Value::Boolean(false));
-    test_event_sequence!(b"null", Value::Null);
+    test_json_parse(b"true", &Value::Boolean(true));
+    test_json_parse(b"false", &Value::Boolean(false));
+    test_json_parse(b"null", &Value::Null);
 }
 
 #[test]
 fn empty_array() {
-    test_event_sequence!(b"[]", Value::Array(vec![]));
+    test_json_parse(b"[]", &Value::Array(vec![]));
 }
 
 #[test]
 fn one_element_array() {
-    test_event_sequence!(b"[true]", Value::Array(vec![Value::Boolean(true)]));
+    test_json_parse(b"[true]", &Value::Array(vec![Value::Boolean(true)]));
 }
 
 #[test]
 fn two_element_array() {
-    test_event_sequence!(
+    test_json_parse(
         b"[true,false]",
-        Value::Array(vec![Value::Boolean(true), Value::Boolean(false)])
+        &Value::Array(vec![Value::Boolean(true), Value::Boolean(false)]),
     );
 }
 
 #[test]
 fn spaced_out_array() {
-    test_event_sequence!(
+    test_json_parse(
         b" [ true , false ] ",
-        Value::Array(vec![Value::Boolean(true), Value::Boolean(false)])
+        &Value::Array(vec![Value::Boolean(true), Value::Boolean(false)]),
     );
 }
 
 #[test]
 fn whitespace() {
-    test_event_sequence!(b" \t\n\rnull", Value::Null);
+    test_json_parse(b" \t\n\rnull", &Value::Null);
 }
 
 #[test]
 fn basic_string() {
-    test_event_sequence!(
+    test_json_parse(
         br#""hello""#,
-        Value::String(JsonString {
+        &Value::String(JsonString {
             source: r#""hello""#,
             info: JsonStringInfo::new(false, 5),
         }),
     );
-    test_event_sequence!(
+    test_json_parse(
         br#""""#,
-        Value::String(JsonString {
+        &Value::String(JsonString {
             source: r#""""#,
             info: JsonStringInfo::new(false, 0),
         }),
@@ -82,107 +65,106 @@ fn basic_string() {
 
 #[test]
 fn escapey_string() {
-    test_event_sequence!(
+    test_json_parse(
         br#""\"\\\/\b\f\n\r\t\u25eF""#,
-        Value::String(JsonString {
+        &Value::String(JsonString {
             source: r#""\"\\\/\b\f\n\r\t\u25eF""#,
             info: JsonStringInfo::new(true, 11),
         }),
     );
-    // TODO test decoded length
 }
 
 #[test]
 fn empty_object() {
-    test_event_sequence!(b"{}", Value::Object(Object::new()));
+    test_json_parse(b"{}", &Value::Object(Object::new()));
 }
 
 #[test]
 fn one_mapping() {
-    test_event_sequence!(
+    test_json_parse(
         br#"{"hello":true}"#,
-        Value::Object(Object::from_iter([(
+        &Value::Object(Object::from_iter([(
             JsonString {
                 source: r#""hello""#,
                 info: JsonStringInfo::new(false, 5),
             },
-            Value::Boolean(true)
-        )]))
+            Value::Boolean(true),
+        )])),
     );
 }
 
 #[test]
 fn two_mappings() {
-    test_event_sequence!(
+    test_json_parse(
         br#"{"hello":true,"world":null}"#,
-        Value::Object(Object::from_iter([
+        &Value::Object(Object::from_iter([
             (
                 JsonString {
                     source: r#""hello""#,
                     info: JsonStringInfo::new(false, 5),
                 },
-                Value::Boolean(true)
+                Value::Boolean(true),
             ),
             (
                 JsonString {
                     source: r#""world""#,
                     info: JsonStringInfo::new(false, 5),
                 },
-                Value::Null
-            )
-        ]))
+                Value::Null,
+            ),
+        ])),
     );
 }
 
 #[test]
 fn spaced_out_object() {
-    test_event_sequence!(
+    test_json_parse(
         br#" { "hello" : true , "world" : null } "#,
-        Value::Object(Object::from_iter([
+        &Value::Object(Object::from_iter([
             (
                 JsonString {
                     source: r#""hello""#,
                     info: JsonStringInfo::new(false, 5),
                 },
-                Value::Boolean(true)
+                Value::Boolean(true),
             ),
             (
                 JsonString {
                     source: r#""world""#,
                     info: JsonStringInfo::new(false, 5),
                 },
-                Value::Null
-            )
-        ]))
+                Value::Null,
+            ),
+        ])),
     );
 }
 
 #[test]
 fn numbers() {
     for b in b'0'..=b'9' {
-        test_event_sequence!(
+        test_json_parse(
             &[b],
-            Value::Number(JsonNumber {
+            &Value::Number(JsonNumber {
                 source: std::str::from_utf8(&[b]).unwrap(),
             }),
         );
     }
 
-    test_event_sequence!(br#"-1"#, Value::Number(JsonNumber { source: r#"-1"# }),);
-    test_event_sequence!(br#"+01"#, Value::Number(JsonNumber { source: r#"+01"# }));
+    test_json_parse(br#"-1"#, &Value::Number(JsonNumber { source: r#"-1"# }));
+    test_json_parse(br#"+01"#, &Value::Number(JsonNumber { source: r#"+01"# }));
 
-    test_event_sequence!(br#"-1.0"#, Value::Number(JsonNumber { source: r#"-1.0"# }),);
+    test_json_parse(br#"-1.0"#, &Value::Number(JsonNumber { source: r#"-1.0"# }));
 
-    test_event_sequence!(
+    test_json_parse(
         br#"-1.0e1"#,
-        Value::Number(JsonNumber {
+        &Value::Number(JsonNumber {
             source: r#"-1.0e1"#,
         }),
     );
 
-    test_event_sequence!(
+    test_json_parse(
         br#"-1.0E-1"#,
-        Value::Number(JsonNumber {
+        &Value::Number(JsonNumber {
             source: r#"-1.0E-1"#,
         }),
     );
@@ -190,44 +172,44 @@ fn numbers() {
 
 #[test]
 fn object_of_everything() {
-    test_event_sequence!(
+    test_json_parse(
         br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#,
-        Value::Object(Object::from_iter([
+        &Value::Object(Object::from_iter([
             (
                 JsonString::from_json(r#""a""#).unwrap(),
-                Value::Number(JsonNumber { source: r#"1"# })
+                Value::Number(JsonNumber { source: r#"1"# }),
             ),
             (
                 JsonString::from_json(r#""b""#).unwrap(),
-                Value::Boolean(true)
+                Value::Boolean(true),
             ),
             (
                 JsonString::from_json(r#""c""#).unwrap(),
-                Value::String(JsonString::from_json(r#""hello""#).unwrap())
+                Value::String(JsonString::from_json(r#""hello""#).unwrap()),
             ),
             (
                 JsonString::from_json(r#""d""#).unwrap(),
-                Value::Array(vec![])
+                Value::Array(vec![]),
             ),
             (
                 JsonString::from_json(r#""e""#).unwrap(),
-                Value::Object(Object::new())
+                Value::Object(Object::new()),
             ),
-        ]))
+        ])),
     );
 }
 
 #[test]
 fn array_of_everything() {
-    test_event_sequence!(
+    test_json_parse(
         br#"[1,true,"hello",[],{}]"#,
-        Value::Array(vec![
+        &Value::Array(vec![
             Value::Number(JsonNumber { source: r#"1"# }),
             Value::Boolean(true),
             Value::String(JsonString::from_json(r#""hello""#).unwrap()),
             Value::Array(vec![]),
-            Value::Object(Object::new())
-        ])
+            Value::Object(Object::new()),
+        ]),
     );
 }
 
@@ -235,14 +217,6 @@ fn array_of_everything() {
 fn expect_json_error(json: &str) -> Error {
     println!("Parsing {json}");
     let err = Value::from_json(json).expect_err("parsing did not error");
-    println!("> {err:?}");
-    err
-}
-
-#[track_caller]
-fn expect_json_error_reader(json: &str) -> Error {
-    println!("Parsing via Read {json}");
-    let err = Value::from_reader(json.as_bytes()).expect_err("parsing did not error");
     println!("> {err:?}");
     err
 }
@@ -257,22 +231,13 @@ macro_rules! assert_json_error_kind_matches {
                 kind: $kind
             }
         );
-
-        let err = expect_json_error_reader($json);
-        assert_eq!(
-            err,
-            Error {
-                offset: $offset,
-                kind: $kind
-            }
-        );
     }};
 }
 
 #[test]
 fn object_errors() {
     assert_json_error_kind_matches!(r#"{1:true}"#, 1, ErrorKind::ObjectKeysMustBeStrings);
-    assert_json_error_kind_matches!(r#"{"a": true,}"#, 11, ErrorKind::ExpectedObjectKey);
+    assert_json_error_kind_matches!(r#"{"a": true,}"#, 11, ErrorKind::IllegalTrailingComma);
     assert_json_error_kind_matches!(r#"{"a": true,:"#, 11, ErrorKind::ExpectedObjectKey);
     assert_json_error_kind_matches!(r#"{"a"}"#, 4, ErrorKind::ExpectedColon);
     assert_json_error_kind_matches!(r#"{"a""#, 4, ErrorKind::ExpectedColon);

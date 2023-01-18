@@ -25,24 +25,21 @@ fn serde_json_value_parse(json: &str) -> serde_json::Value {
     serde_json::from_str(json).unwrap()
 }
 
+fn json_deserializer_parse_bytes(json: &str) -> json_deserializer::Value {
+    json_deserializer::parse(json.as_bytes()).unwrap()
+}
+
+#[cfg(feature = "simd-json")]
+fn simd_json_parse(json: &mut Vec<u8>) {
+    let _ = simd_json::to_borrowed_value(json).unwrap();
+}
+
 fn yeahson_parse_bytes(json: &str) -> yeahson::Value<&str> {
     yeahson::Value::from_json_bytes(json.as_bytes()).unwrap()
 }
 
 fn serde_json_value_parse_bytes(json: &str) -> serde_json::Value {
     serde_json::from_slice(json.as_bytes()).unwrap()
-}
-
-fn tinyjson_parse(json: &str) -> tinyjson::JsonValue {
-    json.parse().unwrap()
-}
-
-fn yeahson_parse_reader(json: &str) -> yeahson::Value<String> {
-    yeahson::Value::from_reader(json.as_bytes()).unwrap()
-}
-
-fn serde_json_value_parse_reader(json: &str) -> serde_json::Value {
-    serde_json::from_reader(json.as_bytes()).unwrap()
 }
 
 fn bench_with_input(mut group: BenchmarkGroup<'_, WallTime>, input: &str) {
@@ -54,10 +51,6 @@ fn bench_with_input(mut group: BenchmarkGroup<'_, WallTime>, input: &str) {
         b.iter(|| yeahson_parse_bytes(black_box(input)));
     });
 
-    group.bench_function("yeahson/Read", |b| {
-        b.iter(|| yeahson_parse_reader(black_box(input)));
-    });
-
     group.bench_function("serde-json/str", |b| {
         b.iter(|| serde_json_value_parse(black_box(input)));
     });
@@ -66,12 +59,14 @@ fn bench_with_input(mut group: BenchmarkGroup<'_, WallTime>, input: &str) {
         b.iter(|| serde_json_value_parse_bytes(black_box(input)));
     });
 
-    group.bench_function("serde-json/Read", |b| {
-        b.iter(|| serde_json_value_parse_reader(black_box(input)));
+    #[cfg(feature = "simd-json")]
+    group.bench_function("simd-json/bytes", |b| {
+        let mut bytes = input.as_bytes().to_vec();
+        b.iter(|| simd_json_parse(black_box(&mut bytes)));
     });
 
-    group.bench_function("tinyjson/str", |b| {
-        b.iter(|| tinyjson_parse(black_box(input)));
+    group.bench_function("json-deserializer/bytes", |b| {
+        b.iter(|| json_deserializer_parse_bytes(black_box(input)));
     });
 }
 

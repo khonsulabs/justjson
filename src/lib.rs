@@ -17,7 +17,7 @@ pub use crate::{
     error::{Error, ErrorKind},
     number::JsonNumber,
     string::{JsonString, JsonStringInfo},
-    value::{Object, Value},
+    value::{Object, ParseConfig, Value},
 };
 
 // pub mod parse;

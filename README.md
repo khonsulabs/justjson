@@ -1,6 +1,5 @@
 # YeahSon
 
-
 [![crate version](https://img.shields.io/crates/v/yeahson.svg)](https://crates.io/crates/yeahson)
 [![Live Build Status](https://img.shields.io/github/actions/workflow/status/khonsulabs/yeahson/rust.yml?branch=main)](https://github.com/khonsulabs/yeahson/actions?query=workflow:Tests)
 [![HTML Coverage Report for `main` branch](https://khonsulabs.github.io/yeahson/coverage/badge.svg)](https://khonsulabs.github.io/yeahson/coverage/)

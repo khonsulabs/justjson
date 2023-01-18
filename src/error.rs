@@ -108,6 +108,16 @@ pub enum ErrorKind {
     /// A string was expected, but another type was found.
     #[error("expected a string")]
     ExpectedString,
+    /// The JSON being parsed has more depth than the parser was configured to
+    /// allow.
+    #[error("the recursion limit has been reached")]
+    RecursionLimitReached,
+    /// A value that wasn't an object or array was contained in a JSON payload.
+    ///
+    /// This error is only returned when the `allow_all_types_at_root`
+    /// configuration is set to `false`.
+    #[error("the recursion limit has been reached")]
+    PayloadsShouldBeObjectOrArray,
 }
 
 impl PartialEq for ErrorKind {

@@ -15,7 +15,11 @@ jobs:
       - name: Build benchmarks
         run: |
           cargo bench -p benchmarks --all-features --no-run
+        env:
+          RUSTFLAGS: "-C target-cpu=native"
 
       - name: Run benchmarks
         run: |
           cargo bench -p benchmarks --all-features
+        env:
+          RUSTFLAGS: "-C target-cpu=native"
