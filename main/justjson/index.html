@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="justjson"><meta name="keywords" content="rust, rustlang, rust-lang, justjson"><title>justjson - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="../crates.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../justjson/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../justjson/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2 class="location"><a href="#">Crate justjson</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.1.0</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Crate <a class="mod" href="#">justjson</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/justjson/lib.rs.html#1-29">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="justjson"><a href="#justjson">justjson</a></h2>
+<p><a href="https://crates.io/crates/justjson"><img src="https://img.shields.io/crates/v/justjson.svg" alt="crate version" /></a>
+<a href="https://github.com/khonsulabs/justjson/actions?query=workflow:Tests"><img src="https://img.shields.io/github/actions/workflow/status/khonsulabs/justjson/rust.yml?branch=main" alt="Live Build Status" /></a>
+<a href="https://khonsulabs.github.io/justjson/coverage/"><img src="https://khonsulabs.github.io/justjson/coverage/badge.svg" alt="HTML Coverage Report for main branch" /></a>
+<a href="https://khonsulabs.github.io/justjson/main/justjson"><img src="https://img.shields.io/badge/docs-main-informational" alt="Documentation" /></a></p>
+<p>An efficient JSON <a href="https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html"><code>Value</code></a> crate for Rust.</p>
+<h3 id="why-another-json-parser"><a href="#why-another-json-parser">Why another JSON parser?</a></h3>
+<p>This library is for developers who:</p>
+<ul>
+<li>Are working with JSON, but either don’t want to or can’t use <code>serde</code>.</li>
+<li>Want to parse a JSON Value from a slice with minimal allocations.</li>
+</ul>
+<p>If neither of those situations apply to you, you should seriously consider using
+<code>serde</code> and <code>serde-json</code>.</p>
+<p>What real-world case does this use case fit? Parsing <a href="https://www.w3.org/TR/json-ld11/#compacted-document-form">JSON-LD Compacted Document
+Form</a> requires inspecting the JSON to find the <code>@context</code> field, and
+using the information within the <code>@context</code> field to interpret the rest of the
+document. This form of JSON-LD representation is used by
+<a href="https://www.w3.org/TR/activitypub/">ActivityPub</a>, which is a protocol that power <a href="https://en.wikipedia.org/wiki/Fediverse">the
+Fediverse</a>.</p>
+<h3 id="what-makes-justjson-interesting"><a href="#what-makes-justjson-interesting">What makes JustJson interesting?</a></h3>
+<p>The optimal use case for JustJson is when parsing an <code>&amp;str</code> or <code>&amp;[u8]</code>. When
+parsing either of these, the returned <code>Value</code> type is <code>Value&lt;&amp;str&gt;</code>. All strings
+and numbers are kept in their original form in the <a href="https://khonsulabs.github.io/justjson/main/justjson/struct.JsonString.html"><code>JsonString</code></a> and
+<a href="https://khonsulabs.github.io/justjson/main/justjson/struct.JsonNumber.html"><code>JsonNumber</code></a> types. While they are kept in their original form, they
+are fully validated when parsed. <strong>The net effect is significantly fewer
+allocations when parsing a JSON value.</strong></p>
+<p><a href="https://khonsulabs.github.io/justjson/main/justjson/struct.JsonString.html"><code>JsonString</code></a> implements <code>PartialCmp&lt;&amp;str&gt;</code> such that if the
+<code>JsonString</code> contains escape sequences, the comparison is handled correctly.
+Each <code>JsonString</code> tracks its decoded length as well as whether any escapes are
+present, allowing this comparison to be very efficient.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>json = justjson::JsonString::from_json(<span class="string">&quot;\&quot;Hello, World!\&quot;&quot;</span>).unwrap();
+<span class="macro">assert_eq!</span>(json, <span class="string">&quot;Hello, World!&quot;</span>);</code></pre></div>
+<h3 id="benchmarks"><a href="#benchmarks">Benchmarks</a></h3>
+<p>You can run the benchmarks by executing <code>cargo bench -p benchmarks</code>. There
+currently is only a single benchmark, testing a small JSON payload in both
+pretty
+and compact representations.</p>
+<div class="example-wrap"><pre class="language-text"><code>small-pretty/justjson/str
+                        time:   [704.31 ns 710.98 ns 719.96 ns]
+small-pretty/justjson/bytes
+                        time:   [707.41 ns 713.11 ns 720.05 ns]
+small-pretty/justjson/Read
+                        time:   [1.5964 µs 1.6050 µs 1.6160 µs]
+small-pretty/serde-json/str
+                        time:   [879.77 ns 884.96 ns 891.28 ns]
+small-pretty/serde-json/bytes
+                        time:   [1.0128 µs 1.0190 µs 1.0265 µs]
+small-pretty/serde-json/Read
+                        time:   [1.5034 µs 1.5091 µs 1.5172 µs]
+small-pretty/tinyjson/str
+                        time:   [2.4486 µs 2.4770 µs 2.5081 µs]
+
+small/justjson/str       time:   [676.76 ns 682.13 ns 688.31 ns]
+small/justjson/bytes     time:   [669.75 ns 674.20 ns 678.49 ns]
+small/justjson/Read      time:   [1.4983 µs 1.5020 µs 1.5065 µs]
+small/serde-json/str    time:   [854.80 ns 860.16 ns 866.49 ns]
+small/serde-json/bytes  time:   [953.65 ns 960.55 ns 969.05 ns]
+small/serde-json/Read   time:   [1.3772 µs 1.3815 µs 1.3862 µs]
+small/tinyjson/str      time:   [2.3340 µs 2.3450 µs 2.3587 µs]
+</code></pre></div><h3 id="usage-of-unsafe-code"><a href="#usage-of-unsafe-code">Usage of Unsafe Code</a></h3>
+<p>This crate uses unsafe code only when converting from raw incoming data to UTF-8
+data. The parser fully verifies that the data is valid UTF-8 before these
+functions are used.</p>
+<h3 id="open-source-licenses"><a href="#open-source-licenses">Open-source Licenses</a></h3>
+<p>This project, like all projects from <a href="https://khonsulabs.com/">Khonsu Labs</a>, are
+open-source. This repository is available under the <a href="./LICENSE-MIT">MIT License</a>
+or the <a href="./LICENSE-APACHE">Apache License 2.0</a>.</p>
+<p>To learn more about contributing, please see <a href="./CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+</div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="justjson::Error struct">Error</a></div><div class="item-right docblock-short">A JSON parsing error with location information.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.JsonNumber.html" title="justjson::JsonNumber struct">JsonNumber</a></div><div class="item-right docblock-short">A JSON-encoded number.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.JsonString.html" title="justjson::JsonString struct">JsonString</a></div><div class="item-right docblock-short">A JSON-encoded string.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.JsonStringInfo.html" title="justjson::JsonStringInfo struct">JsonStringInfo</a></div><div class="item-right docblock-short">Information about a <a href="struct.JsonString.html" title="JsonString"><code>JsonString</code></a>:</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Object.html" title="justjson::Object struct">Object</a></div><div class="item-right docblock-short">A JSON Object (list of key-value pairs).</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ParseConfig.html" title="justjson::ParseConfig struct">ParseConfig</a></div><div class="item-right docblock-short">A JSON Value parsing configuration.</div></div></div><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ErrorKind.html" title="justjson::ErrorKind enum">ErrorKind</a></div><div class="item-right docblock-short">An error from parsing JSON.</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Value.html" title="justjson::Value enum">Value</a></div><div class="item-right docblock-short">A JSON value.</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="justjson" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

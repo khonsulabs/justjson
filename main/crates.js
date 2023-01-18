@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["yeahson"];
+window.ALL_CRATES = ["justjson"];
