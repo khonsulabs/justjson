@@ -1,5 +1,7 @@
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
 
+use std::fmt::Write;
+
 #[track_caller]
 fn test_json_parse(source: &[u8], value: &Value<&str>) {
     println!("Testing slice {}", std::str::from_utf8(source).unwrap());
@@ -311,4 +313,55 @@ fn number_errors() {
     assert_json_error_kind_matches!(r#"1.0E"#, 4, ErrorKind::ExpectedExponent);
 
     assert_json_error_kind_matches!(r#"1.0E-"#, 5, ErrorKind::ExpectedExponent);
+}
+
+fn test_roundtrip_encoding(source: &str) {
+    println!("Testing {source}");
+    let value = Value::from_json(source).unwrap();
+    assert_eq!(value.to_json(), source);
+}
+
+fn test_roundtrip_encoding_pretty_custom(source: &str, indentation: &str, line_ending: &str) {
+    println!("Testing {source}");
+    let value = Value::from_json(source).unwrap();
+    assert_eq!(
+        value.to_json_pretty_custom(indentation, line_ending),
+        source
+    );
+}
+
+fn test_roundtrip_encoding_pretty(source: &str) {
+    println!("Testing {source}");
+    let value = Value::from_json(source).unwrap();
+    assert_eq!(value.to_json_pretty(), source);
+}
+
+#[test]
+fn json_formatting() {
+    test_roundtrip_encoding(r#"[1,true,"hello",[],{}]"#);
+    test_roundtrip_encoding(r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#);
+    test_roundtrip_encoding_pretty("[\n  1,\n  true,\n  \"hello\",\n  [],\n  {}\n]");
+    test_roundtrip_encoding_pretty(
+        "{\n  \"a\": 1,\n  \"b\": true,\n  \"c\": \"hello\",\n  \"d\": [],\n  \"e\": {}\n}",
+    );
+    test_roundtrip_encoding_pretty_custom(
+        "{\r\t\"a\": 1,\r\t\"b\": true,\r\t\"c\": \"hello\",\r\t\"d\": [],\r\t\"e\": {}\r}",
+        "\t",
+        "\r",
+    );
+}
+
+#[test]
+fn value_display() {
+    let value = Value::from_json(r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#).unwrap();
+    assert_eq!(
+        value.to_string(),
+        r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#
+    );
+    let mut pretty = String::new();
+    write!(&mut pretty, "{value:#}").unwrap();
+    assert_eq!(
+        pretty,
+        "{\n  \"a\": 1,\n  \"b\": true,\n  \"c\": \"hello\",\n  \"d\": [],\n  \"e\": {}\n}"
+    );
 }

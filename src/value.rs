@@ -1,4 +1,8 @@
-use std::{iter::Peekable, slice};
+use std::{
+    fmt::{self, Display},
+    iter::Peekable,
+    slice,
+};
 
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
@@ -502,6 +506,224 @@ impl<'a> Value<&'a str> {
         }
 
         Ok(value)
+    }
+}
+
+impl<Backing> Value<Backing>
+where
+    Backing: AsRef<str>,
+{
+    fn write_json<W: fmt::Write, const PRETTY: bool>(
+        &self,
+        indentation: &str,
+        line_ending: &str,
+        destination: W,
+    ) -> fmt::Result {
+        let mut state = WriteState::<W, PRETTY>::new(destination, indentation, line_ending);
+
+        self.write_json_value(&mut state)
+    }
+
+    fn write_json_value<W: fmt::Write, const PRETTY: bool>(
+        &self,
+        state: &mut WriteState<'_, W, PRETTY>,
+    ) -> fmt::Result {
+        match self {
+            Value::String(string) => state.write(string.source.as_ref()),
+            Value::Number(number) => state.write(number.source.as_ref()),
+            Value::Boolean(bool) => state.write(if *bool { "true" } else { "false" }),
+            Value::Null => state.write("null"),
+            Value::Object(obj) => Self::write_json_object(obj, state),
+            Value::Array(array) => Self::write_json_array(array, state),
+        }
+    }
+
+    fn write_json_object<W: fmt::Write, const PRETTY: bool>(
+        obj: &Object<Backing>,
+        state: &mut WriteState<'_, W, PRETTY>,
+    ) -> fmt::Result {
+        state.begin_object()?;
+
+        if !obj.0.is_empty() {
+            state.new_line()?;
+            for (index, (key, value)) in obj.0.iter().enumerate() {
+                state.write(key.source.as_ref())?;
+                state.write_colon()?;
+                value.write_json_value(state)?;
+                if index != obj.0.len() - 1 {
+                    state.write(",")?;
+                }
+                state.new_line()?;
+            }
+        }
+
+        state.end_object()
+    }
+
+    fn write_json_array<W: fmt::Write, const PRETTY: bool>(
+        array: &Vec<Self>,
+        state: &mut WriteState<'_, W, PRETTY>,
+    ) -> fmt::Result {
+        state.begin_array()?;
+
+        if !array.is_empty() {
+            state.new_line()?;
+            for (index, value) in array.iter().enumerate() {
+                value.write_json_value(state)?;
+                if index != array.len() - 1 {
+                    state.write(",")?;
+                }
+                state.new_line()?;
+            }
+        }
+
+        state.end_array()
+    }
+
+    /// Converts this value to its JSON representation, with extra whitespace to
+    /// make it easier for a human to read.
+    ///
+    /// This uses two spaces for indentation, and `\n` for end of lines. Use
+    /// [`to_json_pretty_custom()`](Self::to_json_pretty_custom) to customize
+    /// the formatting behavior.
+    pub fn to_json_pretty(&self) -> String {
+        let mut out = String::new();
+        self.pretty_write_json_to(&mut out).expect("out of memory");
+        out
+    }
+
+    /// Converts this value to its JSON representation, with extra whitespace to
+    /// make it easier for a human to read.
+    pub fn to_json_pretty_custom(&self, indentation: &str, line_ending: &str) -> String {
+        let mut out = String::new();
+        self.pretty_write_json_to_custom(indentation, line_ending, &mut out)
+            .expect("out of memory");
+        out
+    }
+
+    /// Converts this value to its JSON representation, with no extraneous
+    /// whitespace.
+    pub fn to_json(&self) -> String {
+        let mut out = String::new();
+        self.write_json_to(&mut out).expect("out of memory");
+        out
+    }
+
+    /// Writes this value's JSON representation to `destination`, with no extraneous
+    /// whitespace.
+    pub fn write_json_to<W: fmt::Write>(&self, destination: W) -> fmt::Result {
+        self.write_json::<W, false>("", "", destination)
+    }
+
+    /// Writes this value's JSON representation to `destination`, with extra
+    /// whitespace to make it easier for a human to read.
+    ///
+    /// This uses two spaces for indentation, and `\n` for end of lines. Use
+    /// [`to_json_pretty_custom()`](Self::to_json_pretty_custom) to customize
+    /// the formatting behavior.
+    pub fn pretty_write_json_to<W: fmt::Write>(&self, destination: W) -> fmt::Result {
+        self.pretty_write_json_to_custom("  ", "\n", destination)
+    }
+
+    /// Writes this value's JSON representation to `destination`, with extra
+    /// whitespace to make it easier for a human to read.
+    pub fn pretty_write_json_to_custom<W: fmt::Write>(
+        &self,
+        indentation: &str,
+        line_ending: &str,
+        destination: W,
+    ) -> fmt::Result {
+        self.write_json::<W, true>(indentation, line_ending, destination)
+    }
+}
+
+impl<Backing> Display for Value<Backing>
+where
+    Backing: AsRef<str>,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if f.alternate() {
+            self.pretty_write_json_to(f)
+        } else {
+            self.write_json_to(f)
+        }
+    }
+}
+
+struct WriteState<'a, W, const PRETTY: bool> {
+    writer: W,
+    level: usize,
+    indent_per_level: &'a str,
+    line_ending: &'a str,
+    is_at_line_start: bool,
+}
+
+impl<'a, W, const PRETTY: bool> WriteState<'a, W, PRETTY>
+where
+    W: fmt::Write,
+{
+    fn new(writer: W, indentation: &'a str, line_ending: &'a str) -> Self {
+        Self {
+            writer,
+            level: 0,
+            is_at_line_start: true,
+            indent_per_level: indentation,
+            line_ending,
+        }
+    }
+
+    fn write(&mut self, str: &str) -> fmt::Result {
+        if PRETTY && self.is_at_line_start {
+            self.is_at_line_start = false;
+
+            for _ in 0..self.level {
+                self.writer.write_str(self.indent_per_level)?;
+            }
+        }
+
+        self.writer.write_str(str)?;
+        Ok(())
+    }
+
+    fn new_line(&mut self) -> fmt::Result {
+        if PRETTY {
+            self.write(self.line_ending)?;
+            self.is_at_line_start = true;
+        }
+        Ok(())
+    }
+
+    fn begin_object(&mut self) -> fmt::Result {
+        self.write("{")?;
+        self.level += 1;
+        Ok(())
+    }
+
+    fn write_colon(&mut self) -> fmt::Result {
+        if PRETTY {
+            self.write(": ")?;
+        } else {
+            self.write(":")?;
+        }
+        Ok(())
+    }
+
+    fn end_object(&mut self) -> fmt::Result {
+        self.level -= 1;
+        self.write("}")?;
+        Ok(())
+    }
+
+    fn begin_array(&mut self) -> fmt::Result {
+        self.write("[")?;
+        self.level += 1;
+        Ok(())
+    }
+
+    fn end_array(&mut self) -> fmt::Result {
+        self.level -= 1;
+        self.write("]")?;
+        Ok(())
     }
 }
 
