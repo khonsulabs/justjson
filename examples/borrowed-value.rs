@@ -6,17 +6,16 @@ const SMALL_OBJECT: &str = r#"{
     "numbers": [1, 2, 4.4]
 }"#;
 
-fn yeahson_parse(json: &str) -> yeahson::Value<&str> {
-    yeahson::Value::from_json(json).unwrap()
+fn justjson_parse(json: &str) -> justjson::Value<&str> {
+    justjson::Value::from_json(json).unwrap()
 }
 
 fn main() {
     // TODO this isn't actually an example... it was a way to get criterion out
     // of the way for profiling.
-    const ITERS: usize = 1000000;
-    let mut vec = Vec::with_capacity(ITERS);
+    const ITERS: usize = 100;
     for _ in 0..ITERS {
-        vec.push(yeahson_parse(SMALL_OBJECT));
+        justjson_parse(include_str!("../../json-benchmark/data/canada.json"));
     }
 }
 

@@ -1,11 +1,12 @@
-# YeahSon
+# justjson
 
-[![crate version](https://img.shields.io/crates/v/yeahson.svg)](https://crates.io/crates/yeahson)
-[![Live Build Status](https://img.shields.io/github/actions/workflow/status/khonsulabs/yeahson/rust.yml?branch=main)](https://github.com/khonsulabs/yeahson/actions?query=workflow:Tests)
-[![HTML Coverage Report for `main` branch](https://khonsulabs.github.io/yeahson/coverage/badge.svg)](https://khonsulabs.github.io/yeahson/coverage/)
-[![Documentation](https://img.shields.io/badge/docs-main-informational)](https://khonsulabs.github.io/yeahson/main/yeahson)
 
-An efficient JSON [`Value`][value] parser for Rust.
+[![crate version](https://img.shields.io/crates/v/justjson.svg)](https://crates.io/crates/justjson)
+[![Live Build Status](https://img.shields.io/github/actions/workflow/status/khonsulabs/justjson/rust.yml?branch=main)](https://github.com/khonsulabs/justjson/actions?query=workflow:Tests)
+[![HTML Coverage Report for `main` branch](https://khonsulabs.github.io/justjson/coverage/badge.svg)](https://khonsulabs.github.io/justjson/coverage/)
+[![Documentation](https://img.shields.io/badge/docs-main-informational)](https://khonsulabs.github.io/justjson/main/justjson)
+
+An efficient JSON [`Value`][value] crate for Rust.
 
 ## Why another JSON parser?
 
@@ -24,9 +25,9 @@ document. This form of JSON-LD representation is used by
 [ActivityPub][activitypub], which is a protocol that power [the
 Fediverse][fediverse].
 
-## What makes YeahSon interesting?
+## What makes JustJson interesting?
 
-The optimal use case for YeahSon is when parsing an `&str` or `&[u8]`. When
+The optimal use case for JustJson is when parsing an `&str` or `&[u8]`. When
 parsing either of these, the returned `Value` type is `Value<&str>`. All strings
 and numbers are kept in their original form in the [`JsonString`][string] and
 [`JsonNumber`][number] types. While they are kept in their original form, they
@@ -39,7 +40,7 @@ Each `JsonString` tracks its decoded length as well as whether any escapes are
 present, allowing this comparison to be very efficient.
 
 ```rust
-let json = yeahson::JsonString::from_json("\"Hello, World!\"").unwrap();
+let json = justjson::JsonString::from_json("\"Hello, World!\"").unwrap();
 assert_eq!(json, "Hello, World!");
 ```
 
@@ -51,11 +52,11 @@ pretty
 and compact representations.
 
 ```text
-small-pretty/yeahson/str
+small-pretty/justjson/str
                         time:   [704.31 ns 710.98 ns 719.96 ns]
-small-pretty/yeahson/bytes
+small-pretty/justjson/bytes
                         time:   [707.41 ns 713.11 ns 720.05 ns]
-small-pretty/yeahson/Read
+small-pretty/justjson/Read
                         time:   [1.5964 µs 1.6050 µs 1.6160 µs]
 small-pretty/serde-json/str
                         time:   [879.77 ns 884.96 ns 891.28 ns]
@@ -66,22 +67,14 @@ small-pretty/serde-json/Read
 small-pretty/tinyjson/str
                         time:   [2.4486 µs 2.4770 µs 2.5081 µs]
 
-small/yeahson/str       time:   [676.76 ns 682.13 ns 688.31 ns]
-small/yeahson/bytes     time:   [669.75 ns 674.20 ns 678.49 ns]
-small/yeahson/Read      time:   [1.4983 µs 1.5020 µs 1.5065 µs]
+small/justjson/str       time:   [676.76 ns 682.13 ns 688.31 ns]
+small/justjson/bytes     time:   [669.75 ns 674.20 ns 678.49 ns]
+small/justjson/Read      time:   [1.4983 µs 1.5020 µs 1.5065 µs]
 small/serde-json/str    time:   [854.80 ns 860.16 ns 866.49 ns]
 small/serde-json/bytes  time:   [953.65 ns 960.55 ns 969.05 ns]
 small/serde-json/Read   time:   [1.3772 µs 1.3815 µs 1.3862 µs]
 small/tinyjson/str      time:   [2.3340 µs 2.3450 µs 2.3587 µs]
 ```
-
-## Why name it YeahSon?
-
-Have you tried coming up with a JSON crate name recently? A friend jokingly
-responded "YEAH SON!" when I mentioned I needed a name. It cracked me up. I
-slept on it, and it still made me smile the next morning. After spending some
-time trying to come up with a descriptive crate name that wasn't already taken
-by another JSON parser, I eventually gave up and kept the silly name.
 
 ## Usage of Unsafe Code
 
@@ -89,9 +82,9 @@ This crate uses unsafe code only when converting from raw incoming data to UTF-8
 data. The parser fully verifies that the data is valid UTF-8 before these
 functions are used.
 
-[value]: https://khonsulabs.github.io/yeahson/main/yeahson/enum.Value.html
-[string]: https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonString.html
-[number]: https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonNumber.html
+[value]: https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html
+[string]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonString.html
+[number]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonNumber.html
 [json-ld]: https://www.w3.org/TR/json-ld11/#compacted-document-form
 [fediverse]: https://en.wikipedia.org/wiki/Fediverse
 [activitypub]: https://www.w3.org/TR/activitypub/

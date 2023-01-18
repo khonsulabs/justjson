@@ -1021,7 +1021,7 @@ impl ParseConfig {
     /// Returns the default configuration:
     ///
     /// ```rust
-    /// let config = yeahson::ParseConfig::new();
+    /// let config = justjson::ParseConfig::new();
     /// assert_eq!(config.allow_trailing_commas, false);
     /// assert_eq!(config.recursion_limit, Some(128));
     /// assert_eq!(config.allow_all_types_at_root, true);
@@ -1038,7 +1038,7 @@ impl ParseConfig {
     /// configuration by only allowing objects and arrays at the root:
     ///
     /// ```rust
-    /// let config = yeahson::ParseConfig::strict();
+    /// let config = justjson::ParseConfig::strict();
     /// assert_eq!(config.allow_trailing_commas, false);
     /// assert_eq!(config.recursion_limit, Some(128));
     /// assert_eq!(config.allow_all_types_at_root, false);

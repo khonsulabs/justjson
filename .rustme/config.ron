@@ -28,26 +28,26 @@ Configuration(
         "https://github.com/khonsulabs/.github/raw/main/snippets/glossary.ron",
         {
             "docs-base": (
-                default: "https://khonsulabs.github.io/yeahson/main/yeahson",
-                release: "https://docs.rs/yeahson",
+                default: "https://khonsulabs.github.io/justjson/main/justjson",
+                release: "https://docs.rs/justjson",
             ),
             "src-base": (
-                default: "https://github.com/khonsulabs/yeahson/blob/main",
-                release: "https://github.com/khonsulabs/yeahson/blob/v0.1.0",
+                default: "https://github.com/khonsulabs/justjson/blob/main",
+                release: "https://github.com/khonsulabs/justjson/blob/v0.1.0",
             ),
             "value": (
-                default: "https://khonsulabs.github.io/yeahson/main/yeahson/enum.Value.html",
-                release: "https://docs.rs/yeahson/*/yeahson/enum.Value.html",
+                default: "https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html",
+                release: "https://docs.rs/justjson/*/justjson/enum.Value.html",
                 for_docs: "crate::Value",
             ),
             "string": (
-                default: "https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonString.html",
-                release: "https://docs.rs/yeahson/*/yeahson/struct.JsonString.html",
+                default: "https://khonsulabs.github.io/justjson/main/justjson/struct.JsonString.html",
+                release: "https://docs.rs/justjson/*/justjson/struct.JsonString.html",
                 for_docs: "crate::JsonString",
             ),
             "number": (
-                default: "https://khonsulabs.github.io/yeahson/main/yeahson/struct.JsonNumber.html",
-                release: "https://docs.rs/yeahson/*/yeahson/struct.JsonNumber.html",
+                default: "https://khonsulabs.github.io/justjson/main/justjson/struct.JsonNumber.html",
+                release: "https://docs.rs/justjson/*/justjson/struct.JsonNumber.html",
                 for_docs: "crate::JsonNumber",
             ),
         }

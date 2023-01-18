@@ -1,6 +1,6 @@
 use std::fs;
 
-use yeahson::Value;
+use justjson::Value;
 
 #[test]
 fn suite() {

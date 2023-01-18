@@ -17,8 +17,8 @@ const SMALL_OBJECT: &str = r#"{
 
 const SMALL_OBJECT_COMPACT: &str = r#"{"@context":"https://www.w3.org/ns/activitystreams","summary":"A note","type":"Note","content":"My dog has fleas.","numbers":[1,2,4.4],"keywords":{"true":true,"false":false,"null":null}}"#;
 
-fn yeahson_parse(json: &str) -> yeahson::Value<&str> {
-    yeahson::Value::from_json(json).unwrap()
+fn justjson_parse(json: &str) -> justjson::Value<&str> {
+    justjson::Value::from_json(json).unwrap()
 }
 
 fn serde_json_value_parse(json: &str) -> serde_json::Value {
@@ -34,8 +34,8 @@ fn simd_json_parse(json: &mut Vec<u8>) {
     let _ = simd_json::to_borrowed_value(json).unwrap();
 }
 
-fn yeahson_parse_bytes(json: &str) -> yeahson::Value<&str> {
-    yeahson::Value::from_json_bytes(json.as_bytes()).unwrap()
+fn justjson_parse_bytes(json: &str) -> justjson::Value<&str> {
+    justjson::Value::from_json_bytes(json.as_bytes()).unwrap()
 }
 
 fn serde_json_value_parse_bytes(json: &str) -> serde_json::Value {
@@ -43,12 +43,12 @@ fn serde_json_value_parse_bytes(json: &str) -> serde_json::Value {
 }
 
 fn bench_with_input(mut group: BenchmarkGroup<'_, WallTime>, input: &str) {
-    group.bench_function("yeahson/str", |b| {
-        b.iter(|| yeahson_parse(black_box(input)));
+    group.bench_function("justjson/str", |b| {
+        b.iter(|| justjson_parse(black_box(input)));
     });
 
-    group.bench_function("yeahson/bytes", |b| {
-        b.iter(|| yeahson_parse_bytes(black_box(input)));
+    group.bench_function("justjson/bytes", |b| {
+        b.iter(|| justjson_parse_bytes(black_box(input)));
     });
 
     group.bench_function("serde-json/str", |b| {

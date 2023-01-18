@@ -1,10 +1,10 @@
 [package]
-name = "yeahson"
+name = "justjson"
 version = "0.1.0"
 edition = "2021"
 description = "An efficient JSON Value crate that allows borrowing data."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/khonsulabs/yeahson"
+repository = "https://github.com/khonsulabs/justjson"
 keywords = ["json"]
 categories = ["parser-implementations"]
 readme = "./README.md"
