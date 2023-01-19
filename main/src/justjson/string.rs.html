@@ -217,7 +217,68 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
-</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, str::CharIndices};
+
+<span class="kw">use crate</span>::{
     error::{Error, ErrorKind},
     value::Value,
 };
@@ -259,7 +320,7 @@
     ///
     /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
-    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; std::result::Result&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">if let </span>Value::String(str) = Value::from_json(json)<span class="question-mark">? </span>{
             <span class="prelude-val">Ok</span>(str)
         } <span class="kw">else </span>{
@@ -268,6 +329,41 @@
                 kind: ErrorKind::ExpectedString,
             })
         }
+    }
+
+    <span class="doccomment">/// Returns the contained string after decoding any escape sequences, if
+    /// needed. If there are no escape sequences, the contents of the string are
+    /// borrowed.
+    ///
+    /// This type keeps track of whether the underlying string contains escape
+    /// sequences, so this function is nearly instananeous when there are no
+    /// escape sequences.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>decode_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;a</span>, str&gt; {
+        <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
+            Cow::Owned(<span class="self">self</span>.decoded().collect())
+        } <span class="kw">else </span>{
+            Cow::Borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>.source[<span class="number">1</span>..<span class="self">self</span>.source.len() - <span class="number">1</span>])
+        }
+    }
+}
+
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>value_decode_if_needed() {}
+
+<span class="kw">impl</span>&lt;Backing&gt; JsonString&lt;Backing&gt;
+<span class="kw">where
+    </span>Backing: AsRef&lt;str&gt;,
+{
+    <span class="doccomment">/// Returns the section of the string between the quotation marks.
+    </span><span class="kw">pub fn </span>contents(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw">let </span>source = <span class="self">self</span>.source.as_ref();
+        <span class="kw-2">&amp;</span>source[<span class="number">1</span>..source.len() - <span class="number">1</span>]
+    }
+
+    <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
+    </span><span class="kw">pub fn </span>decoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoded&lt;<span class="lifetime">&#39;_</span>&gt; {
+        Decoded::new(<span class="self">self</span>.contents())
     }
 }
 
@@ -290,8 +386,7 @@
 <span class="kw">where
     </span>T: AsRef&lt;str&gt;,
 {
-    <span class="attribute">#[allow(unsafe_code)]
-    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; bool {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; bool {
         <span class="kw">let </span>unescaped_length = <span class="self">self</span>.info.unescaped_length();
         <span class="kw">let </span>source = <span class="self">self</span>.source.as_ref();
         <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
@@ -300,44 +395,10 @@
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>other_chars = other.chars();
-            <span class="kw">let </span><span class="kw-2">mut </span>our_chars = source[<span class="number">1</span>..source.len() - <span class="number">1</span>].char_indices();
-            <span class="kw">while let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, ch)) = our_chars.next() {
-                <span class="kw">let </span>other_ch = other_chars.next().expect(<span class="string">&quot;length matches&quot;</span>);
-                <span class="kw">let </span>matches = <span class="kw">if </span>ch == <span class="string">&#39;\\&#39; </span>{
-                    <span class="kw">match </span>our_chars.next().expect(<span class="string">&quot;already validated&quot;</span>) {
-                        (<span class="kw">_</span>, <span class="string">&#39;r&#39;</span>) =&gt; <span class="string">&#39;\r&#39; </span>== other_ch,
-                        (<span class="kw">_</span>, <span class="string">&#39;n&#39;</span>) =&gt; <span class="string">&#39;\n&#39; </span>== other_ch,
-                        (<span class="kw">_</span>, <span class="string">&#39;t&#39;</span>) =&gt; <span class="string">&#39;\t&#39; </span>== other_ch,
-                        (<span class="kw">_</span>, <span class="string">&#39;b&#39;</span>) =&gt; <span class="string">&#39;\x07&#39; </span>== other_ch,
-                        (<span class="kw">_</span>, <span class="string">&#39;f&#39;</span>) =&gt; <span class="string">&#39;\x0c&#39; </span>== other_ch,
-                        (offset, <span class="string">&#39;u&#39;</span>) =&gt; {
-                            <span class="comment">// four hex digits
-                            </span><span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
-                                our_chars.next();
-                            }
-                            <span class="comment">// We access the string slice directly rather than
-                            // trying to rebuild via char indicies for speed.
-                            </span><span class="kw">let </span>hex = <span class="kw-2">&amp;</span>source[offset + <span class="number">2</span>..offset + <span class="number">6</span>];
-                            <span class="kw">let </span>value = u16::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">&quot;already validated&quot;</span>);
-
-                            <span class="comment">// SAFETY: The JSON string has already had its UTF
-                            // escapes validated.
-                            </span><span class="kw">let </span>ch = <span class="kw">unsafe </span>{ char::from_u32_unchecked(u32::from(value)) };
-                            ch == other_ch
-                        }
-                        (<span class="kw">_</span>, other) =&gt; other == other_ch,
-                    }
-                } <span class="kw">else </span>{
-                    ch == other_ch
-                };
-                <span class="kw">if </span>!matches {
-                    <span class="kw">return </span><span class="bool-val">false</span>;
-                }
-            }
-
-            <span class="bool-val">true
-        </span>} <span class="kw">else </span>{
+            Decoded::new(<span class="kw-2">&amp;</span>source[<span class="number">1</span>..source.len() - <span class="number">1</span>])
+                .zip(other.chars())
+                .all(|(a, b)| a == b)
+        } <span class="kw">else </span>{
             <span class="comment">// Direct string comparison excluding the quotes.
             </span><span class="kw-2">&amp;</span>source[<span class="number">1</span>..=unescaped_length] == <span class="kw-2">*</span>other
         }
@@ -369,6 +430,14 @@
     test_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>, <span class="string">&quot;Hello, World!&quot;</span>);
     test_json(<span class="string">r#&quot;&quot;\&quot;\\\/\b\f\n\r\t\u25eF&quot;&quot;#</span>, <span class="string">&quot;\&quot;\\/\x07\x0c\n\r\t\u{25ef}&quot;</span>);
     test_json(<span class="string">&quot;\&quot;\u{25ef}\&quot;&quot;</span>, <span class="string">&quot;\u{25ef}&quot;</span>);
+}
+
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>decode_if_needed() {
+    <span class="kw">let </span>Cow::Borrowed(string) = JsonString::from_json(<span class="string">r#&quot;&quot;&quot;&quot;#</span>).unwrap().decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
+    <span class="macro">assert_eq!</span>(string, <span class="string">&quot;&quot;</span>);
+    <span class="kw">let </span>Cow::Owned(string) = JsonString::from_json(<span class="string">r#&quot;&quot;\r&quot;&quot;#</span>).unwrap().decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
+    <span class="macro">assert_eq!</span>(string, <span class="string">&quot;\r&quot;</span>);
 }
 
 <span class="doccomment">/// Information about a [`JsonString`]:
@@ -434,6 +503,55 @@
             .field(<span class="string">&quot;has_escapes&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.has_escapes())
             .field(<span class="string">&quot;unescaped_length&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.unescaped_length())
             .finish()
+    }
+}
+
+<span class="kw">pub struct </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+    source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    chars: CharIndices&lt;<span class="lifetime">&#39;a</span>&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            source,
+            chars: source.char_indices(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = char;
+
+    <span class="attribute">#[allow(unsafe_code)]
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">let </span>(<span class="kw">_</span>, ch) = <span class="self">self</span>.chars.next()<span class="question-mark">?</span>;
+        <span class="kw">if </span>ch == <span class="string">&#39;\\&#39; </span>{
+            <span class="kw">match </span><span class="self">self</span>.chars.next().expect(<span class="string">&quot;already validated&quot;</span>) {
+                (<span class="kw">_</span>, <span class="string">&#39;r&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\r&#39;</span>),
+                (<span class="kw">_</span>, <span class="string">&#39;n&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\n&#39;</span>),
+                (<span class="kw">_</span>, <span class="string">&#39;t&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\t&#39;</span>),
+                (<span class="kw">_</span>, <span class="string">&#39;b&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\x07&#39;</span>),
+                (<span class="kw">_</span>, <span class="string">&#39;f&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\x0c&#39;</span>),
+                (offset, <span class="string">&#39;u&#39;</span>) =&gt; {
+                    <span class="comment">// four hex digits
+                    </span><span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
+                        <span class="self">self</span>.chars.next();
+                    }
+                    <span class="comment">// We access the string slice directly rather than
+                    // trying to rebuild via char indicies for speed.
+                    </span><span class="kw">let </span>hex = <span class="kw-2">&amp;</span><span class="self">self</span>.source[offset + <span class="number">1</span>..offset + <span class="number">5</span>];
+                    <span class="kw">let </span>value = u16::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">&quot;already validated&quot;</span>);
+
+                    <span class="comment">// SAFETY: The JSON string has already had its UTF
+                    // escapes validated.
+                    </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ char::from_u32_unchecked(u32::from(value)) })
+                }
+                (<span class="kw">_</span>, other) =&gt; <span class="prelude-val">Some</span>(other),
+            }
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(ch)
+        }
     }
 }
 </code></pre></div>

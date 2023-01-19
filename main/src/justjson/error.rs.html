@@ -140,6 +140,9 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{io, str::Utf8Error};
 
 <span class="doccomment">/// A JSON parsing error with location information.
@@ -250,6 +253,9 @@
     <span class="doccomment">/// A string was expected, but another type was found.
     </span><span class="attribute">#[error(<span class="string">&quot;expected a string&quot;</span>)]
     </span>ExpectedString,
+    <span class="doccomment">/// A number was expected, but another type was found.
+    </span><span class="attribute">#[error(<span class="string">&quot;expected a number&quot;</span>)]
+    </span>ExpectedNumber,
     <span class="doccomment">/// The JSON being parsed has more depth than the parser was configured to
     /// allow.
     </span><span class="attribute">#[error(<span class="string">&quot;the recursion limit has been reached&quot;</span>)]
