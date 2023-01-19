@@ -26,7 +26,7 @@ impl<'a> Parser<'a, false> {
     where
         D: ParseDelegate<'a>,
     {
-        Self::parse_with_config(value, ParseConfig::default(), delegate)
+        Self::parse_json_bytes_with_config(value, ParseConfig::default(), delegate)
     }
 
     /// Parses a JSON payload, invoking functions on `delegate` as the payload
@@ -34,7 +34,7 @@ impl<'a> Parser<'a, false> {
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    pub fn parse_with_config<D>(
+    pub fn parse_json_bytes_with_config<D>(
         value: &'a [u8],
         config: ParseConfig,
         delegate: D,
@@ -56,7 +56,7 @@ impl<'a> Parser<'a, true> {
     where
         D: ParseDelegate<'a>,
     {
-        Self::parse_str_with_config(value, ParseConfig::default(), delegate)
+        Self::parse_json_with_config(value, ParseConfig::default(), delegate)
     }
 
     /// Parses a JSON payload, invoking functions on `delegate` as the payload
@@ -64,7 +64,7 @@ impl<'a> Parser<'a, true> {
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    pub fn parse_str_with_config<D>(
+    pub fn parse_json_with_config<D>(
         value: &'a str,
         config: ParseConfig,
         delegate: D,

@@ -1,7 +1,7 @@
 use std::{iter::Cloned, slice};
 
 use crate::{
-    parser::{JsonKind, ParseDelegate, Parser},
+    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
     Error, JsonNumber, JsonString, Object, Value,
 };
 
@@ -52,6 +52,19 @@ impl<'a> Document<'a> {
         Ok(Self { nodes })
     }
 
+    /// Parses a JSON payload from `source`, with the settings from `config`.
+    ///
+    /// This function verifies that `json` is valid UTF-8 while parsing the
+    /// JSON.
+    pub fn from_json_bytes_with_config(
+        source: &'a [u8],
+        config: ParseConfig,
+    ) -> Result<Document<'a>, Error> {
+        let mut nodes = Nodes::default();
+        Parser::parse_json_bytes_with_config(source, config, &mut nodes)?;
+        Ok(Self { nodes })
+    }
+
     /// Parses a JSON payload from `source`.
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
@@ -59,6 +72,19 @@ impl<'a> Document<'a> {
     pub fn from_json(source: &'a str) -> Result<Document<'a>, Error> {
         let mut nodes = Nodes::default();
         Parser::parse_json(source, &mut nodes)?;
+        Ok(Self { nodes })
+    }
+
+    /// Parses a JSON payload from `source`, with the settings from `config`.
+    ///
+    /// Because the `str` type guarantees that `json` is valid UTF-8, no
+    /// additional unicode checks are performed on unescaped unicode sequences.
+    pub fn from_json_with_config(
+        source: &'a str,
+        config: ParseConfig,
+    ) -> Result<Document<'a>, Error> {
+        let mut nodes = Nodes::default();
+        Parser::parse_json_with_config(source, config, &mut nodes)?;
         Ok(Self { nodes })
     }
 
@@ -371,7 +397,8 @@ impl<'doc, 'a> Iterator for DocumentIter<'doc, 'a> {
 
 #[test]
 fn document_iteration() {
-    let doc = Document::from_json(r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#).unwrap();
+    let source = r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#;
+    let doc = Document::from_json(source).unwrap();
     assert_eq!(
         doc.iter().collect::<Vec<_>>(),
         vec![
@@ -388,4 +415,11 @@ fn document_iteration() {
             Node::Object { length: 0 },
         ]
     );
+    let value = doc.iter().next_value().unwrap();
+    assert_eq!(value, Value::from_json(source).unwrap());
+
+    // Test skipping
+    let mut iter = doc.iter();
+    iter.skip_next_value();
+    assert!(iter.next().is_none());
 }

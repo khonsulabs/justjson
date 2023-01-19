@@ -44,7 +44,7 @@ impl<'a> Value<&'a str> {
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
     pub fn from_json_with_config(json: &'a str, config: ParseConfig) -> Result<Self, Error> {
-        Parser::parse_str_with_config(json, config, ValueParser)
+        Parser::parse_json_with_config(json, config, ValueParser)
     }
 
     /// Parses a JSON value from `json`, returning a `Value<&str>` that borrows
@@ -62,7 +62,7 @@ impl<'a> Value<&'a str> {
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
     pub fn from_json_bytes_with_config(json: &'a [u8], config: ParseConfig) -> Result<Self, Error> {
-        Parser::parse_with_config(json, config, ValueParser)
+        Parser::parse_json_bytes_with_config(json, config, ValueParser)
     }
 
     // pub fn into_owned(self) -> Value<'static> {
