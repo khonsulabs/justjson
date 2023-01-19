@@ -1,3 +1,5 @@
+use std::{borrow::Cow, str::CharIndices};
+
 use crate::{
     error::{Error, ErrorKind},
     value::Value,
@@ -40,7 +42,7 @@ impl<'a> JsonString<&'a str> {
     ///
     /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
-    pub fn from_json(json: &'a str) -> std::result::Result<Self, Error> {
+    pub fn from_json(json: &'a str) -> Result<Self, Error> {
         if let Value::String(str) = Value::from_json(json)? {
             Ok(str)
         } else {
@@ -49,6 +51,41 @@ impl<'a> JsonString<&'a str> {
                 kind: ErrorKind::ExpectedString,
             })
         }
+    }
+
+    /// Returns the contained string after decoding any escape sequences, if
+    /// needed. If there are no escape sequences, the contents of the string are
+    /// borrowed.
+    ///
+    /// This type keeps track of whether the underlying string contains escape
+    /// sequences, so this function is nearly instananeous when there are no
+    /// escape sequences.
+    #[must_use]
+    pub fn decode_if_needed(&self) -> Cow<'a, str> {
+        if self.info.has_escapes() {
+            Cow::Owned(self.decoded().collect())
+        } else {
+            Cow::Borrowed(&self.source[1..self.source.len() - 1])
+        }
+    }
+}
+
+#[test]
+fn value_decode_if_needed() {}
+
+impl<Backing> JsonString<Backing>
+where
+    Backing: AsRef<str>,
+{
+    /// Returns the section of the string between the quotation marks.
+    pub fn contents(&self) -> &str {
+        let source = self.source.as_ref();
+        &source[1..source.len() - 1]
+    }
+
+    /// Returns the string after decoding any JSON escape sequences.
+    pub fn decoded(&self) -> Decoded<'_> {
+        Decoded::new(self.contents())
     }
 }
 
@@ -71,7 +108,6 @@ impl<'a, T> PartialEq<&'a str> for JsonString<T>
 where
     T: AsRef<str>,
 {
-    #[allow(unsafe_code)]
     fn eq(&self, other: &&'a str) -> bool {
         let unescaped_length = self.info.unescaped_length();
         let source = self.source.as_ref();
@@ -81,43 +117,9 @@ where
                 return false;
             }
 
-            let mut other_chars = other.chars();
-            let mut our_chars = source[1..source.len() - 1].char_indices();
-            while let Some((_, ch)) = our_chars.next() {
-                let other_ch = other_chars.next().expect("length matches");
-                let matches = if ch == '\\' {
-                    match our_chars.next().expect("already validated") {
-                        (_, 'r') => '\r' == other_ch,
-                        (_, 'n') => '\n' == other_ch,
-                        (_, 't') => '\t' == other_ch,
-                        (_, 'b') => '\x07' == other_ch,
-                        (_, 'f') => '\x0c' == other_ch,
-                        (offset, 'u') => {
-                            // four hex digits
-                            for _ in 0..4 {
-                                our_chars.next();
-                            }
-                            // We access the string slice directly rather than
-                            // trying to rebuild via char indicies for speed.
-                            let hex = &source[offset + 2..offset + 6];
-                            let value = u16::from_str_radix(hex, 16).expect("already validated");
-
-                            // SAFETY: The JSON string has already had its UTF
-                            // escapes validated.
-                            let ch = unsafe { char::from_u32_unchecked(u32::from(value)) };
-                            ch == other_ch
-                        }
-                        (_, other) => other == other_ch,
-                    }
-                } else {
-                    ch == other_ch
-                };
-                if !matches {
-                    return false;
-                }
-            }
-
-            true
+            Decoded::new(&source[1..source.len() - 1])
+                .zip(other.chars())
+                .all(|(a, b)| a == b)
         } else {
             // Direct string comparison excluding the quotes.
             &source[1..=unescaped_length] == *other
@@ -150,6 +152,14 @@ fn json_string_cmp() {
     test_json(r#""Hello, World!""#, "Hello, World!");
     test_json(r#""\"\\\/\b\f\n\r\t\u25eF""#, "\"\\/\x07\x0c\n\r\t\u{25ef}");
     test_json("\"\u{25ef}\"", "\u{25ef}");
+}
+
+#[test]
+fn decode_if_needed() {
+    let Cow::Borrowed(string) = JsonString::from_json(r#""""#).unwrap().decode_if_needed() else { unreachable!() };
+    assert_eq!(string, "");
+    let Cow::Owned(string) = JsonString::from_json(r#""\r""#).unwrap().decode_if_needed() else { unreachable!() };
+    assert_eq!(string, "\r");
 }
 
 /// Information about a [`JsonString`]:
@@ -215,5 +225,54 @@ impl std::fmt::Debug for JsonStringInfo {
             .field("has_escapes", &self.has_escapes())
             .field("unescaped_length", &self.unescaped_length())
             .finish()
+    }
+}
+
+pub struct Decoded<'a> {
+    source: &'a str,
+    chars: CharIndices<'a>,
+}
+
+impl<'a> Decoded<'a> {
+    fn new(source: &'a str) -> Self {
+        Self {
+            source,
+            chars: source.char_indices(),
+        }
+    }
+}
+
+impl<'a> Iterator for Decoded<'a> {
+    type Item = char;
+
+    #[allow(unsafe_code)]
+    fn next(&mut self) -> Option<Self::Item> {
+        let (_, ch) = self.chars.next()?;
+        if ch == '\\' {
+            match self.chars.next().expect("already validated") {
+                (_, 'r') => Some('\r'),
+                (_, 'n') => Some('\n'),
+                (_, 't') => Some('\t'),
+                (_, 'b') => Some('\x07'),
+                (_, 'f') => Some('\x0c'),
+                (offset, 'u') => {
+                    // four hex digits
+                    for _ in 0..4 {
+                        self.chars.next();
+                    }
+                    // We access the string slice directly rather than
+                    // trying to rebuild via char indicies for speed.
+                    let hex = &self.source[offset + 1..offset + 5];
+                    let value = u16::from_str_radix(hex, 16).expect("already validated");
+
+                    // SAFETY: The JSON string has already had its UTF
+                    // escapes validated.
+                    Some(unsafe { char::from_u32_unchecked(u32::from(value)) })
+                }
+                (_, other) => Some(other),
+            }
+        } else {
+            Some(ch)
+        }
     }
 }

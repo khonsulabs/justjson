@@ -1,6 +1,6 @@
-use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
-
 use std::fmt::Write;
+
+use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
 
 #[track_caller]
 fn test_json_parse(source: &[u8], value: &Value<&str>) {
@@ -291,8 +291,18 @@ fn string_errors() {
         2,
         ErrorKind::from(std::str::from_utf8(b"\xdd\xdd").expect_err("invalid codepoint"))
     );
+    assert_json_error_kind_matches!(
+        r#""\udddd"#,
+        2,
+        ErrorKind::from(std::str::from_utf8(b"\xdd\xdd").expect_err("invalid codepoint"))
+    );
 
     assert_json_error_kind_matches!(r#""\uG"#, 3, ErrorKind::InvalidHexadecimal);
+
+    println!("Parsing invalid unicode");
+    let err = Value::from_json_bytes(b"\"\xdd\xdd\"").expect_err("parsing did not error");
+    println!("> {err:?}");
+    assert!(matches!(err.kind, ErrorKind::Utf8(_)));
 }
 
 #[test]

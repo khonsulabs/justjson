@@ -108,6 +108,9 @@ pub enum ErrorKind {
     /// A string was expected, but another type was found.
     #[error("expected a string")]
     ExpectedString,
+    /// A number was expected, but another type was found.
+    #[error("expected a number")]
+    ExpectedNumber,
     /// The JSON being parsed has more depth than the parser was configured to
     /// allow.
     #[error("the recursion limit has been reached")]

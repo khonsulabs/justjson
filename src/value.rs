@@ -10,8 +10,7 @@ use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 /// A JSON value.
 ///
 /// The `Backing` generic is the storage mechanism used by [`JsonNumber`] and
-/// [`JsonString`]. It generally is `&str` or `String`, depending on how the
-/// JSON is being parsed.
+/// [`JsonString`]. This is generally `&str` or `Cow<str>`.
 #[derive(Debug, Eq, PartialEq)]
 pub enum Value<Backing> {
     /// A JSON number.
@@ -160,12 +159,16 @@ impl<'a> Value<&'a str> {
         }
 
         match source.next_non_ws() {
-            Err(err) if matches!(err.kind, ErrorKind::UnexpectedEof) => Ok(value),
+            Err(err) => {
+                // The only error that next_non_ws can return is an unexpected
+                // eof.
+                debug_assert!(matches!(err.kind, ErrorKind::UnexpectedEof));
+                Ok(value)
+            }
             Ok((offset, _)) => Err(Error {
                 offset,
                 kind: ErrorKind::TrailingNonWhitespace,
             }),
-            Err(other) => Err(other),
         }
     }
 
@@ -181,7 +184,7 @@ impl<'a> Value<&'a str> {
                 let key = if byte == &b'"' {
                     Self::read_string_from_source(source, offset)?
                 } else if byte == &b'}' {
-                    if object.0.is_empty() && !state.config.allow_trailing_commas {
+                    if object.0.is_empty() || state.config.allow_trailing_commas {
                         break;
                     }
 
@@ -254,14 +257,14 @@ impl<'a> Value<&'a str> {
                 let (offset, byte) = source.next_non_ws()?;
 
                 let value = if byte == &b']' {
-                    if !values.is_empty() && !state.config.allow_trailing_commas {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::IllegalTrailingComma,
-                        });
+                    if values.is_empty() || state.config.allow_trailing_commas {
+                        break;
                     }
 
-                    break;
+                    return Err(Error {
+                        offset,
+                        kind: ErrorKind::IllegalTrailingComma,
+                    });
                 } else {
                     Self::read_from_first_byte(offset, byte, source, state)?
                 };
@@ -703,6 +706,14 @@ fn value_ases() {
         ""
     );
     assert_eq!(
+        Value::<&str>::Number(JsonNumber::from_json("1").unwrap())
+            .as_number()
+            .unwrap()
+            .as_u64()
+            .unwrap(),
+        1
+    );
+    assert_eq!(
         Value::<&str>::Object(Object::new()).as_object().unwrap(),
         &Object::new()
     );
@@ -891,7 +902,7 @@ static HEX_OFFSET_TABLE: [u8; 256] = {
 
 static SAFE_STRING_BYTES: &[bool; 256] = {
     const ER: bool = false;
-    const UC: bool = false;
+    const UC: bool = true;
     const BS: bool = false;
     const QU: bool = false;
     const __: bool = true;
@@ -918,7 +929,7 @@ static SAFE_STRING_BYTES: &[bool; 256] = {
 
 static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
     const ER: bool = false;
-    const UC: bool = true;
+    const UC: bool = false;
     const BS: bool = false;
     const QU: bool = false;
     const __: bool = true;
@@ -943,19 +954,19 @@ static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
     ]
 };
 
-impl<'a> PartialEq<Value<&'a str>> for Value<String> {
-    fn eq(&self, other: &Value<&'a str>) -> bool {
-        match (self, other) {
-            (Self::Number(l0), Value::Number(r0)) => l0 == r0,
-            (Self::String(l0), Value::String(r0)) => l0 == r0,
-            (Self::Boolean(l0), Value::Boolean(r0)) => l0 == r0,
-            (Self::Object(l0), Value::Object(r0)) => l0 == r0,
-            (Self::Array(l0), Value::Array(r0)) => l0 == r0,
-            (Self::Null, Value::Null) => true,
-            _ => false,
-        }
-    }
-}
+// impl<'a> PartialEq<Value<&'a str>> for Value<String> {
+//     fn eq(&self, other: &Value<&'a str>) -> bool {
+//         match (self, other) {
+//             (Self::Number(l0), Value::Number(r0)) => l0 == r0,
+//             (Self::String(l0), Value::String(r0)) => l0 == r0,
+//             (Self::Boolean(l0), Value::Boolean(r0)) => l0 == r0,
+//             (Self::Object(l0), Value::Object(r0)) => l0 == r0,
+//             (Self::Array(l0), Value::Array(r0)) => l0 == r0,
+//             (Self::Null, Value::Null) => true,
+//             _ => false,
+//         }
+//     }
+// }
 
 /// A JSON Object (list of key-value pairs).
 #[derive(Debug, Eq, PartialEq)]
@@ -1023,16 +1034,16 @@ impl<Backing> FromIterator<Entry<Backing>> for Object<Backing> {
     }
 }
 
-impl<'a> PartialEq<Object<&'a str>> for Object<String> {
-    fn eq(&self, other: &Object<&'a str>) -> bool {
-        self.0.len() == other.0.len()
-            && self
-                .0
-                .iter()
-                .zip(other.0.iter())
-                .all(|(a, b)| a.key == b.key && a.value == b.value)
-    }
-}
+// impl<'a> PartialEq<Object<&'a str>> for Object<String> {
+//     fn eq(&self, other: &Object<&'a str>) -> bool {
+//         self.0.len() == other.0.len()
+//             && self
+//                 .0
+//                 .iter()
+//                 .zip(other.0.iter())
+//                 .all(|(a, b)| a.key == b.key && a.value == b.value)
+//     }
+// }
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Entry<Backing> {
@@ -1100,7 +1111,7 @@ fn numbers() {
 }
 
 /// A JSON Value parsing configuration.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 #[non_exhaustive]
 #[must_use]
 pub struct ParseConfig {
@@ -1180,6 +1191,35 @@ impl ParseConfig {
         self.allow_all_types_at_root = allow_all;
         self
     }
+
+    /// Allows trailing commas when parsing objects and arrays.
+    ///
+    /// ```rust
+    /// let source = r#"{"a":[true,],}"#;
+    /// justjson::Value::from_json(source).expect_err("not enabled by default");
+    /// let config = justjson::ParseConfig::new().allowing_trailing_commas();
+    /// justjson::Value::from_json_with_config(source, config).expect("now parses");
+    /// ```
+    pub const fn allowing_trailing_commas(mut self) -> Self {
+        self.allow_trailing_commas = true;
+        self
+    }
+}
+
+#[test]
+fn config_test() {
+    // Flip all the values of the strict config, and verify it matches.
+    assert_eq!(
+        ParseConfig::strict()
+            .allowing_trailing_commas()
+            .without_recursion_limit()
+            .allowing_all_types_at_root(true),
+        ParseConfig {
+            allow_trailing_commas: true,
+            recursion_limit: None,
+            allow_all_types_at_root: true
+        }
+    );
 }
 
 #[derive(Debug)]

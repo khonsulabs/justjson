@@ -1,8 +1,29 @@
+use crate::{Error, ErrorKind, Value};
+
 /// A JSON-encoded number.
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct JsonNumber<Backing> {
     /// The JSON source for this number.
     pub source: Backing,
+}
+
+impl<'a> JsonNumber<&'a str> {
+    /// Parses `json`, expecting a single number value.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
+    /// encountered.
+    pub fn from_json(json: &'a str) -> Result<Self, Error> {
+        if let Value::Number(str) = Value::from_json(json)? {
+            Ok(str)
+        } else {
+            Err(Error {
+                offset: 0,
+                kind: ErrorKind::ExpectedNumber,
+            })
+        }
+    }
 }
 
 impl<Backing> JsonNumber<Backing>
@@ -56,4 +77,17 @@ impl<'a> PartialEq<JsonNumber<&'a str>> for JsonNumber<String> {
     fn eq(&self, other: &JsonNumber<&'a str>) -> bool {
         self.source == other.source
     }
+}
+
+#[test]
+fn json_number_from_json() {
+    assert_eq!(
+        JsonNumber::from_json("1").unwrap(),
+        JsonNumber { source: "1" }
+    );
+
+    let expected_number = JsonNumber::from_json(r#"true"#)
+        .expect_err("shouldn't allow non-numbers")
+        .kind;
+    assert!(matches!(expected_number, ErrorKind::ExpectedNumber));
 }
