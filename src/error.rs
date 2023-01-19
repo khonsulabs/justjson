@@ -1,20 +1,9 @@
-use std::{io, str::Utf8Error};
-
 /// A JSON parsing error with location information.
 #[derive(thiserror::Error, Debug, PartialEq)]
 #[error("error at {offset}: {kind}")]
 pub struct Error {
     pub(crate) offset: usize,
     pub(crate) kind: ErrorKind,
-}
-
-impl From<Utf8Error> for Error {
-    fn from(value: Utf8Error) -> Self {
-        Self {
-            offset: value.valid_up_to(),
-            kind: ErrorKind::from(value),
-        }
-    }
 }
 
 impl Error {
@@ -33,12 +22,9 @@ impl Error {
 }
 
 /// An error from parsing JSON.
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum ErrorKind {
-    /// An error occurred while performing io.
-    #[error("io error: {0}")]
-    Io(io::Error),
     /// An invalid UTF-8 sequence was encountered.
     #[error("invalid utf-8: {0}")]
     Utf8(#[from] std::str::Utf8Error),
@@ -121,25 +107,4 @@ pub enum ErrorKind {
     /// configuration is set to `false`.
     #[error("the recursion limit has been reached")]
     PayloadsShouldBeObjectOrArray,
-}
-
-impl PartialEq for ErrorKind {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Io(l0), Self::Io(r0)) => l0.kind() == r0.kind(),
-            (Self::Utf8(l0), Self::Utf8(r0)) => l0 == r0,
-            (Self::Unexpected(l0), Self::Unexpected(r0)) => l0 == r0,
-            _ => core::mem::discriminant(self) == core::mem::discriminant(other),
-        }
-    }
-}
-
-impl From<io::Error> for ErrorKind {
-    fn from(err: io::Error) -> Self {
-        if err.kind() == io::ErrorKind::UnexpectedEof {
-            Self::UnexpectedEof
-        } else {
-            Self::Io(err)
-        }
-    }
 }

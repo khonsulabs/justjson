@@ -232,13 +232,8 @@ fn expect_json_error(json: &str) -> Error {
 macro_rules! assert_json_error_kind_matches {
     ($json:expr, $offset:expr, $kind:expr) => {{
         let err = expect_json_error($json);
-        assert_eq!(
-            err,
-            Error {
-                offset: $offset,
-                kind: $kind
-            }
-        );
+        assert_eq!(err.kind(), &$kind);
+        assert_eq!(err.offset(), $offset);
     }};
 }
 
@@ -308,7 +303,7 @@ fn string_errors() {
     println!("Parsing invalid unicode");
     let err = Value::from_json_bytes(b"\"\xdd\xdd\"").expect_err("parsing did not error");
     println!("> {err:?}");
-    assert!(matches!(err.kind, ErrorKind::Utf8(_)));
+    assert!(matches!(err.kind(), ErrorKind::Utf8(_)));
 }
 
 #[test]
