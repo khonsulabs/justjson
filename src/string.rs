@@ -89,11 +89,11 @@ where
     }
 }
 
-impl<'a> PartialEq<JsonString<&'a str>> for JsonString<String> {
-    fn eq(&self, other: &JsonString<&'a str>) -> bool {
-        self.source == other.source
-    }
-}
+// impl<'a> PartialEq<JsonString<&'a str>> for JsonString<String> {
+//     fn eq(&self, other: &JsonString<&'a str>) -> bool {
+//         self.source == other.source
+//     }
+// }
 
 impl<'a, 'b, T> PartialEq<&'a str> for &'b JsonString<T>
 where
@@ -148,10 +148,19 @@ fn json_string_cmp() {
     fn test_json(json: &str, expected: &str) {
         assert_eq!(JsonString::from_json(json).unwrap(), expected);
     }
+    fn test_json_ne(json: &str, expected: &str) {
+        assert_ne!(JsonString::from_json(json).unwrap(), expected);
+    }
 
     test_json(r#""Hello, World!""#, "Hello, World!");
     test_json(r#""\"\\\/\b\f\n\r\t\u25eF""#, "\"\\/\x07\x0c\n\r\t\u{25ef}");
     test_json("\"\u{25ef}\"", "\u{25ef}");
+    // Test decoded length not being the same
+    test_json_ne(r#""\n""#, "");
+    // Test decoded char not matching
+    test_json_ne(r#""\n""#, "x");
+    // Test regular char not matching in decoded comparison
+    test_json_ne(r#""\na""#, "\nx");
 }
 
 #[test]
@@ -226,6 +235,16 @@ impl std::fmt::Debug for JsonStringInfo {
             .field("unescaped_length", &self.unescaped_length())
             .finish()
     }
+}
+
+#[test]
+fn test_string_info_debug() {
+    let mut info = JsonStringInfo::NONE;
+    info.add_bytes_from_escape(1);
+    assert_eq!(
+        format!("{info:?}"),
+        "EscapeInfo { has_escapes: true, unescaped_length: 1 }"
+    );
 }
 
 pub struct Decoded<'a> {

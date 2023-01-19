@@ -73,11 +73,11 @@ where
     // }
 }
 
-impl<'a> PartialEq<JsonNumber<&'a str>> for JsonNumber<String> {
-    fn eq(&self, other: &JsonNumber<&'a str>) -> bool {
-        self.source == other.source
-    }
-}
+// impl<'a> PartialEq<JsonNumber<&'a str>> for JsonNumber<String> {
+//     fn eq(&self, other: &JsonNumber<&'a str>) -> bool {
+//         self.source == other.source
+//     }
+// }
 
 #[test]
 fn json_number_from_json() {
@@ -90,4 +90,12 @@ fn json_number_from_json() {
         .expect_err("shouldn't allow non-numbers")
         .kind;
     assert!(matches!(expected_number, ErrorKind::ExpectedNumber));
+}
+
+#[test]
+fn json_number_conversions() {
+    let one = JsonNumber::from_json("1").unwrap();
+    assert_eq!(one.as_i64().unwrap(), 1);
+    assert_eq!(one.as_u64().unwrap(), 1);
+    assert!((one.as_f64().unwrap() - 1.0).abs() < f64::EPSILON);
 }

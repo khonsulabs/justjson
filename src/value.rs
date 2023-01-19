@@ -725,6 +725,7 @@ fn value_ases() {
     assert_eq!(Value::<&str>::Null.as_number(), None);
     assert_eq!(Value::<&str>::Null.as_string(), None);
     assert_eq!(Value::<&str>::Null.as_object(), None);
+    assert_eq!(Value::<&str>::Null.as_array(), None);
 }
 
 impl<Backing> Display for Value<Backing>
