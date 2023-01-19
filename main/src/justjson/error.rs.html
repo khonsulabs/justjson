@@ -108,58 +108,12 @@
 <span id="108">108</span>
 <span id="109">109</span>
 <span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{io, str::Utf8Error};
-
-<span class="doccomment">/// A JSON parsing error with location information.
+</pre><pre class="rust"><code><span class="doccomment">/// A JSON parsing error with location information.
 </span><span class="attribute">#[derive(thiserror::Error, Debug, PartialEq)]
 #[error(<span class="string">&quot;error at {offset}: {kind}&quot;</span>)]
 </span><span class="kw">pub struct </span>Error {
     <span class="kw">pub</span>(<span class="kw">crate</span>) offset: usize,
     <span class="kw">pub</span>(<span class="kw">crate</span>) kind: ErrorKind,
-}
-
-<span class="kw">impl </span>From&lt;Utf8Error&gt; <span class="kw">for </span>Error {
-    <span class="kw">fn </span>from(value: Utf8Error) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            offset: value.valid_up_to(),
-            kind: ErrorKind::from(value),
-        }
-    }
 }
 
 <span class="kw">impl </span>Error {
@@ -178,12 +132,9 @@
 }
 
 <span class="doccomment">/// An error from parsing JSON.
-</span><span class="attribute">#[derive(thiserror::Error, Debug)]
+</span><span class="attribute">#[derive(thiserror::Error, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>ErrorKind {
-    <span class="doccomment">/// An error occurred while performing io.
-    </span><span class="attribute">#[error(<span class="string">&quot;io error: {0}&quot;</span>)]
-    </span>Io(io::Error),
     <span class="doccomment">/// An invalid UTF-8 sequence was encountered.
     </span><span class="attribute">#[error(<span class="string">&quot;invalid utf-8: {0}&quot;</span>)]
     </span>Utf8(<span class="attribute">#[from] </span>std::str::Utf8Error),
@@ -266,27 +217,6 @@
     /// configuration is set to `false`.
     </span><span class="attribute">#[error(<span class="string">&quot;the recursion limit has been reached&quot;</span>)]
     </span>PayloadsShouldBeObjectOrArray,
-}
-
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>ErrorKind {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
-        <span class="kw">match </span>(<span class="self">self</span>, other) {
-            (<span class="self">Self</span>::Io(l0), <span class="self">Self</span>::Io(r0)) =&gt; l0.kind() == r0.kind(),
-            (<span class="self">Self</span>::Utf8(l0), <span class="self">Self</span>::Utf8(r0)) =&gt; l0 == r0,
-            (<span class="self">Self</span>::Unexpected(l0), <span class="self">Self</span>::Unexpected(r0)) =&gt; l0 == r0,
-            <span class="kw">_ </span>=&gt; core::mem::discriminant(<span class="self">self</span>) == core::mem::discriminant(other),
-        }
-    }
-}
-
-<span class="kw">impl </span>From&lt;io::Error&gt; <span class="kw">for </span>ErrorKind {
-    <span class="kw">fn </span>from(err: io::Error) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>err.kind() == io::ErrorKind::UnexpectedEof {
-            <span class="self">Self</span>::UnexpectedEof
-        } <span class="kw">else </span>{
-            <span class="self">Self</span>::Io(err)
-        }
-    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="justjson" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
