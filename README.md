@@ -16,7 +16,7 @@ This library is for developers who:
 - Want to parse a JSON Value from a slice with minimal allocations.
 
 If neither of those situations apply to you, you should seriously consider using
-`serde` and `serde-json`.
+`serde` and [`serde-json`][serde-json] or [`simd-json`][simd-json].
 
 What real-world case does this use case fit? Parsing [JSON-LD Compacted Document
 Form][json-ld] requires inspecting the JSON to find the `@context` field, and
@@ -28,7 +28,7 @@ Fediverse][fediverse].
 ## What makes JustJson interesting?
 
 The optimal use case for JustJson is when parsing an `&str` or `&[u8]`. When
-parsing either of these, the returned `Value` type is `Value<&str>`. All strings
+parsing either of these, the returned [`Value`][value] type is `Value<&str>`. All strings
 and numbers are kept in their original form in the [`JsonString`][string] and
 [`JsonNumber`][number] types. While they are kept in their original form, they
 are fully validated when parsed. **The net effect is significantly fewer
@@ -44,36 +44,49 @@ let json = justjson::JsonString::from_json("\"Hello, World!\"").unwrap();
 assert_eq!(json, "Hello, World!");
 ```
 
+JustJson also offers an even faster method for parsing: [`Document`][document].
+When parsing an array or an object into a `Value`, the parser doesn't know how
+large each array or object will be until it parses the rest of the object.
+`Document` builds a tree representing the JSON value in a single `Vec`, further
+reducing the number of allocations needed when parsing a document.
+
+This extra speed comes at the expense of an API that requires iteration to
+inspect the `Document`.
+
 ## Benchmarks
 
-You can run the benchmarks by executing `cargo bench -p benchmarks`. There
-currently is only a single benchmark, testing a small JSON payload in both
-pretty
-and compact representations.
+You can run the benchmarks by executing `RUSTFLAGS="-C target-cpu=native" cargo
+bench -p benchmarks --all-features`. There currently is only a single benchmark,
+testing a small JSON payload in both pretty and compact representations.
 
 ```text
 small-pretty/justjson/str
-                        time:   [704.31 ns 710.98 ns 719.96 ns]
+                        time:   [802.34 ns 804.91 ns 807.35 ns]
+small-pretty/justjson/doc/str
+                        time:   [603.15 ns 607.13 ns 611.21 ns]
 small-pretty/justjson/bytes
-                        time:   [707.41 ns 713.11 ns 720.05 ns]
-small-pretty/justjson/Read
-                        time:   [1.5964 µs 1.6050 µs 1.6160 µs]
+                        time:   [774.45 ns 775.84 ns 777.37 ns]
+small-pretty/justjson/doc/bytes
+                        time:   [688.51 ns 696.55 ns 705.09 ns]
 small-pretty/serde-json/str
-                        time:   [879.77 ns 884.96 ns 891.28 ns]
+                        time:   [860.82 ns 862.12 ns 863.43 ns]
 small-pretty/serde-json/bytes
-                        time:   [1.0128 µs 1.0190 µs 1.0265 µs]
-small-pretty/serde-json/Read
-                        time:   [1.5034 µs 1.5091 µs 1.5172 µs]
-small-pretty/tinyjson/str
-                        time:   [2.4486 µs 2.4770 µs 2.5081 µs]
+                        time:   [917.49 ns 920.17 ns 923.26 ns]
+small-pretty/simd-json/bytes
+                        time:   [702.67 ns 704.71 ns 706.61 ns]
+small-pretty/json-deserializer/bytes
+                        time:   [858.81 ns 861.37 ns 864.88 ns]
 
-small/justjson/str       time:   [676.76 ns 682.13 ns 688.31 ns]
-small/justjson/bytes     time:   [669.75 ns 674.20 ns 678.49 ns]
-small/justjson/Read      time:   [1.4983 µs 1.5020 µs 1.5065 µs]
-small/serde-json/str    time:   [854.80 ns 860.16 ns 866.49 ns]
-small/serde-json/bytes  time:   [953.65 ns 960.55 ns 969.05 ns]
-small/serde-json/Read   time:   [1.3772 µs 1.3815 µs 1.3862 µs]
-small/tinyjson/str      time:   [2.3340 µs 2.3450 µs 2.3587 µs]
+small/justjson/str      time:   [736.80 ns 739.94 ns 743.56 ns]
+small/justjson/doc/str  time:   [611.54 ns 618.64 ns 625.15 ns]
+small/justjson/bytes    time:   [710.26 ns 711.53 ns 712.86 ns]
+small/justjson/doc/bytes
+                        time:   [588.97 ns 594.66 ns 600.98 ns]
+small/serde-json/str    time:   [831.89 ns 833.17 ns 834.69 ns]
+small/serde-json/bytes  time:   [874.84 ns 876.26 ns 877.90 ns]
+small/simd-json/bytes   time:   [690.41 ns 691.48 ns 692.79 ns]
+small/json-deserializer/bytes
+                        time:   [778.87 ns 779.85 ns 780.85 ns]
 ```
 
 ## Usage of Unsafe Code
@@ -85,9 +98,12 @@ functions are used.
 [value]: https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html
 [string]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonString.html
 [number]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonNumber.html
+[document]: https://khonsulabs.github.io/justjson/main/justjson/doc/struct.Document.html
 [json-ld]: https://www.w3.org/TR/json-ld11/#compacted-document-form
 [fediverse]: https://en.wikipedia.org/wiki/Fediverse
 [activitypub]: https://www.w3.org/TR/activitypub/
+[simd-json]: https://github.com/simd-lite/simd-json
+[serde-json]: https://github.com/serde-rs/json
 
 ## Open-source Licenses
 

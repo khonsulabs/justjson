@@ -50,6 +50,11 @@ Configuration(
                 release: "https://docs.rs/justjson/*/justjson/struct.JsonNumber.html",
                 for_docs: "crate::JsonNumber",
             ),
+            "document": (
+                default: "https://khonsulabs.github.io/justjson/main/justjson/doc/struct.Document.html",
+                release: "https://docs.rs/justjson/*/justjson/doc/struct.Document.html",
+                for_docs: "crate::doc::Document",
+            ),
         }
     ],
 )
