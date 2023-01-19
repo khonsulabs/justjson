@@ -91,6 +91,14 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{Error, ErrorKind, Value};
 
 <span class="doccomment">/// A JSON-encoded number.
@@ -166,13 +174,13 @@
     // }
 </span>}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq&lt;JsonNumber&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;&gt; <span class="kw">for </span>JsonNumber&lt;String&gt; {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonNumber&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; bool {
-        <span class="self">self</span>.source == other.source
-    }
-}
+<span class="comment">// impl&lt;&#39;a&gt; PartialEq&lt;JsonNumber&lt;&amp;&#39;a str&gt;&gt; for JsonNumber&lt;String&gt; {
+//     fn eq(&amp;self, other: &amp;JsonNumber&lt;&amp;&#39;a str&gt;) -&gt; bool {
+//         self.source == other.source
+//     }
+// }
 
-<span class="attribute">#[test]
+</span><span class="attribute">#[test]
 </span><span class="kw">fn </span>json_number_from_json() {
     <span class="macro">assert_eq!</span>(
         JsonNumber::from_json(<span class="string">&quot;1&quot;</span>).unwrap(),
@@ -183,6 +191,14 @@
         .expect_err(<span class="string">&quot;shouldn&#39;t allow non-numbers&quot;</span>)
         .kind;
     <span class="macro">assert!</span>(<span class="macro">matches!</span>(expected_number, ErrorKind::ExpectedNumber));
+}
+
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>json_number_conversions() {
+    <span class="kw">let </span>one = JsonNumber::from_json(<span class="string">&quot;1&quot;</span>).unwrap();
+    <span class="macro">assert_eq!</span>(one.as_i64().unwrap(), <span class="number">1</span>);
+    <span class="macro">assert_eq!</span>(one.as_u64().unwrap(), <span class="number">1</span>);
+    <span class="macro">assert!</span>((one.as_f64().unwrap() - <span class="number">1.0</span>).abs() &lt; f64::EPSILON);
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="justjson" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

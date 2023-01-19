@@ -276,6 +276,25 @@
 <span id="276">276</span>
 <span id="277">277</span>
 <span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, str::CharIndices};
 
 <span class="kw">use crate</span>::{
@@ -367,13 +386,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq&lt;JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;&gt; <span class="kw">for </span>JsonString&lt;String&gt; {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; bool {
-        <span class="self">self</span>.source == other.source
-    }
-}
+<span class="comment">// impl&lt;&#39;a&gt; PartialEq&lt;JsonString&lt;&amp;&#39;a str&gt;&gt; for JsonString&lt;String&gt; {
+//     fn eq(&amp;self, other: &amp;JsonString&lt;&amp;&#39;a str&gt;) -&gt; bool {
+//         self.source == other.source
+//     }
+// }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>JsonString&lt;T&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>JsonString&lt;T&gt;
 <span class="kw">where
     </span>T: AsRef&lt;str&gt;,
 {
@@ -426,10 +445,19 @@
     <span class="kw">fn </span>test_json(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
         <span class="macro">assert_eq!</span>(JsonString::from_json(json).unwrap(), expected);
     }
+    <span class="kw">fn </span>test_json_ne(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
+        <span class="macro">assert_ne!</span>(JsonString::from_json(json).unwrap(), expected);
+    }
 
     test_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>, <span class="string">&quot;Hello, World!&quot;</span>);
     test_json(<span class="string">r#&quot;&quot;\&quot;\\\/\b\f\n\r\t\u25eF&quot;&quot;#</span>, <span class="string">&quot;\&quot;\\/\x07\x0c\n\r\t\u{25ef}&quot;</span>);
     test_json(<span class="string">&quot;\&quot;\u{25ef}\&quot;&quot;</span>, <span class="string">&quot;\u{25ef}&quot;</span>);
+    <span class="comment">// Test decoded length not being the same
+    </span>test_json_ne(<span class="string">r#&quot;&quot;\n&quot;&quot;#</span>, <span class="string">&quot;&quot;</span>);
+    <span class="comment">// Test decoded char not matching
+    </span>test_json_ne(<span class="string">r#&quot;&quot;\n&quot;&quot;#</span>, <span class="string">&quot;x&quot;</span>);
+    <span class="comment">// Test regular char not matching in decoded comparison
+    </span>test_json_ne(<span class="string">r#&quot;&quot;\na&quot;&quot;#</span>, <span class="string">&quot;\nx&quot;</span>);
 }
 
 <span class="attribute">#[test]
@@ -504,6 +532,16 @@
             .field(<span class="string">&quot;unescaped_length&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.unescaped_length())
             .finish()
     }
+}
+
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_string_info_debug() {
+    <span class="kw">let </span><span class="kw-2">mut </span>info = JsonStringInfo::NONE;
+    info.add_bytes_from_escape(<span class="number">1</span>);
+    <span class="macro">assert_eq!</span>(
+        <span class="macro">format!</span>(<span class="string">&quot;{info:?}&quot;</span>),
+        <span class="string">&quot;EscapeInfo { has_escapes: true, unescaped_length: 1 }&quot;
+    </span>);
 }
 
 <span class="kw">pub struct </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {

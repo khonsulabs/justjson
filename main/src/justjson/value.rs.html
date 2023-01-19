@@ -1258,6 +1258,7 @@
 <span id="1258">1258</span>
 <span id="1259">1259</span>
 <span id="1260">1260</span>
+<span id="1261">1261</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fmt::{<span class="self">self</span>, Display},
     iter::Peekable,
@@ -1985,6 +1986,7 @@
     <span class="macro">assert_eq!</span>(Value::&lt;<span class="kw-2">&amp;</span>str&gt;::Null.as_number(), <span class="prelude-val">None</span>);
     <span class="macro">assert_eq!</span>(Value::&lt;<span class="kw-2">&amp;</span>str&gt;::Null.as_string(), <span class="prelude-val">None</span>);
     <span class="macro">assert_eq!</span>(Value::&lt;<span class="kw-2">&amp;</span>str&gt;::Null.as_object(), <span class="prelude-val">None</span>);
+    <span class="macro">assert_eq!</span>(Value::&lt;<span class="kw-2">&amp;</span>str&gt;::Null.as_array(), <span class="prelude-val">None</span>);
 }
 
 <span class="kw">impl</span>&lt;Backing&gt; Display <span class="kw">for </span>Value&lt;Backing&gt;
