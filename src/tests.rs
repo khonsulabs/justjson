@@ -1,12 +1,18 @@
 use std::fmt::Write;
 
-use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
+use crate::{
+    doc::Document, Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value,
+};
 
 #[track_caller]
 fn test_json_parse(source: &[u8], value: &Value<&str>) {
     println!("Testing slice {}", std::str::from_utf8(source).unwrap());
 
-    assert_eq!(&Value::from_json_bytes(source).unwrap(), value);
+    let parsed_value = Value::from_json_bytes(source).unwrap();
+    assert_eq!(&parsed_value, value);
+
+    let doc = Document::from_json_bytes(source).unwrap();
+    assert_eq!(Value::from(doc), parsed_value);
 }
 
 #[test]

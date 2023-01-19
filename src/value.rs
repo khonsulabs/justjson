@@ -1,11 +1,12 @@
 use std::{
     fmt::{self, Display},
-    iter::Peekable,
     ops::{Deref, DerefMut},
-    slice,
 };
 
-use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
+use crate::{
+    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
+    Error, JsonNumber, JsonString,
+};
 
 /// A JSON value.
 ///
@@ -43,7 +44,7 @@ impl<'a> Value<&'a str> {
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
     pub fn from_json_with_config(json: &'a str, config: ParseConfig) -> Result<Self, Error> {
-        Self::from_bytes::<true>(json.as_bytes(), config)
+        Parser::parse_str_with_config(json, config, ValueParser)
     }
 
     /// Parses a JSON value from `json`, returning a `Value<&str>` that borrows
@@ -51,8 +52,6 @@ impl<'a> Value<&'a str> {
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    ///
-    /// This function is equivalent to calling
     pub fn from_json_bytes(json: &'a [u8]) -> Result<Self, Error> {
         Self::from_json_bytes_with_config(json, ParseConfig::default())
     }
@@ -63,7 +62,7 @@ impl<'a> Value<&'a str> {
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
     pub fn from_json_bytes_with_config(json: &'a [u8], config: ParseConfig) -> Result<Self, Error> {
-        Self::from_bytes::<false>(json, config)
+        Parser::parse_with_config(json, config, ValueParser)
     }
 
     // pub fn into_owned(self) -> Value<'static> {
@@ -89,428 +88,6 @@ impl<'a> Value<&'a str> {
     //         Value::Array(values) => Value::Array(values.iter().map(Self::to_owned).collect()),
     //     }
     // }
-}
-
-impl<'a> Value<&'a str> {
-    fn read_from_source<const GUARANTEED_UTF8: bool>(
-        source: &mut ByteIterator<'a, GUARANTEED_UTF8>,
-        state: &mut ParseState,
-    ) -> Result<Self, Error> {
-        let (offset, byte) = source.next_non_ws()?;
-        Self::read_from_first_byte(offset, byte, source, state)
-    }
-
-    fn read_from_first_byte<const GUARANTEED_UTF8: bool>(
-        offset: usize,
-        first: &'a u8,
-        source: &mut ByteIterator<'a, GUARANTEED_UTF8>,
-        state: &mut ParseState,
-    ) -> Result<Self, Error> {
-        let value = match (offset, first) {
-            (offset, b'"') => Value::String(Self::read_string_from_source(source, offset)?),
-            (offset, b'{') => {
-                state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                Value::Object(Self::read_object_from_source(source, state)?)
-            }
-            (offset, b'[') => {
-                state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                Value::Array(Self::read_array_from_source(source, state)?)
-            }
-            (offset, ch) if ch == &b'-' || ch == &b'+' => Value::Number(
-                Self::read_number_from_source(source, InitialNumberState::Sign, offset)?,
-            ),
-            (offset, b'0') => Value::Number(Self::read_number_from_source(
-                source,
-                InitialNumberState::Zero,
-                offset,
-            )?),
-            (offset, ch) if (b'1'..=b'9').contains(ch) => Value::Number(
-                Self::read_number_from_source(source, InitialNumberState::Digit, offset)?,
-            ),
-            (_, b't') => Self::read_literal_from_source(source, b"rue", Value::Boolean(true))?,
-            (_, b'f') => Self::read_literal_from_source(source, b"alse", Value::Boolean(false))?,
-            (_, b'n') => Self::read_literal_from_source(source, b"ull", Value::Null)?,
-            (offset, other) => {
-                return Err(Error {
-                    offset,
-                    kind: ErrorKind::Unexpected(*other),
-                })
-            }
-        };
-
-        Ok(value)
-    }
-
-    fn from_bytes<const GUARANTEED_UTF8: bool>(
-        source: &'a [u8],
-        config: ParseConfig,
-    ) -> Result<Self, Error> {
-        let mut state = ParseState::from(config);
-        let mut source = ByteIterator::<GUARANTEED_UTF8>::new(source);
-        let value = Self::read_from_source(&mut source, &mut state)?;
-
-        if !state.config.allow_all_types_at_root
-            && !matches!(value, Value::Object(_) | Value::Array(_))
-        {
-            return Err(Error {
-                offset: 0,
-                kind: ErrorKind::PayloadsShouldBeObjectOrArray,
-            });
-        }
-
-        match source.next_non_ws() {
-            Err(err) => {
-                // The only error that next_non_ws can return is an unexpected
-                // eof.
-                debug_assert!(matches!(err.kind, ErrorKind::UnexpectedEof));
-                Ok(value)
-            }
-            Ok((offset, _)) => Err(Error {
-                offset,
-                kind: ErrorKind::TrailingNonWhitespace,
-            }),
-        }
-    }
-
-    fn read_object_from_source<const GUARANTEED_UTF8: bool>(
-        source: &mut ByteIterator<'a, GUARANTEED_UTF8>,
-        state: &mut ParseState,
-    ) -> Result<Object<&'a str>, Error> {
-        let inner = |source: &mut ByteIterator<'a, GUARANTEED_UTF8>, state: &mut ParseState| {
-            let mut object = Object::default();
-            loop {
-                let (offset, byte) = source.next_non_ws()?;
-
-                let key = if byte == &b'"' {
-                    Self::read_string_from_source(source, offset)?
-                } else if byte == &b'}' {
-                    if object.0.is_empty() || state.config.allow_trailing_commas {
-                        break;
-                    }
-
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::IllegalTrailingComma,
-                    });
-                } else if matches!(byte, b'+' | b'-' | b'{' | b'[' | b't' | b'f' | b'n')
-                    || byte.is_ascii_digit()
-                {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::ObjectKeysMustBeStrings,
-                    });
-                } else {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::ExpectedObjectKey,
-                    });
-                };
-
-                match source.next_non_ws() {
-                    Ok((_, b':')) => {}
-                    Ok((offset, _)) => {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::ExpectedColon,
-                        })
-                    }
-                    Err(mut other) => {
-                        other.kind = ErrorKind::ExpectedColon;
-                        return Err(other);
-                    }
-                }
-
-                let value = Self::read_from_source(source, state)?;
-
-                object.0.push(Entry { key, value });
-                match source.next_non_ws()? {
-                    (_, b',') => {}
-                    (_, b'}') => break,
-                    (offset, _) => {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::ExpectedCommaOrEndOfObject,
-                        })
-                    }
-                }
-            }
-
-            Ok(object)
-        };
-        let result = inner(source, state).map_err(|mut err| {
-            if matches!(err.kind, ErrorKind::UnexpectedEof) {
-                err.kind = ErrorKind::UnclosedObject;
-            }
-            err
-        });
-        state.end_nest();
-        result
-    }
-
-    fn read_array_from_source<const GUARANTEED_UTF8: bool>(
-        source: &mut ByteIterator<'a, GUARANTEED_UTF8>,
-        state: &mut ParseState,
-    ) -> Result<Vec<Value<&'a str>>, Error> {
-        let inner = |source: &mut ByteIterator<'a, GUARANTEED_UTF8>, state: &mut ParseState| {
-            let mut values = Vec::new();
-            loop {
-                let (offset, byte) = source.next_non_ws()?;
-
-                let value = if byte == &b']' {
-                    if values.is_empty() || state.config.allow_trailing_commas {
-                        break;
-                    }
-
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::IllegalTrailingComma,
-                    });
-                } else {
-                    Self::read_from_first_byte(offset, byte, source, state)?
-                };
-
-                values.push(value);
-
-                match source.next_non_ws()? {
-                    (_, b',') => {}
-                    (_, b']') => break,
-                    (offset, _) => {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::ExpectedCommaOrEndOfArray,
-                        })
-                    }
-                }
-            }
-
-            Ok(values)
-        };
-
-        let result = inner(source, state).map_err(|mut err| {
-            if matches!(err.kind, ErrorKind::UnexpectedEof) {
-                err.kind = ErrorKind::UnclosedArray;
-            }
-            err
-        });
-        state.end_nest();
-        result
-    }
-
-    #[allow(unsafe_code)]
-    fn read_string_from_source<const GUARANTEED_UTF8: bool>(
-        source: &mut ByteIterator<'a, GUARANTEED_UTF8>,
-        start: usize,
-    ) -> Result<JsonString<&'a str>, Error> {
-        let safe_strings = if GUARANTEED_UTF8 {
-            SAFE_STRING_BYTES
-        } else {
-            SAFE_STRING_BYTES_VERIFY_UTF8
-        };
-        let mut string_info = JsonStringInfo::NONE;
-
-        loop {
-            let (offset, byte) = source.next().ok_or(Error {
-                offset: source.offset,
-                kind: ErrorKind::UnclosedString,
-            })?;
-            if safe_strings[usize::from(*byte)] {
-                string_info.add_bytes(1);
-            } else {
-                match byte {
-                    b'"' => {
-                        break Ok(JsonString {
-                            source: unsafe {
-                                std::str::from_utf8_unchecked(&source.bytes[start..=offset])
-                            },
-                            info: string_info,
-                        })
-                    }
-                    b'\\' => match source.read()? {
-                        (_, ch)
-                            if matches!(
-                                ch,
-                                b'"' | b'\\' | b'/' | b'b' | b'f' | b'r' | b'n' | b't'
-                            ) =>
-                        {
-                            string_info.add_bytes_from_escape(1);
-                        }
-                        (offset, b'u') => {
-                            // 4 hexadecimal digits.
-                            let mut decoded = 0_u16;
-                            for _ in 0..4 {
-                                let (offset, digit) = source.read()?;
-                                let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
-                                if nibble == u8::MAX {
-                                    return Err(Error {
-                                        offset,
-                                        kind: ErrorKind::InvalidHexadecimal,
-                                    });
-                                }
-                                decoded = decoded << 4 | u16::from(nibble);
-                            }
-                            if let Some(ch) = char::from_u32(u32::from(decoded)) {
-                                string_info.add_bytes_from_escape(ch.len_utf8());
-                            } else {
-                                // Produce a Utf8 error.
-                                let bytes = decoded.to_be_bytes();
-                                let err =
-                                    std::str::from_utf8(&bytes).expect_err("invalid codepoint");
-                                return Err(Error {
-                                    offset,
-                                    kind: ErrorKind::from(err),
-                                });
-                            }
-                        }
-                        (offset, _) => {
-                            return Err(Error {
-                                offset,
-                                kind: ErrorKind::InvalidEscape,
-                            })
-                        }
-                    },
-                    128..=255 => {
-                        // Manual UTF-8 validation
-                        let utf8_start = offset;
-                        while let Some(byte) = source.peek() {
-                            if byte < &&128 {
-                                break;
-                            }
-
-                            source.next();
-                        }
-
-                        let unicode_end = source.offset;
-                        string_info.add_bytes(unicode_end - utf8_start);
-                        if let Err(err) =
-                            std::str::from_utf8(&source.bytes[utf8_start..unicode_end])
-                        {
-                            // The offset on this is incorrect.
-                            return Err(Error {
-                                offset,
-                                kind: ErrorKind::from(err),
-                            });
-                        }
-                    }
-                    0..=31 => {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::Unexpected(*byte),
-                        })
-                    }
-                    b' '..=127 => {
-                        unreachable!()
-                    }
-                }
-            }
-        }
-    }
-
-    #[allow(unsafe_code)]
-    fn read_number_from_source<const GUARANTEED_UTF8: bool>(
-        source: &mut ByteIterator<'a, GUARANTEED_UTF8>,
-        initial_state: InitialNumberState,
-        start: usize,
-    ) -> Result<JsonNumber<&'a str>, Error> {
-        // Numbers are the "hardest" in that we have to peek the digits since
-        // there is no terminal character. Every other type in JSON has a way to
-        // know when the type ends.
-
-        // First, if the number began with a sign, we must read an integer
-        // digit. The JSON spec disallows numbers with leading 0s. If the first
-        // digit is a 0, it must be a decimal with a 0 integer value.
-        if initial_state != InitialNumberState::Zero {
-            let mut read_integer_digit = initial_state == InitialNumberState::Digit;
-            while let Some(byte) = source.peek() {
-                if byte.is_ascii_digit() {
-                    source.read()?;
-                    read_integer_digit = true;
-                } else {
-                    break;
-                }
-            }
-
-            if !read_integer_digit {
-                return Err(Error {
-                    offset: source.offset,
-                    kind: ErrorKind::ExpectedDigit,
-                });
-            }
-        }
-
-        // If the next character is a period, this is a floating point literal.
-        if let Some(b'.') = source.peek() {
-            source.next();
-
-            // Read one or more decimal digits
-            let mut read_decimal_digit = false;
-            while let Some(byte) = source.peek() {
-                if byte.is_ascii_digit() {
-                    source.next();
-                    read_decimal_digit = true;
-                } else {
-                    break;
-                }
-            }
-
-            if !read_decimal_digit {
-                return Err(Error {
-                    offset: source.offset,
-                    kind: ErrorKind::ExpectedDecimalDigit,
-                });
-            }
-        }
-
-        // Next, we might have an exponent
-        if let Some(b'e' | b'E') = source.peek() {
-            source.next();
-
-            // Next, we might have a sign
-            if let Some(b'-' | b'+') = source.peek() {
-                source.next();
-            }
-
-            // Read one or more exponent digits
-            let mut read_exponent_digit = false;
-            while let Some(byte) = source.peek() {
-                if byte.is_ascii_digit() {
-                    source.next();
-                    read_exponent_digit = true;
-                } else {
-                    break;
-                }
-            }
-
-            if !read_exponent_digit {
-                return Err(Error {
-                    offset: source.offset,
-                    kind: ErrorKind::ExpectedExponent,
-                });
-            }
-        }
-
-        Ok(JsonNumber {
-            source: unsafe { std::str::from_utf8_unchecked(&source.bytes[start..source.offset]) },
-        })
-    }
-
-    fn read_literal_from_source<const GUARANTEED_UTF8: bool>(
-        source: &mut ByteIterator<'a, GUARANTEED_UTF8>,
-        remaining_bytes: &[u8],
-        value: Self,
-    ) -> Result<Self, Error> {
-        for expected in remaining_bytes {
-            let (offset, byte) = source.read()?;
-
-            if byte != expected {
-                return Err(Error {
-                    offset,
-                    kind: ErrorKind::Unexpected(*byte),
-                });
-            }
-        }
-
-        Ok(value)
-    }
 }
 
 impl<Backing> Value<Backing>
@@ -741,6 +318,92 @@ where
     }
 }
 
+struct ValueParser;
+
+impl<'a> ParseDelegate<'a> for ValueParser {
+    type Value = Value<&'a str>;
+    type Object = Object<&'a str>;
+    type Array = Vec<Value<&'a str>>;
+    type Key = JsonString<&'a str>;
+
+    #[inline]
+    fn null(&mut self) -> Self::Value {
+        Value::Null
+    }
+
+    #[inline]
+    fn boolean(&mut self, value: bool) -> Self::Value {
+        Value::Boolean(value)
+    }
+
+    #[inline]
+    fn number(&mut self, value: JsonNumber<&'a str>) -> Self::Value {
+        Value::Number(value)
+    }
+
+    #[inline]
+    fn string(&mut self, value: JsonString<&'a str>) -> Self::Value {
+        Value::String(value)
+    }
+
+    #[inline]
+    fn begin_object(&mut self) -> Self::Object {
+        Object::default()
+    }
+
+    #[inline]
+    fn object_key(&mut self, _object: &mut Self::Object, key: JsonString<&'a str>) -> Self::Key {
+        key
+    }
+
+    #[inline]
+    fn object_value(&mut self, object: &mut Self::Object, key: Self::Key, value: Self::Value) {
+        object.push(key, value);
+    }
+
+    #[inline]
+    fn object_is_empty(&self, object: &Self::Object) -> bool {
+        object.is_empty()
+    }
+
+    #[inline]
+    fn end_object(&mut self, object: Self::Object) -> Self::Value {
+        Value::Object(object)
+    }
+
+    #[inline]
+    fn begin_array(&mut self) -> Self::Array {
+        Vec::new()
+    }
+
+    #[inline]
+    fn array_value(&mut self, array: &mut Self::Array, value: Self::Value) {
+        array.push(value);
+    }
+
+    #[inline]
+    fn array_is_empty(&self, array: &Self::Array) -> bool {
+        array.is_empty()
+    }
+
+    #[inline]
+    fn end_array(&mut self, array: Self::Array) -> Self::Value {
+        Value::Array(array)
+    }
+
+    #[inline]
+    fn kind_of(&self, value: &Self::Value) -> JsonKind {
+        match value {
+            Value::Number(_) => JsonKind::Number,
+            Value::String(_) => JsonKind::String,
+            Value::Boolean(_) => JsonKind::Boolean,
+            Value::Object(_) => JsonKind::Object,
+            Value::Array(_) => JsonKind::Array,
+            Value::Null => JsonKind::Null,
+        }
+    }
+}
+
 struct WriteState<'a, W, const PRETTY: bool> {
     writer: W,
     level: usize,
@@ -818,143 +481,6 @@ where
     }
 }
 
-#[derive(Eq, PartialEq, Copy, Clone)]
-enum InitialNumberState {
-    Zero,
-    Digit,
-    Sign,
-}
-
-struct ByteIterator<'a, const GUARANTEED_UTF8: bool> {
-    bytes: &'a [u8],
-    offset: usize,
-    iterator: Peekable<slice::Iter<'a, u8>>,
-}
-
-impl<'a, const GUARANTEED_UTF8: bool> Iterator for ByteIterator<'a, GUARANTEED_UTF8> {
-    type Item = (usize, &'a u8);
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        self.iterator.next().map(|b| {
-            let offset = self.offset;
-            self.offset += 1;
-            (offset, b)
-        })
-    }
-}
-
-impl<'a, const GUARANTEED_UTF8: bool> ByteIterator<'a, GUARANTEED_UTF8> {
-    #[inline]
-    pub fn new(slice: &'a [u8]) -> Self {
-        Self {
-            bytes: slice,
-            offset: 0,
-            iterator: slice.iter().peekable(),
-        }
-    }
-
-    #[inline]
-    pub fn peek(&mut self) -> Option<&&'a u8> {
-        self.iterator.peek()
-    }
-
-    #[inline]
-    fn next_non_ws(&mut self) -> Result<(usize, &'a u8), Error> {
-        loop {
-            match self.read()? {
-                (_, b' ' | b'\n' | b'\t' | b'\r') => {}
-                other => return Ok(other),
-            }
-        }
-    }
-
-    #[inline]
-    fn read(&mut self) -> Result<(usize, &'a u8), Error> {
-        self.next().ok_or(Error {
-            offset: self.offset,
-            kind: ErrorKind::UnexpectedEof,
-        })
-    }
-}
-
-#[allow(clippy::inconsistent_digit_grouping)]
-static HEX_OFFSET_TABLE: [u8; 256] = {
-    const ERR: u8 = u8::MAX;
-    [
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 0
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 1
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 2
-        0__, 1__, 2__, 3__, 4__, 5__, 6__, 7__, 8__, 9__, ERR, ERR, ERR, ERR, ERR, ERR, // 3
-        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 4
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 5
-        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 6
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 7
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 8
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 9
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // A
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // B
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // C
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // D
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // E
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // F
-    ]
-};
-
-static SAFE_STRING_BYTES: &[bool; 256] = {
-    const ER: bool = false;
-    const UC: bool = true;
-    const BS: bool = false;
-    const QU: bool = false;
-    const __: bool = true;
-    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    &[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
-        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
-        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
-    ]
-};
-
-static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
-    const ER: bool = false;
-    const UC: bool = false;
-    const BS: bool = false;
-    const QU: bool = false;
-    const __: bool = true;
-    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    &[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
-        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
-        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
-    ]
-};
-
 // impl<'a> PartialEq<Value<&'a str>> for Value<String> {
 //     fn eq(&self, other: &Value<&'a str>) -> bool {
 //         match (self, other) {
@@ -984,6 +510,18 @@ impl<Backing> Object<Backing> {
     #[must_use]
     pub const fn new() -> Self {
         Self(Vec::new())
+    }
+
+    /// Returns an empty object that can store up to `capacity` elements without
+    /// reallocating.
+    #[must_use]
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self(Vec::with_capacity(capacity))
+    }
+
+    /// Adds a new key-value pair to this object.
+    pub fn push(&mut self, key: JsonString<Backing>, value: Value<Backing>) {
+        self.0.push(Entry { key, value });
     }
 }
 
@@ -1109,153 +647,4 @@ fn numbers() {
         Value::from_json("1.0e-10").unwrap(),
         Value::Number(JsonNumber { source: "1.0e-10" })
     );
-}
-
-/// A JSON Value parsing configuration.
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
-#[non_exhaustive]
-#[must_use]
-pub struct ParseConfig {
-    /// If true, allows trailing commas when parsing arrays and objects. If
-    /// false, trailing commas will cause an [`ErrorKind::IllegalTrailingComma`]
-    /// to be returned.
-    pub allow_trailing_commas: bool,
-    /// If present, nested arrays and objects will be limited to
-    /// `recursion_limit` levels of nesting. If not present, no checks will be
-    /// performed which can cause a stack overflow with very deeply nested
-    /// payloads.
-    pub recursion_limit: Option<usize>,
-    /// If true, only arrays or objects will be allowed to parse at the root of
-    /// the JSON payload.
-    pub allow_all_types_at_root: bool,
-}
-
-impl Default for ParseConfig {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl ParseConfig {
-    /// Returns the default configuration:
-    ///
-    /// ```rust
-    /// let config = justjson::ParseConfig::new();
-    /// assert_eq!(config.allow_trailing_commas, false);
-    /// assert_eq!(config.recursion_limit, Some(128));
-    /// assert_eq!(config.allow_all_types_at_root, true);
-    /// ```
-    pub const fn new() -> Self {
-        Self {
-            allow_trailing_commas: false,
-            recursion_limit: Some(128),
-            allow_all_types_at_root: true,
-        }
-    }
-
-    /// Returns a strict configuration, which differs from the default
-    /// configuration by only allowing objects and arrays at the root:
-    ///
-    /// ```rust
-    /// let config = justjson::ParseConfig::strict();
-    /// assert_eq!(config.allow_trailing_commas, false);
-    /// assert_eq!(config.recursion_limit, Some(128));
-    /// assert_eq!(config.allow_all_types_at_root, false);
-    /// ```
-    pub const fn strict() -> Self {
-        Self {
-            allow_trailing_commas: false,
-            recursion_limit: Some(128),
-            allow_all_types_at_root: false,
-        }
-    }
-
-    /// Disables recursuion limit testing.
-    ///
-    /// Note: Malicious payloads may be able to cause stack overflows to occur
-    /// if this is disabled.
-    pub const fn without_recursion_limit(mut self) -> Self {
-        self.recursion_limit = None;
-        self
-    }
-
-    /// Sets the maximum recursion limit to `limit`.
-    pub const fn with_recursion_limit(mut self, limit: usize) -> Self {
-        self.recursion_limit = Some(limit);
-        self
-    }
-
-    /// Sets whether to allow all types at the root of the JSON payload. If
-    /// false, only arrays and objects will be allowed at the root of the JSON
-    /// payload.
-    pub const fn allowing_all_types_at_root(mut self, allow_all: bool) -> Self {
-        self.allow_all_types_at_root = allow_all;
-        self
-    }
-
-    /// Allows trailing commas when parsing objects and arrays.
-    ///
-    /// ```rust
-    /// let source = r#"{"a":[true,],}"#;
-    /// justjson::Value::from_json(source).expect_err("not enabled by default");
-    /// let config = justjson::ParseConfig::new().allowing_trailing_commas();
-    /// justjson::Value::from_json_with_config(source, config).expect("now parses");
-    /// ```
-    pub const fn allowing_trailing_commas(mut self) -> Self {
-        self.allow_trailing_commas = true;
-        self
-    }
-}
-
-#[test]
-fn config_test() {
-    // Flip all the values of the strict config, and verify it matches.
-    assert_eq!(
-        ParseConfig::strict()
-            .allowing_trailing_commas()
-            .without_recursion_limit()
-            .allowing_all_types_at_root(true),
-        ParseConfig {
-            allow_trailing_commas: true,
-            recursion_limit: None,
-            allow_all_types_at_root: true
-        }
-    );
-}
-
-#[derive(Debug)]
-struct ParseState {
-    config: ParseConfig,
-    remaining_depth: usize,
-}
-
-impl ParseState {
-    #[inline]
-    pub fn begin_nest(&mut self) -> Result<(), ErrorKind> {
-        if self.config.recursion_limit.is_some() {
-            if self.remaining_depth > 0 {
-                self.remaining_depth -= 1;
-            } else {
-                return Err(ErrorKind::RecursionLimitReached);
-            }
-        }
-
-        Ok(())
-    }
-
-    #[inline]
-    pub fn end_nest(&mut self) {
-        if self.config.recursion_limit.is_some() {
-            self.remaining_depth += 1;
-        }
-    }
-}
-
-impl From<ParseConfig> for ParseState {
-    fn from(config: ParseConfig) -> Self {
-        Self {
-            remaining_depth: config.recursion_limit.unwrap_or(usize::MAX),
-            config,
-        }
-    }
 }

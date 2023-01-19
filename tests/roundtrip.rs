@@ -1,6 +1,6 @@
 use std::fs;
 
-use justjson::Value;
+use justjson::{doc::Document, Value};
 
 #[test]
 fn suite() {
@@ -13,7 +13,12 @@ fn suite() {
             let contents = fs::read(entry.path()).unwrap();
             let value = Value::from_json_bytes(&contents).unwrap();
             let as_json = value.to_json();
-            assert_eq!(as_json, String::from_utf8(contents).unwrap());
+            assert_eq!(as_json.as_bytes(), contents);
+
+            // Test that Document -> Value conversion works for this value as
+            // well.
+            let doc = Document::from_json_bytes(&contents).unwrap();
+            assert_eq!(Value::from(doc), value);
         }
     }
 }

@@ -17,12 +17,15 @@ pub use crate::{
     error::{Error, ErrorKind},
     number::JsonNumber,
     string::{JsonString, JsonStringInfo},
-    value::{Object, ParseConfig, Value},
+    value::{Object, Value},
 };
 
-// pub mod parse;
+/// A JSON DOM representation with minimal processing.
+pub mod doc;
 mod error;
 mod number;
+/// A low-level event-driven JSON parser.
+pub mod parser;
 mod string;
 #[cfg(test)]
 mod tests;

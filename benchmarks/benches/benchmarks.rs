@@ -21,6 +21,10 @@ fn justjson_parse(json: &str) -> justjson::Value<&str> {
     justjson::Value::from_json(json).unwrap()
 }
 
+fn justjson_parse_doc(json: &str) -> justjson::doc::Document<'_> {
+    justjson::doc::Document::from_json(json).unwrap()
+}
+
 fn serde_json_value_parse(json: &str) -> serde_json::Value {
     serde_json::from_str(json).unwrap()
 }
@@ -38,6 +42,10 @@ fn justjson_parse_bytes(json: &str) -> justjson::Value<&str> {
     justjson::Value::from_json_bytes(json.as_bytes()).unwrap()
 }
 
+fn justjson_parse_doc_bytes(json: &str) -> justjson::doc::Document<'_> {
+    justjson::doc::Document::from_json_bytes(json.as_bytes()).unwrap()
+}
+
 fn serde_json_value_parse_bytes(json: &str) -> serde_json::Value {
     serde_json::from_slice(json.as_bytes()).unwrap()
 }
@@ -47,8 +55,16 @@ fn bench_with_input(mut group: BenchmarkGroup<'_, WallTime>, input: &str) {
         b.iter(|| justjson_parse(black_box(input)));
     });
 
+    group.bench_function("justjson/doc/str", |b| {
+        b.iter(|| justjson_parse_doc(black_box(input)));
+    });
+
     group.bench_function("justjson/bytes", |b| {
         b.iter(|| justjson_parse_bytes(black_box(input)));
+    });
+
+    group.bench_function("justjson/doc/bytes", |b| {
+        b.iter(|| justjson_parse_doc_bytes(black_box(input)));
     });
 
     group.bench_function("serde-json/str", |b| {
