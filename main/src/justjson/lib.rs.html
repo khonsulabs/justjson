@@ -27,6 +27,9 @@
 <span id="27">27</span>
 <span id="28">28</span>
 <span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
 </pre><pre class="rust"><code><span class="attribute">#![doc = <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>)]
 #![warn(
     clippy::cargo,
@@ -46,12 +49,15 @@
     error::{Error, ErrorKind},
     number::JsonNumber,
     string::{JsonString, JsonStringInfo},
-    value::{Object, ParseConfig, Value},
+    value::{Object, Value},
 };
 
-<span class="comment">// pub mod parse;
-</span><span class="kw">mod </span>error;
+<span class="doccomment">/// A JSON DOM representation with minimal processing.
+</span><span class="kw">pub mod </span>doc;
+<span class="kw">mod </span>error;
 <span class="kw">mod </span>number;
+<span class="doccomment">/// A low-level event-driven JSON parser.
+</span><span class="kw">pub mod </span>parser;
 <span class="kw">mod </span>string;
 <span class="attribute">#[cfg(test)]
 </span><span class="kw">mod </span>tests;

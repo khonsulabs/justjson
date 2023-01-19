@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["Node","A single value in a [`Document`]."]],"struct":[["Document","A parsed JSON payload."],["DocumentIter","An iterator over the [`Node`]s in a [`Document`]."]]};
