@@ -1,6 +1,5 @@
 # justjson
 
-
 [![crate version](https://img.shields.io/crates/v/justjson.svg)](https://crates.io/crates/justjson)
 [![Live Build Status](https://img.shields.io/github/actions/workflow/status/khonsulabs/justjson/rust.yml?branch=main)](https://github.com/khonsulabs/justjson/actions?query=workflow:Tests)
 [![HTML Coverage Report for `main` branch](https://khonsulabs.github.io/justjson/coverage/badge.svg)](https://khonsulabs.github.io/justjson/coverage/)
@@ -8,7 +7,10 @@
 
 An efficient JSON [`Value`][value] crate for Rust.
 
-## Why another JSON parser?
+**This crate is thoroughly tested, but it's still very early in development.
+Feedback is greatly appreciated.**
+
+## Why another JSON library?
 
 This library is for developers who:
 
