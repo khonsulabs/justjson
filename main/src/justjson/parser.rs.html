@@ -910,7 +910,7 @@
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
-        <span class="self">Self</span>::parse_with_config(value, ParseConfig::default(), delegate)
+        <span class="self">Self</span>::parse_json_bytes_with_config(value, ParseConfig::default(), delegate)
     }
 
     <span class="doccomment">/// Parses a JSON payload, invoking functions on `delegate` as the payload
@@ -918,7 +918,7 @@
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>parse_with_config&lt;D&gt;(
+    </span><span class="kw">pub fn </span>parse_json_bytes_with_config&lt;D&gt;(
         value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
         config: ParseConfig,
         delegate: D,
@@ -940,7 +940,7 @@
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
-        <span class="self">Self</span>::parse_str_with_config(value, ParseConfig::default(), delegate)
+        <span class="self">Self</span>::parse_json_with_config(value, ParseConfig::default(), delegate)
     }
 
     <span class="doccomment">/// Parses a JSON payload, invoking functions on `delegate` as the payload
@@ -948,7 +948,7 @@
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>parse_str_with_config&lt;D&gt;(
+    </span><span class="kw">pub fn </span>parse_json_with_config&lt;D&gt;(
         value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
         config: ParseConfig,
         delegate: D,

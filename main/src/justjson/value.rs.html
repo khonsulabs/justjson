@@ -694,7 +694,7 @@
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
     </span><span class="kw">pub fn </span>from_json_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        Parser::parse_str_with_config(json, config, ValueParser)
+        Parser::parse_json_with_config(json, config, ValueParser)
     }
 
     <span class="doccomment">/// Parses a JSON value from `json`, returning a `Value&lt;&amp;str&gt;` that borrows
@@ -712,7 +712,7 @@
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
     </span><span class="kw">pub fn </span>from_json_bytes_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        Parser::parse_with_config(json, config, ValueParser)
+        Parser::parse_json_bytes_with_config(json, config, ValueParser)
     }
 
     <span class="comment">// pub fn into_owned(self) -&gt; Value&lt;&#39;static&gt; {
