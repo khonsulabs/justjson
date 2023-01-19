@@ -3,7 +3,7 @@
 [![crate version](https://img.shields.io/crates/v/justjson.svg)](https://crates.io/crates/justjson)
 [![Live Build Status](https://img.shields.io/github/actions/workflow/status/khonsulabs/justjson/rust.yml?branch=main)](https://github.com/khonsulabs/justjson/actions?query=workflow:Tests)
 [![HTML Coverage Report for `main` branch](https://khonsulabs.github.io/justjson/coverage/badge.svg)](https://khonsulabs.github.io/justjson/coverage/)
-[![Documentation](https://img.shields.io/badge/docs-main-informational)](https://khonsulabs.github.io/justjson/main/justjson)
+[![Documentation](https://img.shields.io/badge/docs-main-informational)](https://docs.rs/justjson)
 
 An efficient JSON [`Value`][value] crate for Rust.
 
@@ -97,10 +97,10 @@ This crate uses unsafe code only when converting from raw incoming data to UTF-8
 data. The parser fully verifies that the data is valid UTF-8 before these
 functions are used.
 
-[value]: https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html
-[string]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonString.html
-[number]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonNumber.html
-[document]: https://khonsulabs.github.io/justjson/main/justjson/doc/struct.Document.html
+[value]: https://docs.rs/justjson/*/justjson/enum.Value.html
+[string]: https://docs.rs/justjson/*/justjson/struct.JsonString.html
+[number]: https://docs.rs/justjson/*/justjson/struct.JsonNumber.html
+[document]: https://docs.rs/justjson/*/justjson/doc/struct.Document.html
 [json-ld]: https://www.w3.org/TR/json-ld11/#compacted-document-form
 [fediverse]: https://en.wikipedia.org/wiki/Fediverse
 [activitypub]: https://www.w3.org/TR/activitypub/
