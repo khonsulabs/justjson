@@ -1,0 +1,31 @@
+[package]
+name = "justjson-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2018"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.justjson]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "basic"
+path = "fuzz_targets/basic.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "binary"
+path = "fuzz_targets/binary.rs"
+test = false
+doc = false
