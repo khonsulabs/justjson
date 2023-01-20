@@ -351,12 +351,9 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                                 string_info.add_bytes_from_escape(ch.len_utf8());
                             } else {
                                 // Produce a Utf8 error.
-                                let bytes = decoded.to_be_bytes();
-                                let err =
-                                    std::str::from_utf8(&bytes).expect_err("invalid codepoint");
                                 return Err(Error {
                                     offset,
-                                    kind: ErrorKind::from(err),
+                                    kind: ErrorKind::Utf8,
                                 });
                             }
                         }
@@ -380,13 +377,12 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
                         let unicode_end = self.source.offset;
                         string_info.add_bytes(unicode_end - utf8_start);
-                        if let Err(err) =
-                            std::str::from_utf8(&self.source.bytes[utf8_start..unicode_end])
+                        if std::str::from_utf8(&self.source.bytes[utf8_start..unicode_end]).is_err()
                         {
                             // The offset on this is incorrect.
                             return Err(Error {
                                 offset,
-                                kind: ErrorKind::from(err),
+                                kind: ErrorKind::Utf8,
                             });
                         }
                     }
