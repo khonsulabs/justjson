@@ -878,10 +878,6 @@
 <span id="878">878</span>
 <span id="879">879</span>
 <span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::slice;
 <span class="kw">use </span>std::{iter::Peekable, marker::PhantomData};
 
@@ -1235,12 +1231,9 @@
                                 string_info.add_bytes_from_escape(ch.len_utf8());
                             } <span class="kw">else </span>{
                                 <span class="comment">// Produce a Utf8 error.
-                                </span><span class="kw">let </span>bytes = decoded.to_be_bytes();
-                                <span class="kw">let </span>err =
-                                    std::str::from_utf8(<span class="kw-2">&amp;</span>bytes).expect_err(<span class="string">&quot;invalid codepoint&quot;</span>);
-                                <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                                </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                                     offset,
-                                    kind: ErrorKind::from(err),
+                                    kind: ErrorKind::Utf8,
                                 });
                             }
                         }
@@ -1264,13 +1257,12 @@
 
                         <span class="kw">let </span>unicode_end = <span class="self">self</span>.source.offset;
                         string_info.add_bytes(unicode_end - utf8_start);
-                        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                            std::str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[utf8_start..unicode_end])
+                        <span class="kw">if </span>std::str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[utf8_start..unicode_end]).is_err()
                         {
                             <span class="comment">// The offset on this is incorrect.
                             </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                                 offset,
-                                kind: ErrorKind::from(err),
+                                kind: ErrorKind::Utf8,
                             });
                         }
                     }
