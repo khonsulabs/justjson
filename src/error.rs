@@ -26,8 +26,8 @@ impl Error {
 #[non_exhaustive]
 pub enum ErrorKind {
     /// An invalid UTF-8 sequence was encountered.
-    #[error("invalid utf-8: {0}")]
-    Utf8(#[from] std::str::Utf8Error),
+    #[error("invalid utf-8")]
+    Utf8,
     /// An end-of-file was encountered when it wasn't expected.
     #[error("unexpected end of file")]
     UnexpectedEof,
