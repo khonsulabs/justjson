@@ -1,9 +1,8 @@
-use std::{iter::Cloned, slice};
+use std::iter::Cloned;
+use std::slice;
 
-use crate::{
-    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
-    Error, JsonNumber, JsonString, Object, Value,
-};
+use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
+use crate::{Error, JsonNumber, JsonString, Object, Value};
 
 /// A parsed JSON payload.
 ///
@@ -134,8 +133,8 @@ where
 }
 
 impl<'doc, 'a> IntoIterator for &'doc Document<'a> {
-    type Item = Node<'a>;
     type IntoIter = DocumentIter<'doc, 'a>;
+    type Item = Node<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
         DocumentIter {
@@ -213,10 +212,10 @@ impl<'a> Nodes<'a> {
 }
 
 impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
-    type Value = usize;
-    type Object = usize;
     type Array = usize;
     type Key = ();
+    type Object = usize;
+    type Value = usize;
 
     #[inline]
     fn null(&mut self) -> Self::Value {
@@ -308,10 +307,8 @@ impl<'doc, 'a> DocumentIter<'doc, 'a> {
     /// This function automatically reads nested objects and arrays.
     ///
     /// ```rust
-    /// use justjson::{
-    ///     doc::{Document, Node},
-    ///     Value,
-    /// };
+    /// use justjson::doc::{Document, Node};
+    /// use justjson::Value;
     ///
     /// let doc = Document::from_json(
     ///     r#"{
@@ -337,10 +334,8 @@ impl<'doc, 'a> DocumentIter<'doc, 'a> {
     /// Skips a [`Value`], including any nested values.
     ///
     /// ```rust
-    /// use justjson::{
-    ///     doc::{Document, Node},
-    ///     Value,
-    /// };
+    /// use justjson::doc::{Document, Node};
+    /// use justjson::Value;
     ///
     /// let doc = Document::from_json(
     ///     r#"{

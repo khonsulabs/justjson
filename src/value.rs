@@ -1,12 +1,8 @@
-use std::{
-    fmt::{self, Display},
-    ops::{Deref, DerefMut},
-};
+use std::fmt::{self, Display};
+use std::ops::{Deref, DerefMut};
 
-use crate::{
-    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
-    Error, JsonNumber, JsonString,
-};
+use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
+use crate::{Error, JsonNumber, JsonString};
 
 /// A JSON value.
 ///
@@ -321,10 +317,10 @@ where
 struct ValueParser;
 
 impl<'a> ParseDelegate<'a> for ValueParser {
-    type Value = Value<&'a str>;
-    type Object = Object<&'a str>;
     type Array = Vec<Value<&'a str>>;
     type Key = JsonString<&'a str>;
+    type Object = Object<&'a str>;
+    type Value = Value<&'a str>;
 
     #[inline]
     fn null(&mut self) -> Self::Value {

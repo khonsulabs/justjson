@@ -1,6 +1,8 @@
 use std::fs;
 
-use justjson::{doc::Document, parser::ParseConfig, Value};
+use justjson::doc::Document;
+use justjson::parser::ParseConfig;
+use justjson::Value;
 
 #[test]
 fn suite() {

@@ -1,5 +1,6 @@
 use core::slice;
-use std::{iter::Peekable, marker::PhantomData};
+use std::iter::Peekable;
+use std::marker::PhantomData;
 
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
@@ -112,6 +113,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
             }),
         }
     }
+
     fn read_from_source<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error>
     where
         D: ParseDelegate<'a>,
@@ -706,7 +708,8 @@ impl ParseConfig {
     /// Allows trailing commas when parsing objects and arrays.
     ///
     /// ```rust
-    /// use justjson::{parser::ParseConfig, Value};
+    /// use justjson::parser::ParseConfig;
+    /// use justjson::Value;
     ///
     /// let source = r#"{"a":[true,],}"#;
     /// Value::from_json(source).expect_err("not enabled by default");

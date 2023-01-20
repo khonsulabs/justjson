@@ -1,9 +1,8 @@
-use std::{borrow::Cow, str::CharIndices};
+use std::borrow::Cow;
+use std::str::CharIndices;
 
-use crate::{
-    error::{Error, ErrorKind},
-    value::Value,
-};
+use crate::error::{Error, ErrorKind};
+use crate::value::Value;
 
 /// A JSON-encoded string.
 // TODO document comparisons
@@ -179,15 +178,13 @@ fn decode_if_needed() {
 pub struct JsonStringInfo(usize);
 
 impl JsonStringInfo {
+    const HAS_ESCAPES_MASK: usize = usize::MAX ^ Self::UNESCAPED_BYTES_MASK;
+    /// Information with no escapes and 0 length.
+    pub const NONE: Self = Self::new(false, 0);
     #[cfg(target_pointer_width = "32")]
     const UNESCAPED_BYTES_MASK: usize = 0x7FFF_FFFF;
     #[cfg(target_pointer_width = "64")]
     const UNESCAPED_BYTES_MASK: usize = 0x7FFF_FFFF_FFFF_FFFF;
-
-    const HAS_ESCAPES_MASK: usize = usize::MAX ^ Self::UNESCAPED_BYTES_MASK;
-
-    /// Information with no escapes and 0 length.
-    pub const NONE: Self = Self::new(false, 0);
 
     /// Returns a new instance with the initial values provided.
     #[must_use]

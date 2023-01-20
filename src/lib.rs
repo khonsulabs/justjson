@@ -13,12 +13,10 @@
 )]
 #![deny(unsafe_code)]
 
-pub use crate::{
-    error::{Error, ErrorKind},
-    number::JsonNumber,
-    string::{JsonString, JsonStringInfo},
-    value::{Object, Value},
-};
+pub use crate::error::{Error, ErrorKind};
+pub use crate::number::JsonNumber;
+pub use crate::string::{JsonString, JsonStringInfo};
+pub use crate::value::{Object, Value};
 
 /// A JSON DOM representation with minimal processing.
 pub mod doc;

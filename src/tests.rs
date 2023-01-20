@@ -1,8 +1,7 @@
 use std::fmt::Write;
 
-use crate::{
-    doc::Document, Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value,
-};
+use crate::doc::Document;
+use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
 
 #[track_caller]
 fn test_json_parse(source: &[u8], value: &Value<&str>) {
