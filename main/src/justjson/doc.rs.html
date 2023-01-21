@@ -419,10 +419,15 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{iter::Cloned, slice};
 
 <span class="kw">use crate</span>::{
     parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
+    value::Entry,
     Error, JsonNumber, JsonString, Object, Value,
 };
 
@@ -516,7 +521,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Document&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Document&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>from(doc: Document&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = doc.nodes.<span class="number">0</span>.into_iter();
         <span class="kw">let </span>root = nodes.next().expect(<span class="string">&quot;empty document is invalid&quot;</span>);
@@ -524,7 +529,7 @@
     }
 }
 
-<span class="kw">fn </span>hydrate_value_from_node&lt;<span class="lifetime">&#39;a</span>, I&gt;(node: Node&lt;<span class="lifetime">&#39;a</span>&gt;, remaining_nodes: <span class="kw-2">&amp;mut </span>I) -&gt; Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;
+<span class="kw">fn </span>hydrate_value_from_node&lt;<span class="lifetime">&#39;a</span>, I&gt;(node: Node&lt;<span class="lifetime">&#39;a</span>&gt;, remaining_nodes: <span class="kw-2">&amp;mut </span>I) -&gt; Value&lt;<span class="lifetime">&#39;a</span>&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 {
@@ -539,7 +544,10 @@
                 <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">&quot;obbject missing value&quot;</span>);
                 <span class="kw">let </span>Node::String(key) = node <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;object key must be string&quot;</span>) };
                 <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">&quot;object missing value&quot;</span>);
-                obj.push(key, hydrate_value_from_node(node, remaining_nodes));
+                obj.push(Entry {
+                    key,
+                    value: hydrate_value_from_node(node, remaining_nodes),
+                });
             }
             Value::Object(obj)
         }
@@ -573,9 +581,9 @@
     <span class="doccomment">/// A boolean value.
     </span>Boolean(bool),
     <span class="doccomment">/// A string value.
-    </span>String(JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;),
+    </span>String(JsonString&lt;<span class="lifetime">&#39;a</span>&gt;),
     <span class="doccomment">/// A numerical value.
-    </span>Number(JsonNumber&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;),
+    </span>Number(JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;),
     <span class="doccomment">/// An object value with `len` key-value pairs following it.
     </span>Object {
         <span class="doccomment">/// The number of key-value pairs that this object contains.
@@ -606,11 +614,11 @@
         <span class="self">self</span>.push_node(Node::Boolean(boolean))
     }
 
-    <span class="kw">pub fn </span>push_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; usize {
+    <span class="kw">pub fn </span>push_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; usize {
         <span class="self">self</span>.push_node(Node::String(string))
     }
 
-    <span class="kw">pub fn </span>push_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, number: JsonNumber&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; usize {
+    <span class="kw">pub fn </span>push_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, number: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; usize {
         <span class="self">self</span>.push_node(Node::Number(number))
     }
 
@@ -650,12 +658,12 @@
     }
 
     <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; <span class="self">Self</span>::Value {
+    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self</span>::Value {
         <span class="self">self</span>.push_number(value)
     }
 
     <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; <span class="self">Self</span>::Value {
+    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self</span>::Value {
         <span class="self">self</span>.push_string(value)
     }
 
@@ -665,7 +673,7 @@
     }
 
     <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>object_key(<span class="kw-2">&amp;mut </span><span class="self">self</span>, object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object, key: JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; <span class="self">Self</span>::Key {
+    </span><span class="kw">fn </span>object_key(<span class="kw-2">&amp;mut </span><span class="self">self</span>, object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object, key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self</span>::Key {
         <span class="self">self</span>.extend_object(<span class="kw-2">*</span>object);
         <span class="self">self</span>.push_string(key);
     }
@@ -747,7 +755,7 @@
     /// assert_eq!(array.len(), 4);
     /// assert!(nodes.next().is_none());
     /// ```
-    </span><span class="kw">pub fn </span>next_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;&gt; {
+    </span><span class="kw">pub fn </span>next_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>node = <span class="self">self</span>.nodes.next()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Some</span>(hydrate_value_from_node(node, <span class="kw-2">&amp;mut </span><span class="self">self</span>.nodes))
