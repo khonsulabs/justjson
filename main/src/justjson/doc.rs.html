@@ -422,14 +422,12 @@
 <span id="422">422</span>
 <span id="423">423</span>
 <span id="424">424</span>
-<span id="425">425</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{iter::Cloned, slice};
+</pre><pre class="rust"><code><span class="kw">use </span>std::iter::Cloned;
+<span class="kw">use </span>std::slice;
 
-<span class="kw">use crate</span>::{
-    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
-    value::Entry,
-    Error, JsonNumber, JsonString, Object, Value,
-};
+<span class="kw">use </span><span class="kw">crate</span>::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
+<span class="kw">use </span><span class="kw">crate</span>::value::Entry;
+<span class="kw">use crate</span>::{Error, JsonNumber, JsonString, Object, Value};
 
 <span class="doccomment">/// A parsed JSON payload.
 ///

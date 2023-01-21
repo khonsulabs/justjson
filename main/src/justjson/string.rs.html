@@ -470,24 +470,99 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{
-    borrow::Cow,
-    str::{CharIndices, Chars},
-};
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::fmt::{Display, Write};
+<span class="kw">use </span>std::str::{CharIndices, Chars};
 
-<span class="kw">use crate</span>::{
-    error::{Error, ErrorKind},
-    value::Value,
-};
+<span class="kw">use </span><span class="kw">crate</span>::error::{Error, ErrorKind};
+<span class="kw">use </span><span class="kw">crate</span>::value::Value;
 
 <span class="doccomment">/// A JSON-encoded string.
 </span><span class="comment">// TODO document comparisons
-</span><span class="attribute">#[derive(Debug, Eq, PartialEq, Clone)]
+</span><span class="attribute">#[derive(Debug, Eq, Clone)]
 
 </span><span class="kw">pub struct </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The JSON-source for the string.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) source: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) info: JsonStringInfo,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) source: StringContents&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -517,33 +592,43 @@
     /// escape sequences.
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>decode_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;_</span>, str&gt; {
-        <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
-            Cow::Owned(<span class="self">self</span>.decoded().collect())
-        } <span class="kw">else </span>{
-            Cow::Borrowed(<span class="self">self</span>.contents())
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
+            StringContents::Json { source, info } =&gt; {
+                <span class="kw">if </span>info.has_escapes() {
+                    Cow::Owned(<span class="self">self</span>.decoded().collect())
+                } <span class="kw">else </span>{
+                    source.clone()
+                }
+            }
+            StringContents::Raw(raw) =&gt; raw.clone(),
         }
-    }
-
-    <span class="doccomment">/// Returns the JSON-encoded contents of the string value. This does not
-    /// include the wrapping quotation marks.
-    </span><span class="attribute">#[must_use]
-    </span><span class="kw">pub fn </span>contents(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="self">self</span>.source.as_ref()
     }
 
     <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>decoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoded&lt;<span class="lifetime">&#39;_</span>&gt; {
-        Decoded::new(<span class="self">self</span>.contents())
+        Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
+    }
+
+    <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>as_json(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AsJson&lt;<span class="lifetime">&#39;_</span>&gt; {
+        AsJson::from(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
     }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>escaped = Escaped::from(value);
         <span class="self">Self </span>{
-            source: (<span class="kw-2">&amp;mut </span>escaped).collect(),
-            info: escaped.info,
+            source: StringContents::Raw(Cow::Borrowed(value)),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;String&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>from(value: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            source: StringContents::Raw(Cow::Owned(value)),
         }
     }
 }
@@ -556,18 +641,37 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; bool {
-        <span class="kw">let </span>unescaped_length = <span class="self">self</span>.info.unescaped_length();
-        <span class="kw">let </span>source = <span class="self">self</span>.source.as_ref();
-        <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
-            <span class="comment">// Quick check, if the decoded length differs, the strings can&#39;t be equal
-            </span><span class="kw">if </span>unescaped_length != other.len() {
-                <span class="kw">return </span><span class="bool-val">false</span>;
-            }
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
+            StringContents::Json { source, info } =&gt; {
+                <span class="kw">let </span>unescaped_length = info.unescaped_length();
+                <span class="kw">if </span>info.has_escapes() {
+                    <span class="comment">// Quick check, if the decoded length differs, the strings can&#39;t be equal
+                    </span><span class="kw">if </span>unescaped_length != other.len() {
+                        <span class="kw">return </span><span class="bool-val">false</span>;
+                    }
 
-            Decoded::new(source).zip(other.chars()).all(|(a, b)| a == b)
-        } <span class="kw">else </span>{
-            <span class="comment">// Direct string comparison excluding the quotes.
-            </span>source == <span class="kw-2">*</span>other
+                    Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
+                        .zip(other.chars())
+                        .all(|(a, b)| a == b)
+                } <span class="kw">else </span>{
+                    <span class="comment">// Direct string comparison excluding the quotes.
+                    </span>source == <span class="kw-2">*</span>other
+                }
+            }
+            StringContents::Raw(source) =&gt; source == other,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; bool {
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="kw-2">&amp;</span>other.source) {
+            (StringContents::Json { source: a, .. }, StringContents::Json { source: b, .. }) =&gt; {
+                a.as_ref() == b.as_ref()
+            }
+            (StringContents::Raw(a), StringContents::Raw(b)) =&gt; a.as_ref() == b.as_ref(),
+            (StringContents::Json { .. }, StringContents::Raw(b)) =&gt; <span class="self">self </span>== b.as_ref(),
+            (StringContents::Raw(a), <span class="kw">_</span>) =&gt; other == a.as_ref(),
         }
     }
 }
@@ -577,8 +681,10 @@
     <span class="macro">assert_eq!</span>(
         JsonString::from_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>).unwrap(),
         JsonString {
-            source: Cow::Borrowed(<span class="string">r#&quot;Hello, World!&quot;#</span>),
-            info: JsonStringInfo::new(<span class="bool-val">false</span>, <span class="number">13</span>),
+            source: StringContents::Json {
+                source: Cow::Borrowed(<span class="string">r#&quot;Hello, World!&quot;#</span>),
+                info: JsonStringInfo::new(<span class="bool-val">false</span>, <span class="number">13</span>),
+            }
         }
     );
 
@@ -694,15 +800,34 @@
 }
 
 <span class="kw">pub struct </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+    needs_decoding: bool,
     source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
     chars: CharIndices&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            source,
-            chars: source.char_indices(),
+            needs_decoding: <span class="self">self</span>.needs_decoding,
+            source: <span class="self">self</span>.source,
+            chars: <span class="self">self</span>.chars.clone(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>source {
+            StringContents::Json { source, info } =&gt; <span class="self">Self </span>{
+                needs_decoding: info.has_escapes(),
+                source,
+                chars: source.char_indices(),
+            },
+            StringContents::Raw(source) =&gt; <span class="self">Self </span>{
+                needs_decoding: <span class="bool-val">false</span>,
+                source,
+                chars: source.char_indices(),
+            },
         }
     }
 }
@@ -713,7 +838,7 @@
     <span class="attribute">#[allow(unsafe_code)]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>(<span class="kw">_</span>, ch) = <span class="self">self</span>.chars.next()<span class="question-mark">?</span>;
-        <span class="kw">if </span>ch == <span class="string">&#39;\\&#39; </span>{
+        <span class="kw">if </span><span class="self">self</span>.needs_decoding &amp;&amp; ch == <span class="string">&#39;\\&#39; </span>{
             <span class="kw">match </span><span class="self">self</span>.chars.next().expect(<span class="string">&quot;already validated&quot;</span>) {
                 (<span class="kw">_</span>, <span class="string">&#39;r&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\r&#39;</span>),
                 (<span class="kw">_</span>, <span class="string">&#39;n&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\n&#39;</span>),
@@ -742,13 +867,24 @@
     }
 }
 
-<span class="kw">pub struct </span>Escaped&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">for </span>ch <span class="kw">in </span><span class="self">self</span>.clone() {
+            f.write_char(ch)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="kw">pub struct </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
     chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
     state: EscapeState,
     info: JsonStringInfo,
 }
 
 <span class="kw">enum </span>EscapeState {
+    AlreadyEscaped,
     <span class="prelude-val">None</span>,
     Single(u8),
     Unicode {
@@ -757,22 +893,30 @@
     },
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>Escaped&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            chars: value.chars(),
-            state: EscapeState::None,
-            info: JsonStringInfo::NONE,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>AsJson&lt;<span class="lifetime">&#39;b</span>&gt; {
+    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>value {
+            StringContents::Json { source, info } =&gt; <span class="self">Self </span>{
+                chars: source.chars(),
+                state: EscapeState::AlreadyEscaped,
+                info: <span class="kw-2">*</span>info,
+            },
+            StringContents::Raw(source) =&gt; <span class="self">Self </span>{
+                chars: source.chars(),
+                state: EscapeState::None,
+                info: JsonStringInfo::NONE,
+            },
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Escaped&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">type </span>Item = char;
 
     <span class="attribute">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.state {
+            EscapeState::AlreadyEscaped =&gt; <span class="self">self</span>.chars.next(),
             EscapeState::None =&gt; {
                 <span class="kw">let </span>ch = <span class="self">self</span>.chars.next()<span class="question-mark">?</span>;
                 <span class="kw">match </span>u8::try_from(ch) {
@@ -854,6 +998,10 @@
                 }
             },
         }
+    }
+
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.chars.size_hint()
     }
 }
 
@@ -937,10 +1085,20 @@
 <span class="attribute">#[test]
 </span><span class="kw">fn </span>escape() {
     <span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{25ef}&quot;</span>;
-    <span class="kw">let </span>json = JsonString::from(original);
-    <span class="macro">assert!</span>(json.info.has_escapes());
-    <span class="macro">assert_eq!</span>(json.info.unescaped_length(), original.len());
-    <span class="macro">assert_eq!</span>(json, original);
+    <span class="kw">let </span>raw = JsonString::from(original);
+    <span class="kw">let </span>decoded = raw.decoded().collect::&lt;String&gt;();
+    <span class="macro">assert_eq!</span>(decoded, original);
+    <span class="kw">let </span>json = raw.as_json().collect::&lt;String&gt;();
+    <span class="macro">assert_eq!</span>(json, <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\u{25ef}&quot;</span>);
+}
+
+<span class="attribute">#[derive(Debug, Clone, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt; {
+    Json {
+        source: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;,
+        info: JsonStringInfo,
+    },
+    Raw(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;),
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="justjson" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

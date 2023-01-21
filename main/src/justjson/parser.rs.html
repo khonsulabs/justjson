@@ -806,13 +806,21 @@
 <span id="806">806</span>
 <span id="807">807</span>
 <span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::slice;
-<span class="kw">use </span>std::{borrow::Cow, iter::Peekable, marker::PhantomData};
+<span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::iter::Peekable;
+<span class="kw">use </span>std::marker::PhantomData;
 
-<span class="kw">use crate</span>::{
-    string::{HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8},
-    Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo,
+<span class="kw">use </span><span class="kw">crate</span>::string::{
+    StringContents, HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
 };
+<span class="kw">use crate</span>::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
 <span class="doccomment">/// Parses JSON, driven by a [`ParseDelegate`].
 ///
@@ -1130,10 +1138,14 @@
                 <span class="kw">match </span>byte {
                     <span class="string">b&#39;&quot;&#39; </span>=&gt; {
                         <span class="kw">break </span><span class="prelude-val">Ok</span>(JsonString {
-                            source: Cow::Borrowed(<span class="kw">unsafe </span>{
-                                std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start + <span class="number">1</span>..offset])
-                            }),
-                            info: string_info,
+                            source: StringContents::Json {
+                                source: Cow::Borrowed(<span class="kw">unsafe </span>{
+                                    std::str::from_utf8_unchecked(
+                                        <span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start + <span class="number">1</span>..offset],
+                                    )
+                                }),
+                                info: string_info,
+                            },
                         })
                     }
                     <span class="string">b&#39;\\&#39; </span>=&gt; <span class="kw">match </span><span class="self">self</span>.source.read()<span class="question-mark">? </span>{
