@@ -855,44 +855,6 @@
 <span id="855">855</span>
 <span id="856">856</span>
 <span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
-<span id="885">885</span>
-<span id="886">886</span>
-<span id="887">887</span>
-<span id="888">888</span>
-<span id="889">889</span>
-<span id="890">890</span>
-<span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::slice;
 <span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::iter::Peekable;
@@ -1275,10 +1237,6 @@
                 string_info.add_bytes_from_escape(<span class="number">1</span>);
             }
             (offset, <span class="string">b&#39;u&#39;</span>) =&gt; {
-                <span class="kw">const </span>VALID_CODEPOINT_CLIFF: u32 = <span class="number">0x11_0000</span>;
-                <span class="kw">const </span>REBASED_INVALID_CODEPOINT_START: u32 = <span class="number">0x800</span>;
-                <span class="kw">const </span>REBASED_VALID_START: u32 =
-                    VALID_CODEPOINT_CLIFF - REBASED_INVALID_CODEPOINT_START;
                 <span class="comment">// 4 hexadecimal digits.
                 </span><span class="kw">let </span><span class="kw-2">mut </span>decoded = <span class="number">0_u32</span>;
                 <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
@@ -1293,76 +1251,42 @@
                     decoded = decoded &lt;&lt; <span class="number">4 </span>| u32::from(nibble);
                 }
 
-                <span class="comment">// Because the escaped character is a UTF-16 code point, it&#39;s
-                // possible that this is a surrogate pair that requires two code
-                // points to represent.
-                //
-                // This logic for quickly detecting validity of a codepoint
-                // comes from char::from_u32&#39;s own code. The comment for the
-                // math from that section is as follows:
-                //
-                // This is an optimized version of the check (i &gt; MAX as u32) ||
-                // (i &gt;= 0xD800 &amp;&amp; i &lt;= 0xDFFF), which can also be written as i
-                // &gt;= 0x110000 || (i &gt;= 0xD800 &amp;&amp; i &lt; 0xE000).
-                //
-                // The XOR with 0xD800 permutes the ranges such that
-                // 0xD800..0xE000 is mapped to 0x0000..0x0800, while keeping all
-                // the high bits outside 0xFFFF the same. In particular, numbers
-                // &gt;= 0x110000 stay in this range.
-                //
-                // Subtracting 0x800 causes 0x0000..0x0800 to wrap, meaning that
-                // a single unsigned comparison against 0x110000 - 0x800 will
-                // detect both the wrapped surrogate range as well as the
-                // numbers originally larger than 0x110000.
-                //
-                // https://github.com/rust-lang/rust/blob/52372f9c71d8ade4cb815524f179119656f0aa2e/library/core/src/char/convert.rs#L197
-                </span><span class="kw">let </span>rebased =
-                    (decoded ^ HIGH_SURROGATE_MIN).wrapping_sub(REBASED_INVALID_CODEPOINT_START);
-                <span class="kw">let </span>ch = <span class="kw">match </span>rebased {
-                    REBASED_VALID_START..=u32::MAX =&gt; {
-                        <span class="comment">// We either have a codepoint that is too
-                        // large or is a partial surrogate.
-                        </span><span class="kw">let </span><span class="kw-2">mut </span>decoded_is_surrogate_pair = <span class="bool-val">false</span>;
-                        <span class="kw">if </span>(HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(<span class="kw-2">&amp;</span>decoded) {
-                            <span class="comment">// We have a potential surrogate pair. Try to read another \u escape code
-                            </span><span class="kw">if </span><span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;\\&#39; </span>&amp;&amp; <span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;u&#39; </span>{
-                                <span class="kw">let </span><span class="kw-2">mut </span>second_codepoint = <span class="number">0</span>;
-                                <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
-                                    <span class="kw">let </span>(offset, digit) = <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
-                                    <span class="kw">let </span>nibble = HEX_OFFSET_TABLE[usize::from(<span class="kw-2">*</span>digit)];
-                                    <span class="kw">if </span>nibble == u8::MAX {
-                                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                                            offset,
-                                            kind: ErrorKind::InvalidHexadecimal,
-                                        });
-                                    }
-                                    second_codepoint = second_codepoint &lt;&lt; <span class="number">4 </span>| u32::from(nibble);
+                <span class="kw">let </span>ch = <span class="kw">if let </span><span class="prelude-val">Some</span>(ch) = char::from_u32(decoded) {
+                    ch
+                } <span class="kw">else </span>{
+                    <span class="comment">// We either have an invalid codepoint or a partial
+                    // surrogate.
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>decoded_is_surrogate_pair = <span class="bool-val">false</span>;
+                    <span class="kw">if </span>(HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(<span class="kw-2">&amp;</span>decoded) {
+                        <span class="comment">// We have a potential surrogate pair. Try to read another \u escape code
+                        </span><span class="kw">if </span><span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;\\&#39; </span>&amp;&amp; <span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;u&#39; </span>{
+                            <span class="kw">let </span><span class="kw-2">mut </span>second_codepoint = <span class="number">0</span>;
+                            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
+                                <span class="kw">let </span>(offset, digit) = <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
+                                <span class="kw">let </span>nibble = HEX_OFFSET_TABLE[usize::from(<span class="kw-2">*</span>digit)];
+                                <span class="kw">if </span>nibble == u8::MAX {
+                                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                                        offset,
+                                        kind: ErrorKind::InvalidHexadecimal,
+                                    });
                                 }
-                                <span class="kw">if </span>(LOW_SURROGATE_MIN..=LOW_SURROGATE_MAX)
-                                    .contains(<span class="kw-2">&amp;</span>second_codepoint)
-                                {
-                                    <span class="comment">// We have a valid surrogate pair
-                                    </span>decoded = merge_surrogate_pair(decoded, second_codepoint);
-                                    decoded_is_surrogate_pair = <span class="bool-val">true</span>;
-                                }
+                                second_codepoint = second_codepoint &lt;&lt; <span class="number">4 </span>| u32::from(nibble);
+                            }
+                            <span class="kw">if </span>(LOW_SURROGATE_MIN..=LOW_SURROGATE_MAX).contains(<span class="kw-2">&amp;</span>second_codepoint) {
+                                <span class="comment">// We have a valid surrogate pair
+                                </span>decoded = merge_surrogate_pair(decoded, second_codepoint);
+                                decoded_is_surrogate_pair = <span class="bool-val">true</span>;
                             }
                         }
-
-                        <span class="kw">if </span>decoded_is_surrogate_pair {
-                            <span class="kw">unsafe </span>{ char::from_u32_unchecked(decoded) }
-                        } <span class="kw">else </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                                offset,
-                                kind: ErrorKind::Utf8,
-                            });
-                        }
                     }
-                    <span class="kw">_ </span>=&gt; {
-                        <span class="comment">// SAFETY: The logic to check the character&#39;s validity is taken
-                        // directly from `char_try_from_u32`, which is what from_u32 uses
-                        // under the hoood.
 
-                        </span><span class="kw">unsafe </span>{ char::from_u32_unchecked(decoded) }
+                    <span class="kw">if </span>decoded_is_surrogate_pair {
+                        <span class="kw">unsafe </span>{ char::from_u32_unchecked(decoded) }
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                            offset,
+                            kind: ErrorKind::Utf8,
+                        });
                     }
                 };
 
