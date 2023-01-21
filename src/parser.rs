@@ -380,10 +380,6 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 string_info.add_bytes_from_escape(1);
             }
             (offset, b'u') => {
-                const VALID_CODEPOINT_CLIFF: u32 = 0x11_0000;
-                const REBASED_INVALID_CODEPOINT_START: u32 = 0x800;
-                const REBASED_VALID_START: u32 =
-                    VALID_CODEPOINT_CLIFF - REBASED_INVALID_CODEPOINT_START;
                 // 4 hexadecimal digits.
                 let mut decoded = 0_u32;
                 for _ in 0..4 {
@@ -398,76 +394,42 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     decoded = decoded << 4 | u32::from(nibble);
                 }
 
-                // Because the escaped character is a UTF-16 code point, it's
-                // possible that this is a surrogate pair that requires two code
-                // points to represent.
-                //
-                // This logic for quickly detecting validity of a codepoint
-                // comes from char::from_u32's own code. The comment for the
-                // math from that section is as follows:
-                //
-                // This is an optimized version of the check (i > MAX as u32) ||
-                // (i >= 0xD800 && i <= 0xDFFF), which can also be written as i
-                // >= 0x110000 || (i >= 0xD800 && i < 0xE000).
-                //
-                // The XOR with 0xD800 permutes the ranges such that
-                // 0xD800..0xE000 is mapped to 0x0000..0x0800, while keeping all
-                // the high bits outside 0xFFFF the same. In particular, numbers
-                // >= 0x110000 stay in this range.
-                //
-                // Subtracting 0x800 causes 0x0000..0x0800 to wrap, meaning that
-                // a single unsigned comparison against 0x110000 - 0x800 will
-                // detect both the wrapped surrogate range as well as the
-                // numbers originally larger than 0x110000.
-                //
-                // https://github.com/rust-lang/rust/blob/52372f9c71d8ade4cb815524f179119656f0aa2e/library/core/src/char/convert.rs#L197
-                let rebased =
-                    (decoded ^ HIGH_SURROGATE_MIN).wrapping_sub(REBASED_INVALID_CODEPOINT_START);
-                let ch = match rebased {
-                    REBASED_VALID_START..=u32::MAX => {
-                        // We either have a codepoint that is too
-                        // large or is a partial surrogate.
-                        let mut decoded_is_surrogate_pair = false;
-                        if (HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(&decoded) {
-                            // We have a potential surrogate pair. Try to read another \u escape code
-                            if self.source.read()?.1 == &b'\\' && self.source.read()?.1 == &b'u' {
-                                let mut second_codepoint = 0;
-                                for _ in 0..4 {
-                                    let (offset, digit) = self.source.read()?;
-                                    let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
-                                    if nibble == u8::MAX {
-                                        return Err(Error {
-                                            offset,
-                                            kind: ErrorKind::InvalidHexadecimal,
-                                        });
-                                    }
-                                    second_codepoint = second_codepoint << 4 | u32::from(nibble);
+                let ch = if let Some(ch) = char::from_u32(decoded) {
+                    ch
+                } else {
+                    // We either have an invalid codepoint or a partial
+                    // surrogate.
+                    let mut decoded_is_surrogate_pair = false;
+                    if (HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(&decoded) {
+                        // We have a potential surrogate pair. Try to read another \u escape code
+                        if self.source.read()?.1 == &b'\\' && self.source.read()?.1 == &b'u' {
+                            let mut second_codepoint = 0;
+                            for _ in 0..4 {
+                                let (offset, digit) = self.source.read()?;
+                                let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
+                                if nibble == u8::MAX {
+                                    return Err(Error {
+                                        offset,
+                                        kind: ErrorKind::InvalidHexadecimal,
+                                    });
                                 }
-                                if (LOW_SURROGATE_MIN..=LOW_SURROGATE_MAX)
-                                    .contains(&second_codepoint)
-                                {
-                                    // We have a valid surrogate pair
-                                    decoded = merge_surrogate_pair(decoded, second_codepoint);
-                                    decoded_is_surrogate_pair = true;
-                                }
+                                second_codepoint = second_codepoint << 4 | u32::from(nibble);
+                            }
+                            if (LOW_SURROGATE_MIN..=LOW_SURROGATE_MAX).contains(&second_codepoint) {
+                                // We have a valid surrogate pair
+                                decoded = merge_surrogate_pair(decoded, second_codepoint);
+                                decoded_is_surrogate_pair = true;
                             }
                         }
-
-                        if decoded_is_surrogate_pair {
-                            unsafe { char::from_u32_unchecked(decoded) }
-                        } else {
-                            return Err(Error {
-                                offset,
-                                kind: ErrorKind::Utf8,
-                            });
-                        }
                     }
-                    _ => {
-                        // SAFETY: The logic to check the character's validity is taken
-                        // directly from `char_try_from_u32`, which is what from_u32 uses
-                        // under the hoood.
 
+                    if decoded_is_surrogate_pair {
                         unsafe { char::from_u32_unchecked(decoded) }
+                    } else {
+                        return Err(Error {
+                            offset,
+                            kind: ErrorKind::Utf8,
+                        });
                     }
                 };
 
