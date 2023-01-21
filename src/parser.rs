@@ -4,7 +4,8 @@ use std::iter::Peekable;
 use std::marker::PhantomData;
 
 use crate::string::{
-    StringContents, HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
+    merge_surrogate_pair, StringContents, HEX_OFFSET_TABLE, HIGH_SURROGATE_MAX, HIGH_SURROGATE_MIN,
+    LOW_SURROGATE_MAX, LOW_SURROGATE_MIN, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
 };
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
@@ -145,7 +146,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 state.begin_nest().map_err(|kind| Error { offset, kind })?;
                 self.read_array_from_source(state)?
             }
-            (offset, ch) if ch == &b'-' || ch == &b'+' => state
+            (offset, ch) if ch == &b'-' => state
                 .delegate
                 .number(self.read_number_from_source(InitialNumberState::Sign, offset)?),
             (offset, b'0') => state
@@ -334,46 +335,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                             },
                         })
                     }
-                    b'\\' => match self.source.read()? {
-                        (_, ch)
-                            if matches!(
-                                ch,
-                                b'"' | b'\\' | b'/' | b'b' | b'f' | b'r' | b'n' | b't'
-                            ) =>
-                        {
-                            string_info.add_bytes_from_escape(1);
-                        }
-                        (offset, b'u') => {
-                            // 4 hexadecimal digits.
-                            let mut decoded = 0_u16;
-                            for _ in 0..4 {
-                                let (offset, digit) = self.source.read()?;
-                                let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
-                                if nibble == u8::MAX {
-                                    return Err(Error {
-                                        offset,
-                                        kind: ErrorKind::InvalidHexadecimal,
-                                    });
-                                }
-                                decoded = decoded << 4 | u16::from(nibble);
-                            }
-                            if let Some(ch) = char::from_u32(u32::from(decoded)) {
-                                string_info.add_bytes_from_escape(ch.len_utf8());
-                            } else {
-                                // Produce a Utf8 error.
-                                return Err(Error {
-                                    offset,
-                                    kind: ErrorKind::Utf8,
-                                });
-                            }
-                        }
-                        (offset, _) => {
-                            return Err(Error {
-                                offset,
-                                kind: ErrorKind::InvalidEscape,
-                            })
-                        }
-                    },
+                    b'\\' => self.read_string_escape(&mut string_info)?,
                     128..=255 => {
                         // Manual UTF-8 validation
                         let utf8_start = offset;
@@ -411,6 +373,117 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     }
 
     #[allow(unsafe_code)]
+    #[inline]
+    fn read_string_escape(&mut self, string_info: &mut JsonStringInfo) -> Result<(), Error> {
+        match self.source.read()? {
+            (_, ch) if matches!(ch, b'"' | b'\\' | b'/' | b'b' | b'f' | b'r' | b'n' | b't') => {
+                string_info.add_bytes_from_escape(1);
+            }
+            (offset, b'u') => {
+                const VALID_CODEPOINT_CLIFF: u32 = 0x11_0000;
+                const REBASED_INVALID_CODEPOINT_START: u32 = 0x800;
+                const REBASED_VALID_START: u32 =
+                    VALID_CODEPOINT_CLIFF - REBASED_INVALID_CODEPOINT_START;
+                // 4 hexadecimal digits.
+                let mut decoded = 0_u32;
+                for _ in 0..4 {
+                    let (offset, digit) = self.source.read()?;
+                    let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
+                    if nibble == u8::MAX {
+                        return Err(Error {
+                            offset,
+                            kind: ErrorKind::InvalidHexadecimal,
+                        });
+                    }
+                    decoded = decoded << 4 | u32::from(nibble);
+                }
+
+                // Because the escaped character is a UTF-16 code point, it's
+                // possible that this is a surrogate pair that requires two code
+                // points to represent.
+                //
+                // This logic for quickly detecting validity of a codepoint
+                // comes from char::from_u32's own code. The comment for the
+                // math from that section is as follows:
+                //
+                // This is an optimized version of the check (i > MAX as u32) ||
+                // (i >= 0xD800 && i <= 0xDFFF), which can also be written as i
+                // >= 0x110000 || (i >= 0xD800 && i < 0xE000).
+                //
+                // The XOR with 0xD800 permutes the ranges such that
+                // 0xD800..0xE000 is mapped to 0x0000..0x0800, while keeping all
+                // the high bits outside 0xFFFF the same. In particular, numbers
+                // >= 0x110000 stay in this range.
+                //
+                // Subtracting 0x800 causes 0x0000..0x0800 to wrap, meaning that
+                // a single unsigned comparison against 0x110000 - 0x800 will
+                // detect both the wrapped surrogate range as well as the
+                // numbers originally larger than 0x110000.
+                //
+                // https://github.com/rust-lang/rust/blob/52372f9c71d8ade4cb815524f179119656f0aa2e/library/core/src/char/convert.rs#L197
+                let rebased =
+                    (decoded ^ HIGH_SURROGATE_MIN).wrapping_sub(REBASED_INVALID_CODEPOINT_START);
+                let ch = match rebased {
+                    REBASED_VALID_START..=u32::MAX => {
+                        // We either have a codepoint that is too
+                        // large or is a partial surrogate.
+                        let mut decoded_is_surrogate_pair = false;
+                        if (HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(&decoded) {
+                            // We have a potential surrogate pair. Try to read another \u escape code
+                            if self.source.read()?.1 == &b'\\' && self.source.read()?.1 == &b'u' {
+                                let mut second_codepoint = 0;
+                                for _ in 0..4 {
+                                    let (offset, digit) = self.source.read()?;
+                                    let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
+                                    if nibble == u8::MAX {
+                                        return Err(Error {
+                                            offset,
+                                            kind: ErrorKind::InvalidHexadecimal,
+                                        });
+                                    }
+                                    second_codepoint = second_codepoint << 4 | u32::from(nibble);
+                                }
+                                if (LOW_SURROGATE_MIN..=LOW_SURROGATE_MAX)
+                                    .contains(&second_codepoint)
+                                {
+                                    // We have a valid surrogate pair
+                                    decoded = merge_surrogate_pair(decoded, second_codepoint);
+                                    decoded_is_surrogate_pair = true;
+                                }
+                            }
+                        }
+
+                        if decoded_is_surrogate_pair {
+                            unsafe { char::from_u32_unchecked(decoded) }
+                        } else {
+                            return Err(Error {
+                                offset,
+                                kind: ErrorKind::Utf8,
+                            });
+                        }
+                    }
+                    _ => {
+                        // SAFETY: The logic to check the character's validity is taken
+                        // directly from `char_try_from_u32`, which is what from_u32 uses
+                        // under the hoood.
+
+                        unsafe { char::from_u32_unchecked(decoded) }
+                    }
+                };
+
+                string_info.add_bytes_from_escape(ch.len_utf8());
+            }
+            (offset, _) => {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::InvalidEscape,
+                })
+            }
+        }
+        Ok(())
+    }
+
+    #[allow(unsafe_code)]
     fn read_number_from_source(
         &mut self,
         initial_state: InitialNumberState,
@@ -426,11 +499,19 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         if initial_state != InitialNumberState::Zero {
             let mut read_integer_digit = initial_state == InitialNumberState::Digit;
             while let Some(byte) = self.source.peek() {
-                if byte.is_ascii_digit() {
-                    self.source.read()?;
-                    read_integer_digit = true;
-                } else {
-                    break;
+                match byte {
+                    b'0' if !read_integer_digit => {
+                        // 0 after a sign still counts as the complete Integer
+                        // part.
+                        self.source.read()?;
+                        read_integer_digit = true;
+                        break;
+                    }
+                    b'0'..=b'9' => {
+                        self.source.read()?;
+                        read_integer_digit = true;
+                    }
+                    _ => break,
                 }
             }
 

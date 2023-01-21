@@ -115,9 +115,29 @@ impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
 impl<'a, 'b> PartialEq<JsonString<'a>> for JsonString<'b> {
     fn eq(&self, other: &JsonString<'a>) -> bool {
         match (&self.source, &other.source) {
-            (StringContents::Json { source: a, .. }, StringContents::Json { source: b, .. }) => {
-                a.as_ref() == b.as_ref()
-            }
+            (
+                StringContents::Json {
+                    source: a,
+                    info: a_info,
+                },
+                StringContents::Json {
+                    source: b,
+                    info: b_info,
+                },
+            ) => match (a_info.has_escapes(), b_info.has_escapes()) {
+                (true, true) => {
+                    if a_info.unescaped_length() == b_info.unescaped_length() {
+                        Decoded::new(&self.source)
+                            .zip(Decoded::new(&other.source))
+                            .all(|(a, b)| a == b)
+                    } else {
+                        false
+                    }
+                }
+                (true, false) => self == b.as_ref(),
+                (false, true) => other == a.as_ref(),
+                (false, false) => a.as_ref() == b.as_ref(),
+            },
             (StringContents::Raw(a), StringContents::Raw(b)) => a.as_ref() == b.as_ref(),
             (StringContents::Json { .. }, StringContents::Raw(b)) => self == b.as_ref(),
             (StringContents::Raw(a), _) => other == a.as_ref(),
@@ -145,9 +165,11 @@ fn json_string_from_json() {
 
 #[test]
 fn json_string_cmp() {
+    #[track_caller]
     fn test_json(json: &str, expected: &str) {
         assert_eq!(JsonString::from_json(json).unwrap(), expected);
     }
+    #[track_caller]
     fn test_json_ne(json: &str, expected: &str) {
         assert_ne!(JsonString::from_json(json).unwrap(), expected);
     }
@@ -302,11 +324,23 @@ impl<'a> Iterator for Decoded<'a> {
                     // We access the string slice directly rather than
                     // trying to rebuild via char indicies for speed.
                     let hex = &self.source[offset + 1..offset + 5];
-                    let value = u16::from_str_radix(hex, 16).expect("already validated");
+                    let mut codepoint = u32::from_str_radix(hex, 16).expect("already validated");
+
+                    if (HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(&codepoint) {
+                        // Surrogate pair, which has already been validated.
+                        // Process another \uxxxx.
+                        for _ in 0..6 {
+                            self.chars.next();
+                        }
+                        let hex = &self.source[offset + 7..offset + 11];
+                        let second_codepoint =
+                            u32::from_str_radix(hex, 16).expect("already validated");
+                        codepoint = merge_surrogate_pair(codepoint, second_codepoint);
+                    }
 
                     // SAFETY: The JSON string has already had its UTF
                     // escapes validated.
-                    Some(unsafe { char::from_u32_unchecked(u32::from(value)) })
+                    Some(unsafe { char::from_u32_unchecked(codepoint) })
                 }
                 (_, other) => Some(other),
             }
@@ -548,4 +582,15 @@ pub enum StringContents<'a> {
         info: JsonStringInfo,
     },
     Raw(Cow<'a, str>),
+}
+
+pub(crate) const HIGH_SURROGATE_MIN: u32 = 0xD800;
+pub(crate) const HIGH_SURROGATE_MAX: u32 = 0xDBFF;
+pub(crate) const LOW_SURROGATE_MIN: u32 = 0xDC00;
+pub(crate) const LOW_SURROGATE_MAX: u32 = 0xDFFF;
+pub(crate) const DECODED_SURROGATE_BASE: u32 = 0x1_0000;
+
+#[inline]
+pub(crate) fn merge_surrogate_pair(high: u32, low: u32) -> u32 {
+    DECODED_SURROGATE_BASE | ((high - HIGH_SURROGATE_MIN) * 0x400) | (low - LOW_SURROGATE_MIN)
 }

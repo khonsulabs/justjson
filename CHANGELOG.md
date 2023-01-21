@@ -28,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Vec<Entry<'a>>`. This allows all `Vec` methods to be used to access the
   contents of an Object, including its own `push()` function.
 
+## Fixes
+
+- Escaped UTF16 surrogate pairs are properly handled. Previously, all surrogates
+  were considered invalid unicode.
+- Leading `+` signs are no longer allowed on numbers.
+- Leading `0`s are now disallowed on negative numbers.
+
 ## Added
 
 - `JsonString::from(&str)` has been added to convert from a Rust string to its

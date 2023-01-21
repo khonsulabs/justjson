@@ -90,6 +90,18 @@ fn escapey_string() {
 }
 
 #[test]
+fn surrogate_pair() {
+    test_json_parse(
+        br#""\ud83d\ude39\ud83d\udc8d""#,
+        &Value::String(JsonString::from_json("\"\u{1f639}\u{1f48d}\"").unwrap()),
+    );
+    assert_eq!(
+        JsonString::from_json(r#""\ud83d\ude39\ud83d\udc8d""#,).unwrap(),
+        "\u{1f639}\u{1f48d}"
+    );
+}
+
+#[test]
 fn empty_object() {
     test_json_parse(b"{}", &Value::Object(Object::new()));
 }
@@ -166,12 +178,6 @@ fn numbers() {
         br#"-1"#,
         &Value::Number(JsonNumber {
             source: Cow::Borrowed(r#"-1"#),
-        }),
-    );
-    test_json_parse(
-        br#"+01"#,
-        &Value::Number(JsonNumber {
-            source: Cow::Borrowed(r#"+01"#),
         }),
     );
 
@@ -310,8 +316,8 @@ fn string_errors() {
 
     assert_json_error_kind_matches!(r#""\?"#, 2, ErrorKind::InvalidEscape);
 
-    assert_json_error_kind_matches!(r#""\udddd"#, 2, ErrorKind::Utf8);
-    assert_json_error_kind_matches!(r#""\udda1"#, 2, ErrorKind::Utf8);
+    assert_json_error_kind_matches!(r#""\udddd "#, 2, ErrorKind::Utf8);
+    assert_json_error_kind_matches!(r#""\udda1 "#, 2, ErrorKind::Utf8);
 
     assert_json_error_kind_matches!(r#""\uG"#, 3, ErrorKind::InvalidHexadecimal);
 
