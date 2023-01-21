@@ -1,8 +1,12 @@
-use std::borrow::Cow;
-use std::str::CharIndices;
+use std::{
+    borrow::Cow,
+    str::{CharIndices, Chars},
+};
 
-use crate::error::{Error, ErrorKind};
-use crate::value::Value;
+use crate::{
+    error::{Error, ErrorKind},
+    value::Value,
+};
 
 /// A JSON-encoded string.
 // TODO document comparisons
@@ -64,27 +68,28 @@ impl<'a> JsonString<&'a str> {
         if self.info.has_escapes() {
             Cow::Owned(self.decoded().collect())
         } else {
-            Cow::Borrowed(&self.source[1..self.source.len() - 1])
+            Cow::Borrowed(self.source)
         }
     }
 }
 
-#[test]
-fn value_decode_if_needed() {}
+impl<'a> From<&'a str> for JsonString<String> {
+    fn from(value: &'a str) -> Self {
+        let mut escaped = Escaped::from(value);
+        Self {
+            source: (&mut escaped).collect(),
+            info: escaped.info,
+        }
+    }
+}
 
 impl<Backing> JsonString<Backing>
 where
     Backing: AsRef<str>,
 {
-    /// Returns the section of the string between the quotation marks.
-    pub fn contents(&self) -> &str {
-        let source = self.source.as_ref();
-        &source[1..source.len() - 1]
-    }
-
     /// Returns the string after decoding any JSON escape sequences.
     pub fn decoded(&self) -> Decoded<'_> {
-        Decoded::new(self.contents())
+        Decoded::new(self.source.as_ref())
     }
 }
 
@@ -116,12 +121,10 @@ where
                 return false;
             }
 
-            Decoded::new(&source[1..source.len() - 1])
-                .zip(other.chars())
-                .all(|(a, b)| a == b)
+            Decoded::new(source).zip(other.chars()).all(|(a, b)| a == b)
         } else {
             // Direct string comparison excluding the quotes.
-            &source[1..=unescaped_length] == *other
+            source == *other
         }
     }
 }
@@ -131,7 +134,7 @@ fn json_string_from_json() {
     assert_eq!(
         JsonString::from_json(r#""Hello, World!""#).unwrap(),
         JsonString {
-            source: r#""Hello, World!""#,
+            source: r#"Hello, World!"#,
             info: JsonStringInfo::new(false, 13),
         }
     );
@@ -291,4 +294,205 @@ impl<'a> Iterator for Decoded<'a> {
             Some(ch)
         }
     }
+}
+
+pub struct Escaped<'a> {
+    chars: Chars<'a>,
+    state: EscapeState,
+    info: JsonStringInfo,
+}
+
+enum EscapeState {
+    None,
+    Single(u8),
+    Unicode {
+        current_nibble: Option<u8>,
+        codepoint: u16,
+    },
+}
+
+impl<'a> From<&'a str> for Escaped<'a> {
+    fn from(value: &'a str) -> Self {
+        Self {
+            chars: value.chars(),
+            state: EscapeState::None,
+            info: JsonStringInfo::NONE,
+        }
+    }
+}
+
+impl<'a> Iterator for Escaped<'a> {
+    type Item = char;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        match &mut self.state {
+            EscapeState::None => {
+                let ch = self.chars.next()?;
+                match u8::try_from(ch) {
+                    Ok(b) if SAFE_STRING_BYTES[b as usize] => {
+                        self.info.add_bytes(1);
+                        Some(ch)
+                    }
+                    Ok(b'"' | b'\\' | b'/') => {
+                        self.state = EscapeState::Single(ch as u8);
+                        self.info.add_bytes_from_escape(1);
+                        Some('\\')
+                    }
+                    Ok(b'\x07') => {
+                        self.state = EscapeState::Single(b'b');
+                        self.info.add_bytes_from_escape(1);
+                        Some('\\')
+                    }
+                    Ok(b'\n') => {
+                        self.state = EscapeState::Single(b'n');
+                        self.info.add_bytes_from_escape(1);
+                        Some('\\')
+                    }
+                    Ok(b'\r') => {
+                        self.state = EscapeState::Single(b'r');
+                        self.info.add_bytes_from_escape(1);
+                        Some('\\')
+                    }
+                    Ok(b'\t') => {
+                        self.state = EscapeState::Single(b't');
+                        self.info.add_bytes_from_escape(1);
+                        Some('\\')
+                    }
+                    Ok(b'\x0c') => {
+                        self.state = EscapeState::Single(b'f');
+                        self.info.add_bytes_from_escape(1);
+                        Some('\\')
+                    }
+                    Ok(b) if (0..=31).contains(&b) => {
+                        // Another control character, but it's not a common one.
+                        // This must be encoded as a unicode escape.
+                        self.state = EscapeState::Unicode {
+                            current_nibble: None,
+                            codepoint: u16::from(b),
+                        };
+                        self.info.add_bytes_from_escape(1);
+                        Some('\\')
+                    }
+                    Err(_) => {
+                        // A unicode character
+                        self.info.add_bytes(ch.len_utf8());
+                        Some(ch)
+                    }
+                    _ => unreachable!("SAFE_CHARACTERS prevents these"),
+                }
+            }
+            EscapeState::Single(ch) => {
+                let ch = *ch;
+                self.state = EscapeState::None;
+                Some(ch as char)
+            }
+            EscapeState::Unicode {
+                current_nibble,
+                codepoint,
+            } => match current_nibble {
+                Some(current_nibble) => {
+                    #[allow(clippy::cast_possible_truncation)]
+                    let bits = *codepoint as u8 & 0xF;
+                    *codepoint >>= 4;
+                    let ch = if bits < 10 { bits + b'0' } else { bits + b'a' };
+                    *current_nibble += 1;
+                    if *current_nibble == 4 {
+                        self.state = EscapeState::None;
+                    }
+                    Some(ch as char)
+                }
+                None => {
+                    *current_nibble = Some(0);
+                    Some('u')
+                }
+            },
+        }
+    }
+}
+
+#[allow(clippy::inconsistent_digit_grouping)]
+pub(crate) static HEX_OFFSET_TABLE: [u8; 256] = {
+    const ERR: u8 = u8::MAX;
+    [
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 0
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 1
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 2
+        0__, 1__, 2__, 3__, 4__, 5__, 6__, 7__, 8__, 9__, ERR, ERR, ERR, ERR, ERR, ERR, // 3
+        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 4
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 5
+        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 6
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 7
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 8
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 9
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // A
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // B
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // C
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // D
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // E
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // F
+    ]
+};
+
+pub(crate) static SAFE_STRING_BYTES: &[bool; 256] = {
+    const ER: bool = false;
+    const UC: bool = true;
+    const BS: bool = false;
+    const QU: bool = false;
+    const __: bool = true;
+    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
+    &[
+        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
+        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
+        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
+        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
+    ]
+};
+
+pub(crate) static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
+    const ER: bool = false;
+    const UC: bool = false;
+    const BS: bool = false;
+    const QU: bool = false;
+    const __: bool = true;
+    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
+    &[
+        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
+        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
+        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
+        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
+        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
+        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
+    ]
+};
+
+#[test]
+fn escape() {
+    let original = "\"\\/\u{07}\t\n\r\u{0c}\u{25ef}";
+    let json = JsonString::from(original);
+    assert!(json.info.has_escapes());
+    assert_eq!(json.info.unescaped_length(), original.len());
+    assert_eq!(json, original);
 }

@@ -1,7 +1,8 @@
 use std::fmt::Write;
 
-use crate::doc::Document;
-use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
+use crate::{
+    doc::Document, Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value,
+};
 
 #[track_caller]
 fn test_json_parse(source: &[u8], value: &Value<&str>) {
@@ -57,14 +58,14 @@ fn basic_string() {
     test_json_parse(
         br#""hello""#,
         &Value::String(JsonString {
-            source: r#""hello""#,
+            source: "hello",
             info: JsonStringInfo::new(false, 5),
         }),
     );
     test_json_parse(
         br#""""#,
         &Value::String(JsonString {
-            source: r#""""#,
+            source: "",
             info: JsonStringInfo::new(false, 0),
         }),
     );
@@ -75,7 +76,7 @@ fn escapey_string() {
     test_json_parse(
         br#""\"\\\/\b\f\n\r\t\u25eF""#,
         &Value::String(JsonString {
-            source: r#""\"\\\/\b\f\n\r\t\u25eF""#,
+            source: r#"\"\\\/\b\f\n\r\t\u25eF"#,
             info: JsonStringInfo::new(true, 11),
         }),
     );
@@ -92,7 +93,7 @@ fn one_mapping() {
         br#"{"hello":true}"#,
         &Value::Object(Object::from_iter([(
             JsonString {
-                source: r#""hello""#,
+                source: "hello",
                 info: JsonStringInfo::new(false, 5),
             },
             Value::Boolean(true),
@@ -107,14 +108,14 @@ fn two_mappings() {
         &Value::Object(Object::from_iter([
             (
                 JsonString {
-                    source: r#""hello""#,
+                    source: "hello",
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Boolean(true),
             ),
             (
                 JsonString {
-                    source: r#""world""#,
+                    source: "world",
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Null,
@@ -130,14 +131,14 @@ fn spaced_out_object() {
         &Value::Object(Object::from_iter([
             (
                 JsonString {
-                    source: r#""hello""#,
+                    source: "hello",
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Boolean(true),
             ),
             (
                 JsonString {
-                    source: r#""world""#,
+                    source: "world",
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Null,

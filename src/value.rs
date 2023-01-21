@@ -1,8 +1,12 @@
-use std::fmt::{self, Display};
-use std::ops::{Deref, DerefMut};
+use std::{
+    fmt::{self, Display},
+    ops::{Deref, DerefMut},
+};
 
-use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
-use crate::{Error, JsonNumber, JsonString};
+use crate::{
+    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
+    Error, JsonNumber, JsonString,
+};
 
 /// A JSON value.
 ///
@@ -161,7 +165,11 @@ where
         state: &mut WriteState<'_, W, PRETTY>,
     ) -> fmt::Result {
         match self {
-            Value::String(string) => state.write(string.source.as_ref()),
+            Value::String(string) => {
+                state.write("\"")?;
+                state.write(string.source.as_ref())?;
+                state.write("\"")
+            }
             Value::Number(number) => state.write(number.source.as_ref()),
             Value::Boolean(bool) => state.write(if *bool { "true" } else { "false" }),
             Value::Null => state.write("null"),
@@ -179,8 +187,9 @@ where
         if !obj.0.is_empty() {
             state.new_line()?;
             for (index, entry) in obj.0.iter().enumerate() {
+                state.write("\"")?;
                 state.write(entry.key.source.as_ref())?;
-                state.write_colon()?;
+                state.write_object_key_end()?;
                 entry.value.write_json_value(state)?;
                 if index != obj.0.len() - 1 {
                     state.write(",")?;
@@ -449,11 +458,11 @@ where
         Ok(())
     }
 
-    fn write_colon(&mut self) -> fmt::Result {
+    fn write_object_key_end(&mut self) -> fmt::Result {
         if PRETTY {
-            self.write(": ")?;
+            self.write("\": ")?;
         } else {
-            self.write(":")?;
+            self.write("\":")?;
         }
         Ok(())
     }

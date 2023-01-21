@@ -1,8 +1,10 @@
 use core::slice;
-use std::iter::Peekable;
-use std::marker::PhantomData;
+use std::{iter::Peekable, marker::PhantomData};
 
-use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
+use crate::{
+    string::{HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8},
+    Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo,
+};
 
 /// Parses JSON, driven by a [`ParseDelegate`].
 ///
@@ -321,7 +323,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     b'"' => {
                         break Ok(JsonString {
                             source: unsafe {
-                                std::str::from_utf8_unchecked(&self.source.bytes[start..=offset])
+                                std::str::from_utf8_unchecked(&self.source.bytes[start + 1..offset])
                             },
                             info: string_info,
                         })
@@ -787,83 +789,6 @@ where
         }
     }
 }
-
-#[allow(clippy::inconsistent_digit_grouping)]
-static HEX_OFFSET_TABLE: [u8; 256] = {
-    const ERR: u8 = u8::MAX;
-    [
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 0
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 1
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 2
-        0__, 1__, 2__, 3__, 4__, 5__, 6__, 7__, 8__, 9__, ERR, ERR, ERR, ERR, ERR, ERR, // 3
-        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 4
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 5
-        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 6
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 7
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 8
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 9
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // A
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // B
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // C
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // D
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // E
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // F
-    ]
-};
-
-static SAFE_STRING_BYTES: &[bool; 256] = {
-    const ER: bool = false;
-    const UC: bool = true;
-    const BS: bool = false;
-    const QU: bool = false;
-    const __: bool = true;
-    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    &[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
-        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
-        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
-    ]
-};
-
-static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
-    const ER: bool = false;
-    const UC: bool = false;
-    const BS: bool = false;
-    const QU: bool = false;
-    const __: bool = true;
-    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    &[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
-        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
-        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
-    ]
-};
 
 /// Every type supported by JSON.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
