@@ -2,6 +2,7 @@ use std::{iter::Cloned, slice};
 
 use crate::{
     parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
+    value::Entry,
     Error, JsonNumber, JsonString, Object, Value,
 };
 
@@ -95,7 +96,7 @@ impl<'a> Document<'a> {
     }
 }
 
-impl<'a> From<Document<'a>> for Value<&'a str> {
+impl<'a> From<Document<'a>> for Value<'a> {
     fn from(doc: Document<'a>) -> Self {
         let mut nodes = doc.nodes.0.into_iter();
         let root = nodes.next().expect("empty document is invalid");
@@ -103,7 +104,7 @@ impl<'a> From<Document<'a>> for Value<&'a str> {
     }
 }
 
-fn hydrate_value_from_node<'a, I>(node: Node<'a>, remaining_nodes: &mut I) -> Value<&'a str>
+fn hydrate_value_from_node<'a, I>(node: Node<'a>, remaining_nodes: &mut I) -> Value<'a>
 where
     I: Iterator<Item = Node<'a>>,
 {
@@ -118,7 +119,10 @@ where
                 let node = remaining_nodes.next().expect("obbject missing value");
                 let Node::String(key) = node else { unreachable!("object key must be string") };
                 let node = remaining_nodes.next().expect("object missing value");
-                obj.push(key, hydrate_value_from_node(node, remaining_nodes));
+                obj.push(Entry {
+                    key,
+                    value: hydrate_value_from_node(node, remaining_nodes),
+                });
             }
             Value::Object(obj)
         }
@@ -152,9 +156,9 @@ pub enum Node<'a> {
     /// A boolean value.
     Boolean(bool),
     /// A string value.
-    String(JsonString<&'a str>),
+    String(JsonString<'a>),
     /// A numerical value.
-    Number(JsonNumber<&'a str>),
+    Number(JsonNumber<'a>),
     /// An object value with `len` key-value pairs following it.
     Object {
         /// The number of key-value pairs that this object contains.
@@ -185,11 +189,11 @@ impl<'a> Nodes<'a> {
         self.push_node(Node::Boolean(boolean))
     }
 
-    pub fn push_string(&mut self, string: JsonString<&'a str>) -> usize {
+    pub fn push_string(&mut self, string: JsonString<'a>) -> usize {
         self.push_node(Node::String(string))
     }
 
-    pub fn push_number(&mut self, number: JsonNumber<&'a str>) -> usize {
+    pub fn push_number(&mut self, number: JsonNumber<'a>) -> usize {
         self.push_node(Node::Number(number))
     }
 
@@ -229,12 +233,12 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
     }
 
     #[inline]
-    fn number(&mut self, value: JsonNumber<&'a str>) -> Self::Value {
+    fn number(&mut self, value: JsonNumber<'a>) -> Self::Value {
         self.push_number(value)
     }
 
     #[inline]
-    fn string(&mut self, value: JsonString<&'a str>) -> Self::Value {
+    fn string(&mut self, value: JsonString<'a>) -> Self::Value {
         self.push_string(value)
     }
 
@@ -244,7 +248,7 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
     }
 
     #[inline]
-    fn object_key(&mut self, object: &mut Self::Object, key: JsonString<&'a str>) -> Self::Key {
+    fn object_key(&mut self, object: &mut Self::Object, key: JsonString<'a>) -> Self::Key {
         self.extend_object(*object);
         self.push_string(key);
     }
@@ -326,7 +330,7 @@ impl<'doc, 'a> DocumentIter<'doc, 'a> {
     /// assert_eq!(array.len(), 4);
     /// assert!(nodes.next().is_none());
     /// ```
-    pub fn next_value(&mut self) -> Option<Value<&'a str>> {
+    pub fn next_value(&mut self) -> Option<Value<'a>> {
         let node = self.nodes.next()?;
 
         Some(hydrate_value_from_node(node, &mut self.nodes))

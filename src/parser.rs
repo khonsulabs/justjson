@@ -1,5 +1,5 @@
 use core::slice;
-use std::{iter::Peekable, marker::PhantomData};
+use std::{borrow::Cow, iter::Peekable, marker::PhantomData};
 
 use crate::{
     string::{HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8},
@@ -303,7 +303,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     }
 
     #[allow(unsafe_code)]
-    fn read_string_from_source(&mut self, start: usize) -> Result<JsonString<&'a str>, Error> {
+    fn read_string_from_source(&mut self, start: usize) -> Result<JsonString<'a>, Error> {
         let safe_strings = if GUARANTEED_UTF8 {
             SAFE_STRING_BYTES
         } else {
@@ -322,9 +322,9 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 match byte {
                     b'"' => {
                         break Ok(JsonString {
-                            source: unsafe {
+                            source: Cow::Borrowed(unsafe {
                                 std::str::from_utf8_unchecked(&self.source.bytes[start + 1..offset])
-                            },
+                            }),
                             info: string_info,
                         })
                     }
@@ -409,7 +409,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         &mut self,
         initial_state: InitialNumberState,
         start: usize,
-    ) -> Result<JsonNumber<&'a str>, Error> {
+    ) -> Result<JsonNumber<'a>, Error> {
         // Numbers are the "hardest" in that we have to peek the digits since
         // there is no terminal character. Every other type in JSON has a way to
         // know when the type ends.
@@ -488,9 +488,9 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
 
         Ok(JsonNumber {
-            source: unsafe {
+            source: Cow::Borrowed(unsafe {
                 std::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
-            },
+            }),
         })
     }
 
@@ -536,15 +536,15 @@ pub trait ParseDelegate<'a> {
     /// Returns the value representation of a boolean.
     fn boolean(&mut self, value: bool) -> Self::Value;
     /// Returns the value representation of a [`JsonNumber`].
-    fn number(&mut self, value: JsonNumber<&'a str>) -> Self::Value;
+    fn number(&mut self, value: JsonNumber<'a>) -> Self::Value;
     /// Returns the value representation of a [`JsonString`].
-    fn string(&mut self, value: JsonString<&'a str>) -> Self::Value;
+    fn string(&mut self, value: JsonString<'a>) -> Self::Value;
 
     /// Returns an empty object.
     fn begin_object(&mut self) -> Self::Object;
     /// Processes the key for a new value in an object. Returns the key
     /// representation of the [`JsonString`].
-    fn object_key(&mut self, object: &mut Self::Object, key: JsonString<&'a str>) -> Self::Key;
+    fn object_key(&mut self, object: &mut Self::Object, key: JsonString<'a>) -> Self::Key;
     /// Adds a new key-value pair to an object.
     fn object_value(&mut self, object: &mut Self::Object, key: Self::Key, value: Self::Value);
     /// Returns true if the object passed is empty.

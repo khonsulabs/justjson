@@ -1,11 +1,11 @@
-use std::fmt::Write;
+use std::{borrow::Cow, fmt::Write};
 
 use crate::{
     doc::Document, Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value,
 };
 
 #[track_caller]
-fn test_json_parse(source: &[u8], value: &Value<&str>) {
+fn test_json_parse(source: &[u8], value: &Value<'_>) {
     println!("Testing slice {}", std::str::from_utf8(source).unwrap());
 
     let parsed_value = Value::from_json_bytes(source).unwrap();
@@ -58,14 +58,14 @@ fn basic_string() {
     test_json_parse(
         br#""hello""#,
         &Value::String(JsonString {
-            source: "hello",
+            source: Cow::Borrowed("hello"),
             info: JsonStringInfo::new(false, 5),
         }),
     );
     test_json_parse(
         br#""""#,
         &Value::String(JsonString {
-            source: "",
+            source: Cow::Borrowed(""),
             info: JsonStringInfo::new(false, 0),
         }),
     );
@@ -76,7 +76,7 @@ fn escapey_string() {
     test_json_parse(
         br#""\"\\\/\b\f\n\r\t\u25eF""#,
         &Value::String(JsonString {
-            source: r#"\"\\\/\b\f\n\r\t\u25eF"#,
+            source: Cow::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#),
             info: JsonStringInfo::new(true, 11),
         }),
     );
@@ -93,7 +93,7 @@ fn one_mapping() {
         br#"{"hello":true}"#,
         &Value::Object(Object::from_iter([(
             JsonString {
-                source: "hello",
+                source: Cow::Borrowed("hello"),
                 info: JsonStringInfo::new(false, 5),
             },
             Value::Boolean(true),
@@ -108,14 +108,14 @@ fn two_mappings() {
         &Value::Object(Object::from_iter([
             (
                 JsonString {
-                    source: "hello",
+                    source: Cow::Borrowed("hello"),
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Boolean(true),
             ),
             (
                 JsonString {
-                    source: "world",
+                    source: Cow::Borrowed("world"),
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Null,
@@ -131,14 +131,14 @@ fn spaced_out_object() {
         &Value::Object(Object::from_iter([
             (
                 JsonString {
-                    source: "hello",
+                    source: Cow::Borrowed("hello"),
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Boolean(true),
             ),
             (
                 JsonString {
-                    source: "world",
+                    source: Cow::Borrowed("world"),
                     info: JsonStringInfo::new(false, 5),
                 },
                 Value::Null,
@@ -153,27 +153,42 @@ fn numbers() {
         test_json_parse(
             &[b],
             &Value::Number(JsonNumber {
-                source: std::str::from_utf8(&[b]).unwrap(),
+                source: Cow::Borrowed(std::str::from_utf8(&[b]).unwrap()),
             }),
         );
     }
 
-    test_json_parse(br#"-1"#, &Value::Number(JsonNumber { source: r#"-1"# }));
-    test_json_parse(br#"+01"#, &Value::Number(JsonNumber { source: r#"+01"# }));
+    test_json_parse(
+        br#"-1"#,
+        &Value::Number(JsonNumber {
+            source: Cow::Borrowed(r#"-1"#),
+        }),
+    );
+    test_json_parse(
+        br#"+01"#,
+        &Value::Number(JsonNumber {
+            source: Cow::Borrowed(r#"+01"#),
+        }),
+    );
 
-    test_json_parse(br#"-1.0"#, &Value::Number(JsonNumber { source: r#"-1.0"# }));
+    test_json_parse(
+        br#"-1.0"#,
+        &Value::Number(JsonNumber {
+            source: Cow::Borrowed(r#"-1.0"#),
+        }),
+    );
 
     test_json_parse(
         br#"-1.0e1"#,
         &Value::Number(JsonNumber {
-            source: r#"-1.0e1"#,
+            source: Cow::Borrowed(r#"-1.0e1"#),
         }),
     );
 
     test_json_parse(
         br#"-1.0E-1"#,
         &Value::Number(JsonNumber {
-            source: r#"-1.0E-1"#,
+            source: Cow::Borrowed(r#"-1.0E-1"#),
         }),
     );
 }
@@ -185,7 +200,9 @@ fn object_of_everything() {
         &Value::Object(Object::from_iter([
             (
                 JsonString::from_json(r#""a""#).unwrap(),
-                Value::Number(JsonNumber { source: r#"1"# }),
+                Value::Number(JsonNumber {
+                    source: Cow::Borrowed(r#"1"#),
+                }),
             ),
             (
                 JsonString::from_json(r#""b""#).unwrap(),
@@ -212,7 +229,9 @@ fn array_of_everything() {
     test_json_parse(
         br#"[1,true,"hello",[],{}]"#,
         &Value::Array(vec![
-            Value::Number(JsonNumber { source: r#"1"# }),
+            Value::Number(JsonNumber {
+                source: Cow::Borrowed(r#"1"#),
+            }),
             Value::Boolean(true),
             Value::String(JsonString::from_json(r#""hello""#).unwrap()),
             Value::Array(vec![]),

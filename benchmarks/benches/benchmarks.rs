@@ -1,5 +1,6 @@
-use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkGroup, Criterion};
+use criterion::{
+    black_box, criterion_group, criterion_main, measurement::WallTime, BenchmarkGroup, Criterion,
+};
 
 const SMALL_OBJECT: &str = r#"{
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -16,7 +17,7 @@ const SMALL_OBJECT: &str = r#"{
 
 const SMALL_OBJECT_COMPACT: &str = r#"{"@context":"https://www.w3.org/ns/activitystreams","summary":"A note","type":"Note","content":"My dog has fleas.","numbers":[1,2,4.4],"keywords":{"true":true,"false":false,"null":null}}"#;
 
-fn justjson_parse(json: &str) -> justjson::Value<&str> {
+fn justjson_parse(json: &str) -> justjson::Value<'_> {
     justjson::Value::from_json(json).unwrap()
 }
 
@@ -37,7 +38,7 @@ fn simd_json_parse(json: &mut Vec<u8>) {
     let _ = simd_json::to_borrowed_value(json).unwrap();
 }
 
-fn justjson_parse_bytes(json: &str) -> justjson::Value<&str> {
+fn justjson_parse_bytes(json: &str) -> justjson::Value<'_> {
     justjson::Value::from_json_bytes(json.as_bytes()).unwrap()
 }
 

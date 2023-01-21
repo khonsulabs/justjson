@@ -12,33 +12,13 @@ use crate::{
 // TODO document comparisons
 #[derive(Debug, Eq, PartialEq, Clone)]
 
-pub struct JsonString<Backing> {
+pub struct JsonString<'a> {
     /// The JSON-source for the string.
-    pub source: Backing,
+    pub(crate) source: Cow<'a, str>,
     pub(crate) info: JsonStringInfo,
 }
 
-impl<'a> JsonString<&'a str> {
-    // pub fn into_owned(self) -> JsonString<'static> {
-    //     JsonString {
-    //         source: Cow::Owned(match self.source {
-    //             Cow::Borrowed(value) => value.to_string(),
-    //             Cow::Owned(value) => value,
-    //         }),
-    //         has_escapes: self.has_escapes,
-    //     }
-    // }
-
-    // pub fn to_owned(&self) -> JsonString<'static> {
-    //     JsonString {
-    //         source: Cow::Owned(match &self.source {
-    //             Cow::Borrowed(value) => value.to_string(),
-    //             Cow::Owned(value) => value.clone(),
-    //         }),
-    //         has_escapes: self.has_escapes,
-    //     }
-    // }
-
+impl<'a> JsonString<'a> {
     /// Parses `json`, expecting a single string value.
     ///
     /// # Errors
@@ -64,16 +44,29 @@ impl<'a> JsonString<&'a str> {
     /// sequences, so this function is nearly instananeous when there are no
     /// escape sequences.
     #[must_use]
-    pub fn decode_if_needed(&self) -> Cow<'a, str> {
+    pub fn decode_if_needed(&self) -> Cow<'_, str> {
         if self.info.has_escapes() {
             Cow::Owned(self.decoded().collect())
         } else {
-            Cow::Borrowed(self.source)
+            Cow::Borrowed(self.contents())
         }
+    }
+
+    /// Returns the JSON-encoded contents of the string value. This does not
+    /// include the wrapping quotation marks.
+    #[must_use]
+    pub fn contents(&self) -> &str {
+        self.source.as_ref()
+    }
+
+    /// Returns the string after decoding any JSON escape sequences.
+    #[must_use]
+    pub fn decoded(&self) -> Decoded<'_> {
+        Decoded::new(self.contents())
     }
 }
 
-impl<'a> From<&'a str> for JsonString<String> {
+impl<'a> From<&'a str> for JsonString<'a> {
     fn from(value: &'a str) -> Self {
         let mut escaped = Escaped::from(value);
         Self {
@@ -83,35 +76,19 @@ impl<'a> From<&'a str> for JsonString<String> {
     }
 }
 
-impl<Backing> JsonString<Backing>
-where
-    Backing: AsRef<str>,
-{
-    /// Returns the string after decoding any JSON escape sequences.
-    pub fn decoded(&self) -> Decoded<'_> {
-        Decoded::new(self.source.as_ref())
-    }
-}
-
-// impl<'a> PartialEq<JsonString<&'a str>> for JsonString<String> {
-//     fn eq(&self, other: &JsonString<&'a str>) -> bool {
+// impl<'a> PartialEq<JsonString<'a>> for JsonString<String> {
+//     fn eq(&self, other: &JsonString<'a>) -> bool {
 //         self.source == other.source
 //     }
 // }
 
-impl<'a, 'b, T> PartialEq<&'a str> for &'b JsonString<T>
-where
-    T: AsRef<str>,
-{
+impl<'a, 'b> PartialEq<&'a str> for &'b JsonString<'b> {
     fn eq(&self, other: &&'a str) -> bool {
         (*self) == other
     }
 }
 
-impl<'a, T> PartialEq<&'a str> for JsonString<T>
-where
-    T: AsRef<str>,
-{
+impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
     fn eq(&self, other: &&'a str) -> bool {
         let unescaped_length = self.info.unescaped_length();
         let source = self.source.as_ref();
@@ -134,7 +111,7 @@ fn json_string_from_json() {
     assert_eq!(
         JsonString::from_json(r#""Hello, World!""#).unwrap(),
         JsonString {
-            source: r#"Hello, World!"#,
+            source: Cow::Borrowed(r#"Hello, World!"#),
             info: JsonStringInfo::new(false, 13),
         }
     );
@@ -167,9 +144,11 @@ fn json_string_cmp() {
 
 #[test]
 fn decode_if_needed() {
-    let Cow::Borrowed(string) = JsonString::from_json(r#""""#).unwrap().decode_if_needed() else { unreachable!() };
+    let empty = JsonString::from_json(r#""""#).unwrap();
+    let Cow::Borrowed(string) = empty.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "");
-    let Cow::Owned(string) = JsonString::from_json(r#""\r""#).unwrap().decode_if_needed() else { unreachable!() };
+    let has_escapes = JsonString::from_json(r#""\r""#).unwrap();
+    let Cow::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "\r");
 }
 

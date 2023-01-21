@@ -13,22 +13,22 @@ use crate::{
 /// The `Backing` generic is the storage mechanism used by [`JsonNumber`] and
 /// [`JsonString`]. This is generally `&str` or `Cow<str>`.
 #[derive(Debug, Eq, PartialEq)]
-pub enum Value<Backing> {
+pub enum Value<'a> {
     /// A JSON number.
-    Number(JsonNumber<Backing>),
+    Number(JsonNumber<'a>),
     /// A JSON string.
-    String(JsonString<Backing>),
+    String(JsonString<'a>),
     /// A boolean value.
     Boolean(bool),
     /// A JSON object (key/value pairs).
-    Object(Object<Backing>),
+    Object(Object<'a>),
     /// A JSON array (list of values).
-    Array(Vec<Value<Backing>>),
+    Array(Vec<Value<'a>>),
     /// A null value.
     Null,
 }
 
-impl<'a> Value<&'a str> {
+impl<'a> Value<'a> {
     /// Parses a JSON value from `json`, returning a `Value<&str>` that borrows
     /// data from `json`.
     ///
@@ -65,38 +65,10 @@ impl<'a> Value<&'a str> {
         Parser::parse_json_bytes_with_config(json, config, ValueParser)
     }
 
-    // pub fn into_owned(self) -> Value<'static> {
-    //     match self {
-    //         Value::Number(value) => Value::Number(value.into_owned()),
-    //         Value::String(value) => Value::String(value.into_owned()),
-    //         Value::Boolean(value) => Value::Boolean(value),
-    //         Value::Null => Value::Null,
-    //         Value::Object(object) => Value::Object(object.into_owned()),
-    //         Value::Array(values) => {
-    //             Value::Array(values.into_iter().map(Self::into_owned).collect())
-    //         }
-    //     }
-    // }
-
-    // pub fn to_owned(&self) -> Value<'static> {
-    //     match self {
-    //         Value::Number(value) => Value::Number(value.to_owned()),
-    //         Value::String(value) => Value::String(value.to_owned()),
-    //         Value::Boolean(value) => Value::Boolean(*value),
-    //         Value::Null => Value::Null,
-    //         Value::Object(object) => Value::Object(object.to_owned()),
-    //         Value::Array(values) => Value::Array(values.iter().map(Self::to_owned).collect()),
-    //     }
-    // }
-}
-
-impl<Backing> Value<Backing>
-where
-    Backing: AsRef<str>,
-{
     /// Returns the [`Object`] inside of this value, if this is a
     /// [`Value::Object`].
-    pub fn as_object(&self) -> Option<&Object<Backing>> {
+    #[must_use]
+    pub fn as_object(&self) -> Option<&Object<'a>> {
         if let Self::Object(obj) = self {
             Some(obj)
         } else {
@@ -106,7 +78,8 @@ where
 
     /// Returns the [`JsonString`] inside of this value, if this is a
     /// [`Value::String`].
-    pub fn as_string(&self) -> Option<&JsonString<Backing>> {
+    #[must_use]
+    pub fn as_string(&self) -> Option<&JsonString<'a>> {
         if let Self::String(obj) = self {
             Some(obj)
         } else {
@@ -116,7 +89,8 @@ where
 
     /// Returns the [`JsonNumber`] inside of this value, if this is a
     /// [`Value::Number`].
-    pub fn as_number(&self) -> Option<&JsonNumber<Backing>> {
+    #[must_use]
+    pub fn as_number(&self) -> Option<&JsonNumber<'a>> {
         if let Self::Number(obj) = self {
             Some(obj)
         } else {
@@ -126,6 +100,7 @@ where
 
     /// Returns the `bool` inside of this value, if this is a
     /// [`Value::Boolean`].
+    #[must_use]
     pub fn as_bool(&self) -> Option<bool> {
         if let Self::Boolean(value) = self {
             Some(*value)
@@ -136,6 +111,7 @@ where
 
     /// Returns the slice of values inside of this value, if this is a
     /// [`Value::Array`].
+    #[must_use]
     pub fn as_array(&self) -> Option<&[Self]> {
         if let Self::Array(value) = self {
             Some(value)
@@ -145,6 +121,7 @@ where
     }
 
     /// Returns true if this value is `null`/[`Value::Null`].
+    #[must_use]
     pub fn is_null(&self) -> bool {
         matches!(self, Value::Null)
     }
@@ -167,10 +144,10 @@ where
         match self {
             Value::String(string) => {
                 state.write("\"")?;
-                state.write(string.source.as_ref())?;
+                state.write(string.contents())?;
                 state.write("\"")
             }
-            Value::Number(number) => state.write(number.source.as_ref()),
+            Value::Number(number) => state.write(number.source()),
             Value::Boolean(bool) => state.write(if *bool { "true" } else { "false" }),
             Value::Null => state.write("null"),
             Value::Object(obj) => Self::write_json_object(obj, state),
@@ -179,7 +156,7 @@ where
     }
 
     fn write_json_object<W: fmt::Write, const PRETTY: bool>(
-        obj: &Object<Backing>,
+        obj: &Object<'_>,
         state: &mut WriteState<'_, W, PRETTY>,
     ) -> fmt::Result {
         state.begin_object()?;
@@ -188,7 +165,7 @@ where
             state.new_line()?;
             for (index, entry) in obj.0.iter().enumerate() {
                 state.write("\"")?;
-                state.write(entry.key.source.as_ref())?;
+                state.write(entry.key.contents())?;
                 state.write_object_key_end()?;
                 entry.value.write_json_value(state)?;
                 if index != obj.0.len() - 1 {
@@ -227,6 +204,7 @@ where
     /// This uses two spaces for indentation, and `\n` for end of lines. Use
     /// [`to_json_pretty_custom()`](Self::to_json_pretty_custom) to customize
     /// the formatting behavior.
+    #[must_use]
     pub fn to_json_pretty(&self) -> String {
         let mut out = String::new();
         self.pretty_write_json_to(&mut out).expect("out of memory");
@@ -235,6 +213,7 @@ where
 
     /// Converts this value to its JSON representation, with extra whitespace to
     /// make it easier for a human to read.
+    #[must_use]
     pub fn to_json_pretty_custom(&self, indentation: &str, line_ending: &str) -> String {
         let mut out = String::new();
         self.pretty_write_json_to_custom(indentation, line_ending, &mut out)
@@ -244,6 +223,7 @@ where
 
     /// Converts this value to its JSON representation, with no extraneous
     /// whitespace.
+    #[must_use]
     pub fn to_json(&self) -> String {
         let mut out = String::new();
         self.write_json_to(&mut out).expect("out of memory");
@@ -280,15 +260,15 @@ where
 
 #[test]
 fn value_ases() {
-    assert!(Value::<&str>::Boolean(true).as_bool().unwrap());
+    assert!(Value::Boolean(true).as_bool().unwrap());
     assert_eq!(
-        Value::<&str>::String(JsonString::from_json("\"\"").unwrap())
+        Value::String(JsonString::from_json("\"\"").unwrap())
             .as_string()
             .unwrap(),
         ""
     );
     assert_eq!(
-        Value::<&str>::Number(JsonNumber::from_json("1").unwrap())
+        Value::Number(JsonNumber::from_json("1").unwrap())
             .as_number()
             .unwrap()
             .as_u64()
@@ -296,24 +276,21 @@ fn value_ases() {
         1
     );
     assert_eq!(
-        Value::<&str>::Object(Object::new()).as_object().unwrap(),
+        Value::Object(Object::new()).as_object().unwrap(),
         &Object::new()
     );
-    assert_eq!(Value::<&str>::Array(Vec::new()).as_array().unwrap(), &[]);
+    assert_eq!(Value::Array(Vec::new()).as_array().unwrap(), &[]);
 
-    assert!(Value::<&str>::Null.is_null());
-    assert!(!Value::<&str>::Boolean(true).is_null());
-    assert_eq!(Value::<&str>::Null.as_bool(), None);
-    assert_eq!(Value::<&str>::Null.as_number(), None);
-    assert_eq!(Value::<&str>::Null.as_string(), None);
-    assert_eq!(Value::<&str>::Null.as_object(), None);
-    assert_eq!(Value::<&str>::Null.as_array(), None);
+    assert!(Value::Null.is_null());
+    assert!(!Value::Boolean(true).is_null());
+    assert_eq!(Value::Null.as_bool(), None);
+    assert_eq!(Value::Null.as_number(), None);
+    assert_eq!(Value::Null.as_string(), None);
+    assert_eq!(Value::Null.as_object(), None);
+    assert_eq!(Value::Null.as_array(), None);
 }
 
-impl<Backing> Display for Value<Backing>
-where
-    Backing: AsRef<str>,
-{
+impl<'a> Display for Value<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if f.alternate() {
             self.pretty_write_json_to(f)
@@ -326,10 +303,10 @@ where
 struct ValueParser;
 
 impl<'a> ParseDelegate<'a> for ValueParser {
-    type Array = Vec<Value<&'a str>>;
-    type Key = JsonString<&'a str>;
-    type Object = Object<&'a str>;
-    type Value = Value<&'a str>;
+    type Array = Vec<Value<'a>>;
+    type Key = JsonString<'a>;
+    type Object = Object<'a>;
+    type Value = Value<'a>;
 
     #[inline]
     fn null(&mut self) -> Self::Value {
@@ -342,12 +319,12 @@ impl<'a> ParseDelegate<'a> for ValueParser {
     }
 
     #[inline]
-    fn number(&mut self, value: JsonNumber<&'a str>) -> Self::Value {
+    fn number(&mut self, value: JsonNumber<'a>) -> Self::Value {
         Value::Number(value)
     }
 
     #[inline]
-    fn string(&mut self, value: JsonString<&'a str>) -> Self::Value {
+    fn string(&mut self, value: JsonString<'a>) -> Self::Value {
         Value::String(value)
     }
 
@@ -357,13 +334,13 @@ impl<'a> ParseDelegate<'a> for ValueParser {
     }
 
     #[inline]
-    fn object_key(&mut self, _object: &mut Self::Object, key: JsonString<&'a str>) -> Self::Key {
+    fn object_key(&mut self, _object: &mut Self::Object, key: JsonString<'a>) -> Self::Key {
         key
     }
 
     #[inline]
     fn object_value(&mut self, object: &mut Self::Object, key: Self::Key, value: Self::Value) {
-        object.push(key, value);
+        object.push(Entry { key, value });
     }
 
     #[inline]
@@ -486,8 +463,8 @@ where
     }
 }
 
-// impl<'a> PartialEq<Value<&'a str>> for Value<String> {
-//     fn eq(&self, other: &Value<&'a str>) -> bool {
+// impl<'a> PartialEq<Value<'a>> for Value<String> {
+//     fn eq(&self, other: &Value<'a>) -> bool {
 //         match (self, other) {
 //             (Self::Number(l0), Value::Number(r0)) => l0 == r0,
 //             (Self::String(l0), Value::String(r0)) => l0 == r0,
@@ -502,15 +479,15 @@ where
 
 /// A JSON Object (list of key-value pairs).
 #[derive(Debug, Eq, PartialEq)]
-pub struct Object<Backing>(Vec<Entry<Backing>>);
+pub struct Object<'a>(Vec<Entry<'a>>);
 
-impl<Backing> Default for Object<Backing> {
+impl<'a> Default for Object<'a> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<Backing> Object<Backing> {
+impl<'a> Object<'a> {
     /// Returns an empty object.
     #[must_use]
     pub const fn new() -> Self {
@@ -523,76 +500,40 @@ impl<Backing> Object<Backing> {
     pub fn with_capacity(capacity: usize) -> Self {
         Self(Vec::with_capacity(capacity))
     }
-
-    /// Adds a new key-value pair to this object.
-    pub fn push(&mut self, key: JsonString<Backing>, value: Value<Backing>) {
-        self.0.push(Entry { key, value });
-    }
 }
 
-impl<Backing> Deref for Object<Backing> {
-    type Target = [Entry<Backing>];
+impl<'a> Deref for Object<'a> {
+    type Target = Vec<Entry<'a>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl<Backing> DerefMut for Object<Backing> {
+impl<'a> DerefMut for Object<'a> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-// impl<'a> Object<'a> {
-//     pub fn into_owned(self) -> Object<'static> {
-//         Object(
-//             self.0
-//                 .into_iter()
-//                 .map(|(key, value)| (key.into_owned(), value.into_owned()))
-//                 .collect(),
-//         )
-//     }
-
-//     pub fn to_owned(&self) -> Object<'static> {
-//         Object(
-//             self.0
-//                 .iter()
-//                 .map(|(key, value)| (key.to_owned(), value.to_owned()))
-//                 .collect(),
-//         )
-//     }
-// }
-
-impl<Backing> FromIterator<(JsonString<Backing>, Value<Backing>)> for Object<Backing> {
-    fn from_iter<T: IntoIterator<Item = (JsonString<Backing>, Value<Backing>)>>(iter: T) -> Self {
+impl<'a> FromIterator<(JsonString<'a>, Value<'a>)> for Object<'a> {
+    fn from_iter<T: IntoIterator<Item = (JsonString<'a>, Value<'a>)>>(iter: T) -> Self {
         iter.into_iter()
             .map(|(key, value)| Entry { key, value })
             .collect()
     }
 }
 
-impl<Backing> FromIterator<Entry<Backing>> for Object<Backing> {
-    fn from_iter<T: IntoIterator<Item = Entry<Backing>>>(iter: T) -> Self {
+impl<'a> FromIterator<Entry<'a>> for Object<'a> {
+    fn from_iter<T: IntoIterator<Item = Entry<'a>>>(iter: T) -> Self {
         Self(iter.into_iter().collect())
     }
 }
 
-// impl<'a> PartialEq<Object<&'a str>> for Object<String> {
-//     fn eq(&self, other: &Object<&'a str>) -> bool {
-//         self.0.len() == other.0.len()
-//             && self
-//                 .0
-//                 .iter()
-//                 .zip(other.0.iter())
-//                 .all(|(a, b)| a.key == b.key && a.value == b.value)
-//     }
-// }
-
 #[derive(Debug, Eq, PartialEq)]
-pub struct Entry<Backing> {
-    pub key: JsonString<Backing>,
-    pub value: Value<Backing>,
+pub struct Entry<'a> {
+    pub key: JsonString<'a>,
+    pub value: Value<'a>,
 }
 
 #[test]
@@ -631,25 +572,16 @@ fn objects() {
 }
 
 #[test]
-fn numbers() {
+fn cow() {
+    let mut value =
+        Value::from_json_bytes(br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#).unwrap();
+    let Value::Object(root) = &mut value else { unreachable!() };
+    root[0].key = JsonString::from("newa");
+    let Value::Array(d_array) = &mut root[3].value else { unreachable!() };
+    d_array.push(Value::Null);
+    let generated = value.to_json();
     assert_eq!(
-        Value::from_json("1").unwrap(),
-        Value::Number(JsonNumber { source: "1" })
-    );
-    assert_eq!(
-        Value::from_json("-1").unwrap(),
-        Value::Number(JsonNumber { source: "-1" })
-    );
-    assert_eq!(
-        Value::from_json("+1.0").unwrap(),
-        Value::Number(JsonNumber { source: "+1.0" })
-    );
-    assert_eq!(
-        Value::from_json("1.0e1").unwrap(),
-        Value::Number(JsonNumber { source: "1.0e1" })
-    );
-    assert_eq!(
-        Value::from_json("1.0e-10").unwrap(),
-        Value::Number(JsonNumber { source: "1.0e-10" })
+        generated,
+        r#"{"newa":1,"b":true,"c":"hello","d":[null],"e":{}}"#
     );
 }
