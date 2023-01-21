@@ -295,7 +295,211 @@
 <span id="295">295</span>
 <span id="296">296</span>
 <span id="297">297</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{borrow::Cow, str::CharIndices};
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    borrow::Cow,
+    str::{CharIndices, Chars},
+};
 
 <span class="kw">use crate</span>::{
     error::{Error, ErrorKind},
@@ -362,27 +566,28 @@
         <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
             Cow::Owned(<span class="self">self</span>.decoded().collect())
         } <span class="kw">else </span>{
-            Cow::Borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>.source[<span class="number">1</span>..<span class="self">self</span>.source.len() - <span class="number">1</span>])
+            Cow::Borrowed(<span class="self">self</span>.source)
         }
     }
 }
 
-<span class="attribute">#[test]
-</span><span class="kw">fn </span>value_decode_if_needed() {}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;String&gt; {
+    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>escaped = Escaped::from(value);
+        <span class="self">Self </span>{
+            source: (<span class="kw-2">&amp;mut </span>escaped).collect(),
+            info: escaped.info,
+        }
+    }
+}
 
 <span class="kw">impl</span>&lt;Backing&gt; JsonString&lt;Backing&gt;
 <span class="kw">where
     </span>Backing: AsRef&lt;str&gt;,
 {
-    <span class="doccomment">/// Returns the section of the string between the quotation marks.
-    </span><span class="kw">pub fn </span>contents(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw">let </span>source = <span class="self">self</span>.source.as_ref();
-        <span class="kw-2">&amp;</span>source[<span class="number">1</span>..source.len() - <span class="number">1</span>]
-    }
-
     <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
     </span><span class="kw">pub fn </span>decoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoded&lt;<span class="lifetime">&#39;_</span>&gt; {
-        Decoded::new(<span class="self">self</span>.contents())
+        Decoded::new(<span class="self">self</span>.source.as_ref())
     }
 }
 
@@ -414,12 +619,10 @@
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }
 
-            Decoded::new(<span class="kw-2">&amp;</span>source[<span class="number">1</span>..source.len() - <span class="number">1</span>])
-                .zip(other.chars())
-                .all(|(a, b)| a == b)
+            Decoded::new(source).zip(other.chars()).all(|(a, b)| a == b)
         } <span class="kw">else </span>{
             <span class="comment">// Direct string comparison excluding the quotes.
-            </span><span class="kw-2">&amp;</span>source[<span class="number">1</span>..=unescaped_length] == <span class="kw-2">*</span>other
+            </span>source == <span class="kw-2">*</span>other
         }
     }
 }
@@ -429,7 +632,7 @@
     <span class="macro">assert_eq!</span>(
         JsonString::from_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>).unwrap(),
         JsonString {
-            source: <span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>,
+            source: <span class="string">r#&quot;Hello, World!&quot;#</span>,
             info: JsonStringInfo::new(<span class="bool-val">false</span>, <span class="number">13</span>),
         }
     );
@@ -476,15 +679,13 @@
 </span><span class="kw">pub struct </span>JsonStringInfo(usize);
 
 <span class="kw">impl </span>JsonStringInfo {
+    <span class="kw">const </span>HAS_ESCAPES_MASK: usize = usize::MAX ^ <span class="self">Self</span>::UNESCAPED_BYTES_MASK;
+    <span class="doccomment">/// Information with no escapes and 0 length.
+    </span><span class="kw">pub const </span>NONE: <span class="self">Self </span>= <span class="self">Self</span>::new(<span class="bool-val">false</span>, <span class="number">0</span>);
     <span class="attribute">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
     </span><span class="kw">const </span>UNESCAPED_BYTES_MASK: usize = <span class="number">0x7FFF_FFFF</span>;
     <span class="attribute">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
     </span><span class="kw">const </span>UNESCAPED_BYTES_MASK: usize = <span class="number">0x7FFF_FFFF_FFFF_FFFF</span>;
-
-    <span class="kw">const </span>HAS_ESCAPES_MASK: usize = usize::MAX ^ <span class="self">Self</span>::UNESCAPED_BYTES_MASK;
-
-    <span class="doccomment">/// Information with no escapes and 0 length.
-    </span><span class="kw">pub const </span>NONE: <span class="self">Self </span>= <span class="self">Self</span>::new(<span class="bool-val">false</span>, <span class="number">0</span>);
 
     <span class="doccomment">/// Returns a new instance with the initial values provided.
     </span><span class="attribute">#[must_use]
@@ -591,6 +792,207 @@
             <span class="prelude-val">Some</span>(ch)
         }
     }
+}
+
+<span class="kw">pub struct </span>Escaped&lt;<span class="lifetime">&#39;a</span>&gt; {
+    chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
+    state: EscapeState,
+    info: JsonStringInfo,
+}
+
+<span class="kw">enum </span>EscapeState {
+    <span class="prelude-val">None</span>,
+    Single(u8),
+    Unicode {
+        current_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;,
+        codepoint: u16,
+    },
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>Escaped&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            chars: value.chars(),
+            state: EscapeState::None,
+            info: JsonStringInfo::NONE,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Escaped&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = char;
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.state {
+            EscapeState::None =&gt; {
+                <span class="kw">let </span>ch = <span class="self">self</span>.chars.next()<span class="question-mark">?</span>;
+                <span class="kw">match </span>u8::try_from(ch) {
+                    <span class="prelude-val">Ok</span>(b) <span class="kw">if </span>SAFE_STRING_BYTES[b <span class="kw">as </span>usize] =&gt; {
+                        <span class="self">self</span>.info.add_bytes(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(ch)
+                    }
+                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;\\&#39; </span>| <span class="string">b&#39;/&#39;</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(ch <span class="kw">as </span>u8);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                    }
+                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\x07&#39;</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;b&#39;</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                    }
+                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\n&#39;</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;n&#39;</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                    }
+                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\r&#39;</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;r&#39;</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                    }
+                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\t&#39;</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;t&#39;</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                    }
+                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\x0c&#39;</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;f&#39;</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                    }
+                    <span class="prelude-val">Ok</span>(b) <span class="kw">if </span>(<span class="number">0</span>..=<span class="number">31</span>).contains(<span class="kw-2">&amp;</span>b) =&gt; {
+                        <span class="comment">// Another control character, but it&#39;s not a common one.
+                        // This must be encoded as a unicode escape.
+                        </span><span class="self">self</span>.state = EscapeState::Unicode {
+                            current_nibble: <span class="prelude-val">None</span>,
+                            codepoint: u16::from(b),
+                        };
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                    }
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                        <span class="comment">// A unicode character
+                        </span><span class="self">self</span>.info.add_bytes(ch.len_utf8());
+                        <span class="prelude-val">Some</span>(ch)
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;SAFE_CHARACTERS prevents these&quot;</span>),
+                }
+            }
+            EscapeState::Single(ch) =&gt; {
+                <span class="kw">let </span>ch = <span class="kw-2">*</span>ch;
+                <span class="self">self</span>.state = EscapeState::None;
+                <span class="prelude-val">Some</span>(ch <span class="kw">as </span>char)
+            }
+            EscapeState::Unicode {
+                current_nibble,
+                codepoint,
+            } =&gt; <span class="kw">match </span>current_nibble {
+                <span class="prelude-val">Some</span>(current_nibble) =&gt; {
+                    <span class="attribute">#[allow(clippy::cast_possible_truncation)]
+                    </span><span class="kw">let </span>bits = <span class="kw-2">*</span>codepoint <span class="kw">as </span>u8 &amp; <span class="number">0xF</span>;
+                    <span class="kw-2">*</span>codepoint &gt;&gt;= <span class="number">4</span>;
+                    <span class="kw">let </span>ch = <span class="kw">if </span>bits &lt; <span class="number">10 </span>{ bits + <span class="string">b&#39;0&#39; </span>} <span class="kw">else </span>{ bits + <span class="string">b&#39;a&#39; </span>};
+                    <span class="kw-2">*</span>current_nibble += <span class="number">1</span>;
+                    <span class="kw">if </span><span class="kw-2">*</span>current_nibble == <span class="number">4 </span>{
+                        <span class="self">self</span>.state = EscapeState::None;
+                    }
+                    <span class="prelude-val">Some</span>(ch <span class="kw">as </span>char)
+                }
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="kw-2">*</span>current_nibble = <span class="prelude-val">Some</span>(<span class="number">0</span>);
+                    <span class="prelude-val">Some</span>(<span class="string">&#39;u&#39;</span>)
+                }
+            },
+        }
+    }
+}
+
+<span class="attribute">#[allow(clippy::inconsistent_digit_grouping)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>HEX_OFFSET_TABLE: [u8; <span class="number">256</span>] = {
+    <span class="kw">const </span>ERR: u8 = u8::MAX;
+    [
+        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 0
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 1
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 2
+        </span><span class="number">0__</span>, <span class="number">1__</span>, <span class="number">2__</span>, <span class="number">3__</span>, <span class="number">4__</span>, <span class="number">5__</span>, <span class="number">6__</span>, <span class="number">7__</span>, <span class="number">8__</span>, <span class="number">9__</span>, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 3
+        </span>ERR, <span class="number">10_</span>, <span class="number">11_</span>, <span class="number">12_</span>, <span class="number">13_</span>, <span class="number">14_</span>, <span class="number">15_</span>, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 4
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 5
+        </span>ERR, <span class="number">10_</span>, <span class="number">11_</span>, <span class="number">12_</span>, <span class="number">13_</span>, <span class="number">14_</span>, <span class="number">15_</span>, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 6
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 7
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 8
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 9
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// A
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// B
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// C
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// D
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// E
+        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// F
+    </span>]
+};
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>SAFE_STRING_BYTES: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>] = {
+    <span class="kw">const </span>ER: bool = <span class="bool-val">false</span>;
+    <span class="kw">const </span>UC: bool = <span class="bool-val">true</span>;
+    <span class="kw">const </span>BS: bool = <span class="bool-val">false</span>;
+    <span class="kw">const </span>QU: bool = <span class="bool-val">false</span>;
+    <span class="kw">const </span>__: bool = <span class="bool-val">true</span>;
+    <span class="comment">//  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
+    </span><span class="kw-2">&amp;</span>[
+        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 0
+        </span>ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 1
+        </span>__, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 2
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 3
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 4
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, <span class="comment">// 5
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 6
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 7
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 8
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 9
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// A
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// B
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// C
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// D
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// E
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// F
+    </span>]
+};
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>SAFE_STRING_BYTES_VERIFY_UTF8: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>] = {
+    <span class="kw">const </span>ER: bool = <span class="bool-val">false</span>;
+    <span class="kw">const </span>UC: bool = <span class="bool-val">false</span>;
+    <span class="kw">const </span>BS: bool = <span class="bool-val">false</span>;
+    <span class="kw">const </span>QU: bool = <span class="bool-val">false</span>;
+    <span class="kw">const </span>__: bool = <span class="bool-val">true</span>;
+    <span class="comment">//  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
+    </span><span class="kw-2">&amp;</span>[
+        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 0
+        </span>ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 1
+        </span>__, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 2
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 3
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 4
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, <span class="comment">// 5
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 6
+        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 7
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 8
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 9
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// A
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// B
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// C
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// D
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// E
+        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// F
+    </span>]
+};
+
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>escape() {
+    <span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{25ef}&quot;</span>;
+    <span class="kw">let </span>json = JsonString::from(original);
+    <span class="macro">assert!</span>(json.info.has_escapes());
+    <span class="macro">assert_eq!</span>(json.info.unescaped_length(), original.len());
+    <span class="macro">assert_eq!</span>(json, original);
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="justjson" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

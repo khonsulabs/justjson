@@ -806,82 +806,13 @@
 <span id="806">806</span>
 <span id="807">807</span>
 <span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
-<span id="837">837</span>
-<span id="838">838</span>
-<span id="839">839</span>
-<span id="840">840</span>
-<span id="841">841</span>
-<span id="842">842</span>
-<span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
-<span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
-<span id="851">851</span>
-<span id="852">852</span>
-<span id="853">853</span>
-<span id="854">854</span>
-<span id="855">855</span>
-<span id="856">856</span>
-<span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::slice;
 <span class="kw">use </span>std::{iter::Peekable, marker::PhantomData};
 
-<span class="kw">use crate</span>::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
+<span class="kw">use crate</span>::{
+    string::{HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8},
+    Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo,
+};
 
 <span class="doccomment">/// Parses JSON, driven by a [`ParseDelegate`].
 ///
@@ -992,6 +923,7 @@
             }),
         }
     }
+
     <span class="kw">fn </span>read_from_source&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
@@ -1199,7 +1131,7 @@
                     <span class="string">b&#39;&quot;&#39; </span>=&gt; {
                         <span class="kw">break </span><span class="prelude-val">Ok</span>(JsonString {
                             source: <span class="kw">unsafe </span>{
-                                std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start..=offset])
+                                std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start + <span class="number">1</span>..offset])
                             },
                             info: string_info,
                         })
@@ -1586,7 +1518,8 @@
     <span class="doccomment">/// Allows trailing commas when parsing objects and arrays.
     ///
     /// ```rust
-    /// use justjson::{parser::ParseConfig, Value};
+    /// use justjson::parser::ParseConfig;
+    /// use justjson::Value;
     ///
     /// let source = r#&quot;{&quot;a&quot;:[true,],}&quot;#;
     /// Value::from_json(source).expect_err(&quot;not enabled by default&quot;);
@@ -1664,83 +1597,6 @@
         }
     }
 }
-
-<span class="attribute">#[allow(clippy::inconsistent_digit_grouping)]
-</span><span class="kw">static </span>HEX_OFFSET_TABLE: [u8; <span class="number">256</span>] = {
-    <span class="kw">const </span>ERR: u8 = u8::MAX;
-    [
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 0
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 1
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 2
-        </span><span class="number">0__</span>, <span class="number">1__</span>, <span class="number">2__</span>, <span class="number">3__</span>, <span class="number">4__</span>, <span class="number">5__</span>, <span class="number">6__</span>, <span class="number">7__</span>, <span class="number">8__</span>, <span class="number">9__</span>, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 3
-        </span>ERR, <span class="number">10_</span>, <span class="number">11_</span>, <span class="number">12_</span>, <span class="number">13_</span>, <span class="number">14_</span>, <span class="number">15_</span>, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 4
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 5
-        </span>ERR, <span class="number">10_</span>, <span class="number">11_</span>, <span class="number">12_</span>, <span class="number">13_</span>, <span class="number">14_</span>, <span class="number">15_</span>, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 6
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 7
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 8
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// 9
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// A
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// B
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// C
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// D
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// E
-        </span>ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, <span class="comment">// F
-    </span>]
-};
-
-<span class="kw">static </span>SAFE_STRING_BYTES: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>] = {
-    <span class="kw">const </span>ER: bool = <span class="bool-val">false</span>;
-    <span class="kw">const </span>UC: bool = <span class="bool-val">true</span>;
-    <span class="kw">const </span>BS: bool = <span class="bool-val">false</span>;
-    <span class="kw">const </span>QU: bool = <span class="bool-val">false</span>;
-    <span class="kw">const </span>__: bool = <span class="bool-val">true</span>;
-    <span class="comment">//  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    </span><span class="kw-2">&amp;</span>[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 0
-        </span>ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 1
-        </span>__, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 2
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 3
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 4
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, <span class="comment">// 5
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 6
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 7
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 8
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 9
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// A
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// B
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// C
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// D
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// E
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// F
-    </span>]
-};
-
-<span class="kw">static </span>SAFE_STRING_BYTES_VERIFY_UTF8: <span class="kw-2">&amp;</span>[bool; <span class="number">256</span>] = {
-    <span class="kw">const </span>ER: bool = <span class="bool-val">false</span>;
-    <span class="kw">const </span>UC: bool = <span class="bool-val">false</span>;
-    <span class="kw">const </span>BS: bool = <span class="bool-val">false</span>;
-    <span class="kw">const </span>QU: bool = <span class="bool-val">false</span>;
-    <span class="kw">const </span>__: bool = <span class="bool-val">true</span>;
-    <span class="comment">//  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    </span><span class="kw-2">&amp;</span>[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 0
-        </span>ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, <span class="comment">// 1
-        </span>__, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 2
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 3
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 4
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, <span class="comment">// 5
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 6
-        </span>__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, <span class="comment">// 7
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 8
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// 9
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// A
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// B
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// C
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// D
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// E
-        </span>UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, <span class="comment">// F
-    </span>]
-};
 
 <span class="doccomment">/// Every type supported by JSON.
 </span><span class="attribute">#[derive(Debug, Eq, PartialEq, Clone, Copy)]

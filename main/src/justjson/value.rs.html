@@ -648,6 +648,11 @@
 <span id="648">648</span>
 <span id="649">649</span>
 <span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fmt::{<span class="self">self</span>, Display},
     ops::{Deref, DerefMut},
@@ -815,7 +820,11 @@
         state: <span class="kw-2">&amp;mut </span>WriteState&lt;<span class="lifetime">&#39;_</span>, W, PRETTY&gt;,
     ) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Value::String(string) =&gt; state.write(string.source.as_ref()),
+            Value::String(string) =&gt; {
+                state.write(<span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
+                state.write(string.source.as_ref())<span class="question-mark">?</span>;
+                state.write(<span class="string">&quot;\&quot;&quot;</span>)
+            }
             Value::Number(number) =&gt; state.write(number.source.as_ref()),
             Value::Boolean(bool) =&gt; state.write(<span class="kw">if </span><span class="kw-2">*</span>bool { <span class="string">&quot;true&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;false&quot; </span>}),
             Value::Null =&gt; state.write(<span class="string">&quot;null&quot;</span>),
@@ -833,8 +842,9 @@
         <span class="kw">if </span>!obj.<span class="number">0</span>.is_empty() {
             state.new_line()<span class="question-mark">?</span>;
             <span class="kw">for </span>(index, entry) <span class="kw">in </span>obj.<span class="number">0</span>.iter().enumerate() {
+                state.write(<span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
                 state.write(entry.key.source.as_ref())<span class="question-mark">?</span>;
-                state.write_colon()<span class="question-mark">?</span>;
+                state.write_object_key_end()<span class="question-mark">?</span>;
                 entry.value.write_json_value(state)<span class="question-mark">?</span>;
                 <span class="kw">if </span>index != obj.<span class="number">0</span>.len() - <span class="number">1 </span>{
                     state.write(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
@@ -971,10 +981,10 @@
 <span class="kw">struct </span>ValueParser;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>ValueParser {
-    <span class="kw">type </span>Value = Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
-    <span class="kw">type </span>Object = Object&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
     <span class="kw">type </span>Array = Vec&lt;Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;&gt;;
     <span class="kw">type </span>Key = JsonString&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
+    <span class="kw">type </span>Object = Object&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
+    <span class="kw">type </span>Value = Value&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
 
     <span class="attribute">#[inline]
     </span><span class="kw">fn </span>null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Value {
@@ -1103,11 +1113,11 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>write_colon(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
+    <span class="kw">fn </span>write_object_key_end(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
         <span class="kw">if </span>PRETTY {
-            <span class="self">self</span>.write(<span class="string">&quot;: &quot;</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.write(<span class="string">&quot;\&quot;: &quot;</span>)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="self">self</span>.write(<span class="string">&quot;:&quot;</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.write(<span class="string">&quot;\&quot;:&quot;</span>)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
