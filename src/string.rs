@@ -76,12 +76,6 @@ impl<'a> From<&'a str> for JsonString<'a> {
     }
 }
 
-// impl<'a> PartialEq<JsonString<'a>> for JsonString<String> {
-//     fn eq(&self, other: &JsonString<'a>) -> bool {
-//         self.source == other.source
-//     }
-// }
-
 impl<'a, 'b> PartialEq<&'a str> for &'b JsonString<'b> {
     fn eq(&self, other: &&'a str) -> bool {
         (*self) == other
@@ -171,6 +165,7 @@ impl JsonStringInfo {
     /// Returns a new instance with the initial values provided.
     #[must_use]
     pub const fn new(has_escapes: bool, unescaped_length: usize) -> Self {
+        // Panics aren't allowed in const fns yet.
         // assert_eq!(
         //     unescaped_length & Self::HAS_ESCAPES_MASK,
         //     0,

@@ -463,20 +463,6 @@ where
     }
 }
 
-// impl<'a> PartialEq<Value<'a>> for Value<String> {
-//     fn eq(&self, other: &Value<'a>) -> bool {
-//         match (self, other) {
-//             (Self::Number(l0), Value::Number(r0)) => l0 == r0,
-//             (Self::String(l0), Value::String(r0)) => l0 == r0,
-//             (Self::Boolean(l0), Value::Boolean(r0)) => l0 == r0,
-//             (Self::Object(l0), Value::Object(r0)) => l0 == r0,
-//             (Self::Array(l0), Value::Array(r0)) => l0 == r0,
-//             (Self::Null, Value::Null) => true,
-//             _ => false,
-//         }
-//     }
-// }
-
 /// A JSON Object (list of key-value pairs).
 #[derive(Debug, Eq, PartialEq)]
 pub struct Object<'a>(Vec<Entry<'a>>);

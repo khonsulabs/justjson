@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+## Breaking Changes
+
+- `Value`, `Object`, `JsonNumber`, and `JsonString` have all changed from having
+  a generic parameter to having a single lifetime parameter. Internally, all
+  strings have been changed to `Cow<'_, str>` to allow for owned values to be
+  injected into a `Value`/`Object` or `Vec<Value<'_>>`.
+- `JsonString::source` has been removed from the public API.
+  `JsonString::contents()` is now available to provide read-only access to the
+  JSON-encoded representation.
+- `JsonNumber::source` has been removed from the public API.
+  `JsonNumber::source()` is now available to provide read-only access to the
+  JSON-encoded representation.
+- `Object::push()` has been removed, and its `Deref` implementation now targets
+  `Vec<Entry<'a>>`. This allows all `Vec` methods to be used to access the
+  contents of an Object, including its own `push()` function.
+
+## Added
+
+- `JsonString::from(&str)` has been added to convert from a Rust string to its
+  JSON-encoded form.
+
 ## v0.1.1
 
 ### Fixed
