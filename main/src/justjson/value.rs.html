@@ -571,20 +571,6 @@
 <span id="571">571</span>
 <span id="572">572</span>
 <span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fmt::{<span class="self">self</span>, Display},
     ops::{Deref, DerefMut},
@@ -1050,21 +1036,7 @@
     }
 }
 
-<span class="comment">// impl&lt;&#39;a&gt; PartialEq&lt;Value&lt;&#39;a&gt;&gt; for Value&lt;String&gt; {
-//     fn eq(&amp;self, other: &amp;Value&lt;&#39;a&gt;) -&gt; bool {
-//         match (self, other) {
-//             (Self::Number(l0), Value::Number(r0)) =&gt; l0 == r0,
-//             (Self::String(l0), Value::String(r0)) =&gt; l0 == r0,
-//             (Self::Boolean(l0), Value::Boolean(r0)) =&gt; l0 == r0,
-//             (Self::Object(l0), Value::Object(r0)) =&gt; l0 == r0,
-//             (Self::Array(l0), Value::Array(r0)) =&gt; l0 == r0,
-//             (Self::Null, Value::Null) =&gt; true,
-//             _ =&gt; false,
-//         }
-//     }
-// }
-
-</span><span class="doccomment">/// A JSON Object (list of key-value pairs).
+<span class="doccomment">/// A JSON Object (list of key-value pairs).
 </span><span class="attribute">#[derive(Debug, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Object&lt;<span class="lifetime">&#39;a</span>&gt;(Vec&lt;Entry&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
 

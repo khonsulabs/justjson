@@ -470,11 +470,6 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     borrow::Cow,
     str::{CharIndices, Chars},
@@ -553,13 +548,7 @@
     }
 }
 
-<span class="comment">// impl&lt;&#39;a&gt; PartialEq&lt;JsonString&lt;&#39;a&gt;&gt; for JsonString&lt;String&gt; {
-//     fn eq(&amp;self, other: &amp;JsonString&lt;&#39;a&gt;) -&gt; bool {
-//         self.source == other.source
-//     }
-// }
-
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; bool {
         (<span class="kw-2">*</span><span class="self">self</span>) == other
     }
@@ -648,7 +637,8 @@
     <span class="doccomment">/// Returns a new instance with the initial values provided.
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub const fn </span>new(has_escapes: bool, unescaped_length: usize) -&gt; <span class="self">Self </span>{
-        <span class="comment">// assert_eq!(
+        <span class="comment">// Panics aren&#39;t allowed in const fns yet.
+        // assert_eq!(
         //     unescaped_length &amp; Self::HAS_ESCAPES_MASK,
         //     0,
         //     &quot;too many bytes needed&quot;
