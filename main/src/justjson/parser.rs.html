@@ -812,13 +812,95 @@
 <span id="812">812</span>
 <span id="813">813</span>
 <span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::slice;
 <span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::iter::Peekable;
 <span class="kw">use </span>std::marker::PhantomData;
 
 <span class="kw">use </span><span class="kw">crate</span>::string::{
-    StringContents, HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
+    merge_surrogate_pair, StringContents, HEX_OFFSET_TABLE, HIGH_SURROGATE_MAX, HIGH_SURROGATE_MIN,
+    LOW_SURROGATE_MAX, LOW_SURROGATE_MIN, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
 };
 <span class="kw">use crate</span>::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
@@ -959,7 +1041,7 @@
                 state.begin_nest().map_err(|kind| Error { offset, kind })<span class="question-mark">?</span>;
                 <span class="self">self</span>.read_array_from_source(state)<span class="question-mark">?
             </span>}
-            (offset, ch) <span class="kw">if </span>ch == <span class="kw-2">&amp;</span><span class="string">b&#39;-&#39; </span>|| ch == <span class="kw-2">&amp;</span><span class="string">b&#39;+&#39; </span>=&gt; state
+            (offset, ch) <span class="kw">if </span>ch == <span class="kw-2">&amp;</span><span class="string">b&#39;-&#39; </span>=&gt; state
                 .delegate
                 .number(<span class="self">self</span>.read_number_from_source(InitialNumberState::Sign, offset)<span class="question-mark">?</span>),
             (offset, <span class="string">b&#39;0&#39;</span>) =&gt; state
@@ -1148,46 +1230,7 @@
                             },
                         })
                     }
-                    <span class="string">b&#39;\\&#39; </span>=&gt; <span class="kw">match </span><span class="self">self</span>.source.read()<span class="question-mark">? </span>{
-                        (<span class="kw">_</span>, ch)
-                            <span class="kw">if </span><span class="macro">matches!</span>(
-                                ch,
-                                <span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;\\&#39; </span>| <span class="string">b&#39;/&#39; </span>| <span class="string">b&#39;b&#39; </span>| <span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;r&#39; </span>| <span class="string">b&#39;n&#39; </span>| <span class="string">b&#39;t&#39;
-                            </span>) =&gt;
-                        {
-                            string_info.add_bytes_from_escape(<span class="number">1</span>);
-                        }
-                        (offset, <span class="string">b&#39;u&#39;</span>) =&gt; {
-                            <span class="comment">// 4 hexadecimal digits.
-                            </span><span class="kw">let </span><span class="kw-2">mut </span>decoded = <span class="number">0_u16</span>;
-                            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
-                                <span class="kw">let </span>(offset, digit) = <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
-                                <span class="kw">let </span>nibble = HEX_OFFSET_TABLE[usize::from(<span class="kw-2">*</span>digit)];
-                                <span class="kw">if </span>nibble == u8::MAX {
-                                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                                        offset,
-                                        kind: ErrorKind::InvalidHexadecimal,
-                                    });
-                                }
-                                decoded = decoded &lt;&lt; <span class="number">4 </span>| u16::from(nibble);
-                            }
-                            <span class="kw">if let </span><span class="prelude-val">Some</span>(ch) = char::from_u32(u32::from(decoded)) {
-                                string_info.add_bytes_from_escape(ch.len_utf8());
-                            } <span class="kw">else </span>{
-                                <span class="comment">// Produce a Utf8 error.
-                                </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                                    offset,
-                                    kind: ErrorKind::Utf8,
-                                });
-                            }
-                        }
-                        (offset, <span class="kw">_</span>) =&gt; {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                                offset,
-                                kind: ErrorKind::InvalidEscape,
-                            })
-                        }
-                    },
+                    <span class="string">b&#39;\\&#39; </span>=&gt; <span class="self">self</span>.read_string_escape(<span class="kw-2">&amp;mut </span>string_info)<span class="question-mark">?</span>,
                     <span class="number">128</span>..=<span class="number">255 </span>=&gt; {
                         <span class="comment">// Manual UTF-8 validation
                         </span><span class="kw">let </span>utf8_start = offset;
@@ -1225,6 +1268,117 @@
     }
 
     <span class="attribute">#[allow(unsafe_code)]
+    #[inline]
+    </span><span class="kw">fn </span>read_string_escape(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string_info: <span class="kw-2">&amp;mut </span>JsonStringInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">match </span><span class="self">self</span>.source.read()<span class="question-mark">? </span>{
+            (<span class="kw">_</span>, ch) <span class="kw">if </span><span class="macro">matches!</span>(ch, <span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;\\&#39; </span>| <span class="string">b&#39;/&#39; </span>| <span class="string">b&#39;b&#39; </span>| <span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;r&#39; </span>| <span class="string">b&#39;n&#39; </span>| <span class="string">b&#39;t&#39;</span>) =&gt; {
+                string_info.add_bytes_from_escape(<span class="number">1</span>);
+            }
+            (offset, <span class="string">b&#39;u&#39;</span>) =&gt; {
+                <span class="kw">const </span>VALID_CODEPOINT_CLIFF: u32 = <span class="number">0x11_0000</span>;
+                <span class="kw">const </span>REBASED_INVALID_CODEPOINT_START: u32 = <span class="number">0x800</span>;
+                <span class="kw">const </span>REBASED_VALID_START: u32 =
+                    VALID_CODEPOINT_CLIFF - REBASED_INVALID_CODEPOINT_START;
+                <span class="comment">// 4 hexadecimal digits.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>decoded = <span class="number">0_u32</span>;
+                <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
+                    <span class="kw">let </span>(offset, digit) = <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
+                    <span class="kw">let </span>nibble = HEX_OFFSET_TABLE[usize::from(<span class="kw-2">*</span>digit)];
+                    <span class="kw">if </span>nibble == u8::MAX {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                            offset,
+                            kind: ErrorKind::InvalidHexadecimal,
+                        });
+                    }
+                    decoded = decoded &lt;&lt; <span class="number">4 </span>| u32::from(nibble);
+                }
+
+                <span class="comment">// Because the escaped character is a UTF-16 code point, it&#39;s
+                // possible that this is a surrogate pair that requires two code
+                // points to represent.
+                //
+                // This logic for quickly detecting validity of a codepoint
+                // comes from char::from_u32&#39;s own code. The comment for the
+                // math from that section is as follows:
+                //
+                // This is an optimized version of the check (i &gt; MAX as u32) ||
+                // (i &gt;= 0xD800 &amp;&amp; i &lt;= 0xDFFF), which can also be written as i
+                // &gt;= 0x110000 || (i &gt;= 0xD800 &amp;&amp; i &lt; 0xE000).
+                //
+                // The XOR with 0xD800 permutes the ranges such that
+                // 0xD800..0xE000 is mapped to 0x0000..0x0800, while keeping all
+                // the high bits outside 0xFFFF the same. In particular, numbers
+                // &gt;= 0x110000 stay in this range.
+                //
+                // Subtracting 0x800 causes 0x0000..0x0800 to wrap, meaning that
+                // a single unsigned comparison against 0x110000 - 0x800 will
+                // detect both the wrapped surrogate range as well as the
+                // numbers originally larger than 0x110000.
+                //
+                // https://github.com/rust-lang/rust/blob/52372f9c71d8ade4cb815524f179119656f0aa2e/library/core/src/char/convert.rs#L197
+                </span><span class="kw">let </span>rebased =
+                    (decoded ^ HIGH_SURROGATE_MIN).wrapping_sub(REBASED_INVALID_CODEPOINT_START);
+                <span class="kw">let </span>ch = <span class="kw">match </span>rebased {
+                    REBASED_VALID_START..=u32::MAX =&gt; {
+                        <span class="comment">// We either have a codepoint that is too
+                        // large or is a partial surrogate.
+                        </span><span class="kw">let </span><span class="kw-2">mut </span>decoded_is_surrogate_pair = <span class="bool-val">false</span>;
+                        <span class="kw">if </span>(HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(<span class="kw-2">&amp;</span>decoded) {
+                            <span class="comment">// We have a potential surrogate pair. Try to read another \u escape code
+                            </span><span class="kw">if </span><span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;\\&#39; </span>&amp;&amp; <span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;u&#39; </span>{
+                                <span class="kw">let </span><span class="kw-2">mut </span>second_codepoint = <span class="number">0</span>;
+                                <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
+                                    <span class="kw">let </span>(offset, digit) = <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
+                                    <span class="kw">let </span>nibble = HEX_OFFSET_TABLE[usize::from(<span class="kw-2">*</span>digit)];
+                                    <span class="kw">if </span>nibble == u8::MAX {
+                                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                                            offset,
+                                            kind: ErrorKind::InvalidHexadecimal,
+                                        });
+                                    }
+                                    second_codepoint = second_codepoint &lt;&lt; <span class="number">4 </span>| u32::from(nibble);
+                                }
+                                <span class="kw">if </span>(LOW_SURROGATE_MIN..=LOW_SURROGATE_MAX)
+                                    .contains(<span class="kw-2">&amp;</span>second_codepoint)
+                                {
+                                    <span class="comment">// We have a valid surrogate pair
+                                    </span>decoded = merge_surrogate_pair(decoded, second_codepoint);
+                                    decoded_is_surrogate_pair = <span class="bool-val">true</span>;
+                                }
+                            }
+                        }
+
+                        <span class="kw">if </span>decoded_is_surrogate_pair {
+                            <span class="kw">unsafe </span>{ char::from_u32_unchecked(decoded) }
+                        } <span class="kw">else </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                                offset,
+                                kind: ErrorKind::Utf8,
+                            });
+                        }
+                    }
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="comment">// SAFETY: The logic to check the character&#39;s validity is taken
+                        // directly from `char_try_from_u32`, which is what from_u32 uses
+                        // under the hoood.
+
+                        </span><span class="kw">unsafe </span>{ char::from_u32_unchecked(decoded) }
+                    }
+                };
+
+                string_info.add_bytes_from_escape(ch.len_utf8());
+            }
+            (offset, <span class="kw">_</span>) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                    offset,
+                    kind: ErrorKind::InvalidEscape,
+                })
+            }
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[allow(unsafe_code)]
     </span><span class="kw">fn </span>read_number_from_source(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         initial_state: InitialNumberState,
@@ -1240,11 +1394,19 @@
         </span><span class="kw">if </span>initial_state != InitialNumberState::Zero {
             <span class="kw">let </span><span class="kw-2">mut </span>read_integer_digit = initial_state == InitialNumberState::Digit;
             <span class="kw">while let </span><span class="prelude-val">Some</span>(byte) = <span class="self">self</span>.source.peek() {
-                <span class="kw">if </span>byte.is_ascii_digit() {
-                    <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
-                    read_integer_digit = <span class="bool-val">true</span>;
-                } <span class="kw">else </span>{
-                    <span class="kw">break</span>;
+                <span class="kw">match </span>byte {
+                    <span class="string">b&#39;0&#39; </span><span class="kw">if </span>!read_integer_digit =&gt; {
+                        <span class="comment">// 0 after a sign still counts as the complete Integer
+                        // part.
+                        </span><span class="self">self</span>.source.read()<span class="question-mark">?</span>;
+                        read_integer_digit = <span class="bool-val">true</span>;
+                        <span class="kw">break</span>;
+                    }
+                    <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; {
+                        <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
+                        read_integer_digit = <span class="bool-val">true</span>;
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
                 }
             }
 

@@ -549,6 +549,51 @@
 <span id="549">549</span>
 <span id="550">550</span>
 <span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::fmt::{Display, Write};
 <span class="kw">use </span>std::str::{CharIndices, Chars};
@@ -666,9 +711,29 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; bool {
         <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="kw-2">&amp;</span>other.source) {
-            (StringContents::Json { source: a, .. }, StringContents::Json { source: b, .. }) =&gt; {
-                a.as_ref() == b.as_ref()
-            }
+            (
+                StringContents::Json {
+                    source: a,
+                    info: a_info,
+                },
+                StringContents::Json {
+                    source: b,
+                    info: b_info,
+                },
+            ) =&gt; <span class="kw">match </span>(a_info.has_escapes(), b_info.has_escapes()) {
+                (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; {
+                    <span class="kw">if </span>a_info.unescaped_length() == b_info.unescaped_length() {
+                        Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
+                            .zip(Decoded::new(<span class="kw-2">&amp;</span>other.source))
+                            .all(|(a, b)| a == b)
+                    } <span class="kw">else </span>{
+                        <span class="bool-val">false
+                    </span>}
+                }
+                (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="self">self </span>== b.as_ref(),
+                (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; other == a.as_ref(),
+                (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; a.as_ref() == b.as_ref(),
+            },
             (StringContents::Raw(a), StringContents::Raw(b)) =&gt; a.as_ref() == b.as_ref(),
             (StringContents::Json { .. }, StringContents::Raw(b)) =&gt; <span class="self">self </span>== b.as_ref(),
             (StringContents::Raw(a), <span class="kw">_</span>) =&gt; other == a.as_ref(),
@@ -696,10 +761,12 @@
 
 <span class="attribute">#[test]
 </span><span class="kw">fn </span>json_string_cmp() {
-    <span class="kw">fn </span>test_json(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
+    <span class="attribute">#[track_caller]
+    </span><span class="kw">fn </span>test_json(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
         <span class="macro">assert_eq!</span>(JsonString::from_json(json).unwrap(), expected);
     }
-    <span class="kw">fn </span>test_json_ne(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
+    <span class="attribute">#[track_caller]
+    </span><span class="kw">fn </span>test_json_ne(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
         <span class="macro">assert_ne!</span>(JsonString::from_json(json).unwrap(), expected);
     }
 
@@ -853,11 +920,23 @@
                     <span class="comment">// We access the string slice directly rather than
                     // trying to rebuild via char indicies for speed.
                     </span><span class="kw">let </span>hex = <span class="kw-2">&amp;</span><span class="self">self</span>.source[offset + <span class="number">1</span>..offset + <span class="number">5</span>];
-                    <span class="kw">let </span>value = u16::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">&quot;already validated&quot;</span>);
+                    <span class="kw">let </span><span class="kw-2">mut </span>codepoint = u32::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">&quot;already validated&quot;</span>);
+
+                    <span class="kw">if </span>(HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(<span class="kw-2">&amp;</span>codepoint) {
+                        <span class="comment">// Surrogate pair, which has already been validated.
+                        // Process another \uxxxx.
+                        </span><span class="kw">for _ in </span><span class="number">0</span>..<span class="number">6 </span>{
+                            <span class="self">self</span>.chars.next();
+                        }
+                        <span class="kw">let </span>hex = <span class="kw-2">&amp;</span><span class="self">self</span>.source[offset + <span class="number">7</span>..offset + <span class="number">11</span>];
+                        <span class="kw">let </span>second_codepoint =
+                            u32::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">&quot;already validated&quot;</span>);
+                        codepoint = merge_surrogate_pair(codepoint, second_codepoint);
+                    }
 
                     <span class="comment">// SAFETY: The JSON string has already had its UTF
                     // escapes validated.
-                    </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ char::from_u32_unchecked(u32::from(value)) })
+                    </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ char::from_u32_unchecked(codepoint) })
                 }
                 (<span class="kw">_</span>, other) =&gt; <span class="prelude-val">Some</span>(other),
             }
@@ -1099,6 +1178,17 @@
         info: JsonStringInfo,
     },
     Raw(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;),
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>HIGH_SURROGATE_MIN: u32 = <span class="number">0xD800</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>HIGH_SURROGATE_MAX: u32 = <span class="number">0xDBFF</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>LOW_SURROGATE_MIN: u32 = <span class="number">0xDC00</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>LOW_SURROGATE_MAX: u32 = <span class="number">0xDFFF</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DECODED_SURROGATE_BASE: u32 = <span class="number">0x1_0000</span>;
+
+<span class="attribute">#[inline]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>merge_surrogate_pair(high: u32, low: u32) -&gt; u32 {
+    DECODED_SURROGATE_BASE | ((high - HIGH_SURROGATE_MIN) * <span class="number">0x400</span>) | (low - LOW_SURROGATE_MIN)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="justjson" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
