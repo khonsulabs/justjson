@@ -1,10 +1,12 @@
 use core::slice;
-use std::{borrow::Cow, iter::Peekable, marker::PhantomData};
+use std::borrow::Cow;
+use std::iter::Peekable;
+use std::marker::PhantomData;
 
-use crate::{
-    string::{HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8},
-    Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo,
+use crate::string::{
+    StringContents, HEX_OFFSET_TABLE, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
 };
+use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
 /// Parses JSON, driven by a [`ParseDelegate`].
 ///
@@ -322,10 +324,14 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 match byte {
                     b'"' => {
                         break Ok(JsonString {
-                            source: Cow::Borrowed(unsafe {
-                                std::str::from_utf8_unchecked(&self.source.bytes[start + 1..offset])
-                            }),
-                            info: string_info,
+                            source: StringContents::Json {
+                                source: Cow::Borrowed(unsafe {
+                                    std::str::from_utf8_unchecked(
+                                        &self.source.bytes[start + 1..offset],
+                                    )
+                                }),
+                                info: string_info,
+                            },
                         })
                     }
                     b'\\' => match self.source.read()? {

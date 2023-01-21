@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `JsonNumber::source` has been removed from the public API.
   `JsonNumber::source()` is now available to provide read-only access to the
   JSON-encoded representation.
+- `JsonString` now internally can be a JSON-encoded string or a raw string, and
+  it will encode or decode escape sequences on the fly as needed. This means
+  adding a new raw &str that needs escaping will not actually incur extra
+  allocations while rendering a Value back to JSON, as the encoding operation
+  will occur during the write to the destination.
 - `Object::push()` has been removed, and its `Deref` implementation now targets
   `Vec<Entry<'a>>`. This allows all `Vec` methods to be used to access the
   contents of an Object, including its own `push()` function.

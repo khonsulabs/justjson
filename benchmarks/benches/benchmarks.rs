@@ -1,6 +1,5 @@
-use criterion::{
-    black_box, criterion_group, criterion_main, measurement::WallTime, BenchmarkGroup, Criterion,
-};
+use criterion::measurement::WallTime;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkGroup, Criterion};
 
 const SMALL_OBJECT: &str = r#"{
     "@context": "https://www.w3.org/ns/activitystreams",

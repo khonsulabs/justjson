@@ -1,10 +1,9 @@
-use std::{iter::Cloned, slice};
+use std::iter::Cloned;
+use std::slice;
 
-use crate::{
-    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
-    value::Entry,
-    Error, JsonNumber, JsonString, Object, Value,
-};
+use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
+use crate::value::Entry;
+use crate::{Error, JsonNumber, JsonString, Object, Value};
 
 /// A parsed JSON payload.
 ///

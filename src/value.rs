@@ -1,12 +1,8 @@
-use std::{
-    fmt::{self, Display},
-    ops::{Deref, DerefMut},
-};
+use std::fmt::{self, Display};
+use std::ops::{Deref, DerefMut};
 
-use crate::{
-    parser::{JsonKind, ParseConfig, ParseDelegate, Parser},
-    Error, JsonNumber, JsonString,
-};
+use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
+use crate::{Error, JsonNumber, JsonString};
 
 /// A JSON value.
 ///
@@ -142,11 +138,7 @@ impl<'a> Value<'a> {
         state: &mut WriteState<'_, W, PRETTY>,
     ) -> fmt::Result {
         match self {
-            Value::String(string) => {
-                state.write("\"")?;
-                state.write(string.contents())?;
-                state.write("\"")
-            }
+            Value::String(string) => state.write_json(string),
             Value::Number(number) => state.write(number.source()),
             Value::Boolean(bool) => state.write(if *bool { "true" } else { "false" }),
             Value::Null => state.write("null"),
@@ -164,8 +156,7 @@ impl<'a> Value<'a> {
         if !obj.0.is_empty() {
             state.new_line()?;
             for (index, entry) in obj.0.iter().enumerate() {
-                state.write("\"")?;
-                state.write(entry.key.contents())?;
+                state.write_json(&entry.key)?;
                 state.write_object_key_end()?;
                 entry.value.write_json_value(state)?;
                 if index != obj.0.len() - 1 {
@@ -421,6 +412,18 @@ where
         Ok(())
     }
 
+    fn write_json(&mut self, str: &JsonString<'_>) -> fmt::Result {
+        if PRETTY && self.is_at_line_start {
+            self.is_at_line_start = false;
+
+            for _ in 0..self.level {
+                self.writer.write_str(self.indent_per_level)?;
+            }
+        }
+
+        write!(self.writer, "\"{}\"", str.decoded())
+    }
+
     fn new_line(&mut self) -> fmt::Result {
         if PRETTY {
             self.write(self.line_ending)?;
@@ -437,9 +440,9 @@ where
 
     fn write_object_key_end(&mut self) -> fmt::Result {
         if PRETTY {
-            self.write("\": ")?;
+            self.write(": ")?;
         } else {
-            self.write("\":")?;
+            self.write(":")?;
         }
         Ok(())
     }

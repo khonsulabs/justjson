@@ -1,21 +1,17 @@
-use std::{
-    borrow::Cow,
-    str::{CharIndices, Chars},
-};
+use std::borrow::Cow;
+use std::fmt::{Display, Write};
+use std::str::{CharIndices, Chars};
 
-use crate::{
-    error::{Error, ErrorKind},
-    value::Value,
-};
+use crate::error::{Error, ErrorKind};
+use crate::value::Value;
 
 /// A JSON-encoded string.
 // TODO document comparisons
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, Clone)]
 
 pub struct JsonString<'a> {
     /// The JSON-source for the string.
-    pub(crate) source: Cow<'a, str>,
-    pub(crate) info: JsonStringInfo,
+    pub(crate) source: StringContents<'a>,
 }
 
 impl<'a> JsonString<'a> {
@@ -45,33 +41,43 @@ impl<'a> JsonString<'a> {
     /// escape sequences.
     #[must_use]
     pub fn decode_if_needed(&self) -> Cow<'_, str> {
-        if self.info.has_escapes() {
-            Cow::Owned(self.decoded().collect())
-        } else {
-            Cow::Borrowed(self.contents())
+        match &self.source {
+            StringContents::Json { source, info } => {
+                if info.has_escapes() {
+                    Cow::Owned(self.decoded().collect())
+                } else {
+                    source.clone()
+                }
+            }
+            StringContents::Raw(raw) => raw.clone(),
         }
-    }
-
-    /// Returns the JSON-encoded contents of the string value. This does not
-    /// include the wrapping quotation marks.
-    #[must_use]
-    pub fn contents(&self) -> &str {
-        self.source.as_ref()
     }
 
     /// Returns the string after decoding any JSON escape sequences.
     #[must_use]
     pub fn decoded(&self) -> Decoded<'_> {
-        Decoded::new(self.contents())
+        Decoded::new(&self.source)
+    }
+
+    /// Returns the string after decoding any JSON escape sequences.
+    #[must_use]
+    pub fn as_json(&self) -> AsJson<'_> {
+        AsJson::from(&self.source)
     }
 }
 
 impl<'a> From<&'a str> for JsonString<'a> {
     fn from(value: &'a str) -> Self {
-        let mut escaped = Escaped::from(value);
         Self {
-            source: (&mut escaped).collect(),
-            info: escaped.info,
+            source: StringContents::Raw(Cow::Borrowed(value)),
+        }
+    }
+}
+
+impl<'a> From<String> for JsonString<'a> {
+    fn from(value: String) -> Self {
+        Self {
+            source: StringContents::Raw(Cow::Owned(value)),
         }
     }
 }
@@ -84,18 +90,37 @@ impl<'a, 'b> PartialEq<&'a str> for &'b JsonString<'b> {
 
 impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
     fn eq(&self, other: &&'a str) -> bool {
-        let unescaped_length = self.info.unescaped_length();
-        let source = self.source.as_ref();
-        if self.info.has_escapes() {
-            // Quick check, if the decoded length differs, the strings can't be equal
-            if unescaped_length != other.len() {
-                return false;
-            }
+        match &self.source {
+            StringContents::Json { source, info } => {
+                let unescaped_length = info.unescaped_length();
+                if info.has_escapes() {
+                    // Quick check, if the decoded length differs, the strings can't be equal
+                    if unescaped_length != other.len() {
+                        return false;
+                    }
 
-            Decoded::new(source).zip(other.chars()).all(|(a, b)| a == b)
-        } else {
-            // Direct string comparison excluding the quotes.
-            source == *other
+                    Decoded::new(&self.source)
+                        .zip(other.chars())
+                        .all(|(a, b)| a == b)
+                } else {
+                    // Direct string comparison excluding the quotes.
+                    source == *other
+                }
+            }
+            StringContents::Raw(source) => source == other,
+        }
+    }
+}
+
+impl<'a, 'b> PartialEq<JsonString<'a>> for JsonString<'b> {
+    fn eq(&self, other: &JsonString<'a>) -> bool {
+        match (&self.source, &other.source) {
+            (StringContents::Json { source: a, .. }, StringContents::Json { source: b, .. }) => {
+                a.as_ref() == b.as_ref()
+            }
+            (StringContents::Raw(a), StringContents::Raw(b)) => a.as_ref() == b.as_ref(),
+            (StringContents::Json { .. }, StringContents::Raw(b)) => self == b.as_ref(),
+            (StringContents::Raw(a), _) => other == a.as_ref(),
         }
     }
 }
@@ -105,8 +130,10 @@ fn json_string_from_json() {
     assert_eq!(
         JsonString::from_json(r#""Hello, World!""#).unwrap(),
         JsonString {
-            source: Cow::Borrowed(r#"Hello, World!"#),
-            info: JsonStringInfo::new(false, 13),
+            source: StringContents::Json {
+                source: Cow::Borrowed(r#"Hello, World!"#),
+                info: JsonStringInfo::new(false, 13),
+            }
         }
     );
 
@@ -222,15 +249,34 @@ fn test_string_info_debug() {
 }
 
 pub struct Decoded<'a> {
+    needs_decoding: bool,
     source: &'a str,
     chars: CharIndices<'a>,
 }
 
-impl<'a> Decoded<'a> {
-    fn new(source: &'a str) -> Self {
+impl<'a> Clone for Decoded<'a> {
+    fn clone(&self) -> Self {
         Self {
-            source,
-            chars: source.char_indices(),
+            needs_decoding: self.needs_decoding,
+            source: self.source,
+            chars: self.chars.clone(),
+        }
+    }
+}
+
+impl<'a> Decoded<'a> {
+    fn new(source: &'a StringContents<'a>) -> Self {
+        match source {
+            StringContents::Json { source, info } => Self {
+                needs_decoding: info.has_escapes(),
+                source,
+                chars: source.char_indices(),
+            },
+            StringContents::Raw(source) => Self {
+                needs_decoding: false,
+                source,
+                chars: source.char_indices(),
+            },
         }
     }
 }
@@ -241,7 +287,7 @@ impl<'a> Iterator for Decoded<'a> {
     #[allow(unsafe_code)]
     fn next(&mut self) -> Option<Self::Item> {
         let (_, ch) = self.chars.next()?;
-        if ch == '\\' {
+        if self.needs_decoding && ch == '\\' {
             match self.chars.next().expect("already validated") {
                 (_, 'r') => Some('\r'),
                 (_, 'n') => Some('\n'),
@@ -270,13 +316,24 @@ impl<'a> Iterator for Decoded<'a> {
     }
 }
 
-pub struct Escaped<'a> {
+impl<'a> Display for Decoded<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for ch in self.clone() {
+            f.write_char(ch)?;
+        }
+
+        Ok(())
+    }
+}
+
+pub struct AsJson<'a> {
     chars: Chars<'a>,
     state: EscapeState,
     info: JsonStringInfo,
 }
 
 enum EscapeState {
+    AlreadyEscaped,
     None,
     Single(u8),
     Unicode {
@@ -285,22 +342,30 @@ enum EscapeState {
     },
 }
 
-impl<'a> From<&'a str> for Escaped<'a> {
-    fn from(value: &'a str) -> Self {
-        Self {
-            chars: value.chars(),
-            state: EscapeState::None,
-            info: JsonStringInfo::NONE,
+impl<'b, 'a> From<&'b StringContents<'a>> for AsJson<'b> {
+    fn from(value: &'b StringContents<'a>) -> Self {
+        match value {
+            StringContents::Json { source, info } => Self {
+                chars: source.chars(),
+                state: EscapeState::AlreadyEscaped,
+                info: *info,
+            },
+            StringContents::Raw(source) => Self {
+                chars: source.chars(),
+                state: EscapeState::None,
+                info: JsonStringInfo::NONE,
+            },
         }
     }
 }
 
-impl<'a> Iterator for Escaped<'a> {
+impl<'a> Iterator for AsJson<'a> {
     type Item = char;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         match &mut self.state {
+            EscapeState::AlreadyEscaped => self.chars.next(),
             EscapeState::None => {
                 let ch = self.chars.next()?;
                 match u8::try_from(ch) {
@@ -382,6 +447,10 @@ impl<'a> Iterator for Escaped<'a> {
                 }
             },
         }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.chars.size_hint()
     }
 }
 
@@ -465,8 +534,18 @@ pub(crate) static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
 #[test]
 fn escape() {
     let original = "\"\\/\u{07}\t\n\r\u{0c}\u{25ef}";
-    let json = JsonString::from(original);
-    assert!(json.info.has_escapes());
-    assert_eq!(json.info.unescaped_length(), original.len());
-    assert_eq!(json, original);
+    let raw = JsonString::from(original);
+    let decoded = raw.decoded().collect::<String>();
+    assert_eq!(decoded, original);
+    let json = raw.as_json().collect::<String>();
+    assert_eq!(json, "\\\"\\\\/\\b\\t\\n\\r\\f\u{25ef}");
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum StringContents<'a> {
+    Json {
+        source: Cow<'a, str>,
+        info: JsonStringInfo,
+    },
+    Raw(Cow<'a, str>),
 }

@@ -1,8 +1,9 @@
-use std::{borrow::Cow, fmt::Write};
+use std::borrow::Cow;
+use std::fmt::Write;
 
-use crate::{
-    doc::Document, Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value,
-};
+use crate::doc::Document;
+use crate::string::StringContents;
+use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
 
 #[track_caller]
 fn test_json_parse(source: &[u8], value: &Value<'_>) {
@@ -58,15 +59,19 @@ fn basic_string() {
     test_json_parse(
         br#""hello""#,
         &Value::String(JsonString {
-            source: Cow::Borrowed("hello"),
-            info: JsonStringInfo::new(false, 5),
+            source: StringContents::Json {
+                source: Cow::Borrowed("hello"),
+                info: JsonStringInfo::new(false, 5),
+            },
         }),
     );
     test_json_parse(
         br#""""#,
         &Value::String(JsonString {
-            source: Cow::Borrowed(""),
-            info: JsonStringInfo::new(false, 0),
+            source: StringContents::Json {
+                source: Cow::Borrowed(""),
+                info: JsonStringInfo::new(false, 0),
+            },
         }),
     );
 }
@@ -76,8 +81,10 @@ fn escapey_string() {
     test_json_parse(
         br#""\"\\\/\b\f\n\r\t\u25eF""#,
         &Value::String(JsonString {
-            source: Cow::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#),
-            info: JsonStringInfo::new(true, 11),
+            source: StringContents::Json {
+                source: Cow::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#),
+                info: JsonStringInfo::new(true, 11),
+            },
         }),
     );
 }
@@ -93,8 +100,10 @@ fn one_mapping() {
         br#"{"hello":true}"#,
         &Value::Object(Object::from_iter([(
             JsonString {
-                source: Cow::Borrowed("hello"),
-                info: JsonStringInfo::new(false, 5),
+                source: StringContents::Json {
+                    source: Cow::Borrowed("hello"),
+                    info: JsonStringInfo::new(false, 5),
+                },
             },
             Value::Boolean(true),
         )])),
@@ -108,15 +117,19 @@ fn two_mappings() {
         &Value::Object(Object::from_iter([
             (
                 JsonString {
-                    source: Cow::Borrowed("hello"),
-                    info: JsonStringInfo::new(false, 5),
+                    source: StringContents::Json {
+                        source: Cow::Borrowed("hello"),
+                        info: JsonStringInfo::new(false, 5),
+                    },
                 },
                 Value::Boolean(true),
             ),
             (
                 JsonString {
-                    source: Cow::Borrowed("world"),
-                    info: JsonStringInfo::new(false, 5),
+                    source: StringContents::Json {
+                        source: Cow::Borrowed("world"),
+                        info: JsonStringInfo::new(false, 5),
+                    },
                 },
                 Value::Null,
             ),
@@ -130,19 +143,10 @@ fn spaced_out_object() {
         br#" { "hello" : true , "world" : null } "#,
         &Value::Object(Object::from_iter([
             (
-                JsonString {
-                    source: Cow::Borrowed("hello"),
-                    info: JsonStringInfo::new(false, 5),
-                },
+                JsonString::from_json("\"hello\"").unwrap(),
                 Value::Boolean(true),
             ),
-            (
-                JsonString {
-                    source: Cow::Borrowed("world"),
-                    info: JsonStringInfo::new(false, 5),
-                },
-                Value::Null,
-            ),
+            (JsonString::from_json("\"world\"").unwrap(), Value::Null),
         ])),
     );
 }
