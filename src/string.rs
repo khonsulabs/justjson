@@ -1,6 +1,7 @@
-use std::borrow::Cow;
-use std::fmt::{Debug, Display, Write};
-use std::str::{CharIndices, Chars};
+use alloc::borrow::Cow;
+use alloc::string::String;
+use core::fmt::{self, Debug, Display, Formatter, Write};
+use core::str::{CharIndices, Chars};
 
 use crate::error::{Error, ErrorKind};
 use crate::value::Value;
@@ -228,14 +229,14 @@ fn decode_if_needed() {
     let has_escapes = JsonString::from_json(r#""\r""#).unwrap();
     let Cow::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "\r");
-    let decoded_via_display = format!("{}", has_escapes.decoded());
+    let decoded_via_display = alloc::format!("{}", has_escapes.decoded());
     assert_eq!(decoded_via_display, "\r");
 
     let raw_string = JsonString::from(r#"raw string"#);
     let Cow::Borrowed(string) = raw_string.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "raw string");
 
-    let decoded_via_display = format!("{}", raw_string.decoded());
+    let decoded_via_display = alloc::format!("{}", raw_string.decoded());
     assert_eq!(decoded_via_display, "raw string");
 }
 
@@ -295,8 +296,8 @@ impl JsonStringInfo {
     }
 }
 
-impl std::fmt::Debug for JsonStringInfo {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Debug for JsonStringInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("EscapeInfo")
             .field("has_escapes", &self.has_escapes())
             .field("unescaped_length", &self.unescaped_length())
@@ -309,7 +310,7 @@ fn test_string_info_debug() {
     let mut info = JsonStringInfo::NONE;
     info.add_bytes_from_escape(1);
     assert_eq!(
-        format!("{info:?}"),
+        alloc::format!("{info:?}"),
         "EscapeInfo { has_escapes: true, unescaped_length: 1 }"
     );
 }
@@ -395,7 +396,7 @@ impl<'a> Iterator for Decoded<'a> {
 }
 
 impl<'a> Display for Decoded<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for ch in self.clone() {
             f.write_char(ch)?;
         }
@@ -412,7 +413,7 @@ pub struct AsJson<'a> {
 }
 
 impl<'a> Display for AsJson<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for ch in self.clone() {
             f.write_char(ch)?;
         }

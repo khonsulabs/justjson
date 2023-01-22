@@ -1,5 +1,8 @@
-use std::borrow::Cow;
-use std::fmt::Write;
+use alloc::borrow::Cow;
+use alloc::string::{String, ToString};
+use alloc::vec;
+use core::fmt::Write;
+use std::println;
 
 use crate::doc::Document;
 use crate::parser::{ParseDelegate, Parser};

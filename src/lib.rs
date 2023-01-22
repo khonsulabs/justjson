@@ -12,6 +12,12 @@
     clippy::missing_errors_doc
 )]
 #![deny(unsafe_code)]
+#![no_std]
+
+#[cfg(any(feature = "std", test))]
+extern crate std;
+
+extern crate alloc;
 
 pub use crate::error::{Error, ErrorKind};
 pub use crate::number::JsonNumber;

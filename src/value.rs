@@ -1,6 +1,8 @@
-use std::convert::Infallible;
-use std::fmt::{self, Display};
-use std::ops::{Deref, DerefMut};
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::convert::Infallible;
+use core::fmt::{self, Display};
+use core::ops::{Deref, DerefMut};
 
 use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
 use crate::{Error, JsonNumber, JsonString};
@@ -283,7 +285,7 @@ fn value_ases() {
 }
 
 impl<'a> Display for Value<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if f.alternate() {
             self.pretty_write_json_to(f)
         } else {

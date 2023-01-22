@@ -46,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `JsonString::from(&str)` has been added to convert from a Rust string to its
   JSON-encoded form.
+- This crate now is `no_std` without the newly added `std` feature. The `std`
+  feature is included in default-features.
 
 ## Changed
 

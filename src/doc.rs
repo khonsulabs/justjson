@@ -1,6 +1,7 @@
-use std::convert::Infallible;
-use std::iter::Cloned;
-use std::slice;
+use alloc::vec::Vec;
+use core::convert::Infallible;
+use core::iter::Cloned;
+use core::slice;
 
 use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
 use crate::value::Entry;
@@ -419,7 +420,7 @@ fn document_iteration() {
     let doc = Document::from_json(source).unwrap();
     assert_eq!(
         doc.iter().collect::<Vec<_>>(),
-        vec![
+        alloc::vec![
             Node::Object { length: 5 },
             Node::String(JsonString::from_json("\"a\"").unwrap()),
             Node::Number(JsonNumber::from_json("1").unwrap()),

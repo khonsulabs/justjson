@@ -1,5 +1,5 @@
-use std::convert::Infallible;
-use std::fmt::Display;
+use core::convert::Infallible;
+use core::fmt::Display;
 
 /// A JSON parsing error with location information.
 #[derive(Debug, PartialEq)]
@@ -23,6 +23,7 @@ impl<DelegateError> Error<DelegateError> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<DelegateError> std::error::Error for Error<DelegateError> where
     DelegateError: std::fmt::Debug + Display
 {
@@ -32,7 +33,7 @@ impl<DelegateError> Display for Error<DelegateError>
 where
     DelegateError: Display,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "error at {}: {}", self.offset, self.kind)
     }
 }
@@ -171,7 +172,7 @@ fn into_fallable_test() {
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
     ] {
-        match (kind.clone(), kind.into_fallable::<String>()) {
+        match (kind.clone(), kind.into_fallable::<u8>()) {
             (ErrorKind::Utf8, ErrorKind::Utf8)
             | (ErrorKind::UnexpectedEof, ErrorKind::UnexpectedEof)
             | (ErrorKind::ExpectedObjectKey, ErrorKind::ExpectedObjectKey)
@@ -205,6 +206,7 @@ fn into_fallable_test() {
     }
 }
 
+#[cfg(feature = "std")]
 impl<DelegateError> std::error::Error for ErrorKind<DelegateError> where
     DelegateError: std::fmt::Debug + Display
 {
@@ -214,7 +216,7 @@ impl<DelegateError> Display for ErrorKind<DelegateError>
 where
     DelegateError: Display,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             ErrorKind::Utf8 => f.write_str("invalid utf-8"),
             ErrorKind::UnexpectedEof => f.write_str("unexpected end of file"),
@@ -256,6 +258,7 @@ where
 
 #[test]
 fn display_tests() {
+    use alloc::string::ToString;
     // This test only ensures that display doesn't panic. It does not validate
     // that the messages are actually good.
     for kind in [

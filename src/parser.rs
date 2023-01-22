@@ -1,7 +1,7 @@
+use alloc::borrow::Cow;
+use core::iter::Peekable;
+use core::marker::PhantomData;
 use core::slice;
-use std::borrow::Cow;
-use std::iter::Peekable;
-use std::marker::PhantomData;
 
 use crate::string::{
     merge_surrogate_pair, StringContents, HEX_OFFSET_TABLE, HIGH_SURROGATE_MAX, HIGH_SURROGATE_MIN,
@@ -421,7 +421,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                         break Ok(JsonString {
                             source: StringContents::Json {
                                 source: Cow::Borrowed(unsafe {
-                                    std::str::from_utf8_unchecked(
+                                    core::str::from_utf8_unchecked(
                                         &self.source.bytes[start + 1..offset],
                                     )
                                 }),
@@ -443,7 +443,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
                         let unicode_end = self.source.offset;
                         string_info.add_bytes(unicode_end - utf8_start);
-                        if std::str::from_utf8(&self.source.bytes[utf8_start..unicode_end]).is_err()
+                        if core::str::from_utf8(&self.source.bytes[utf8_start..unicode_end])
+                            .is_err()
                         {
                             // The offset on this is incorrect.
                             return Err(Error {
@@ -632,7 +633,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
         Ok(JsonNumber {
             source: Cow::Borrowed(unsafe {
-                std::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
+                core::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
             }),
         })
     }
