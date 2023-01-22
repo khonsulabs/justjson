@@ -438,7 +438,7 @@ where
             }
         }
 
-        write!(self.writer, "\"{}\"", str.decoded())
+        write!(self.writer, "\"{}\"", str.as_json())
     }
 
     fn new_line(&mut self) -> fmt::Result {

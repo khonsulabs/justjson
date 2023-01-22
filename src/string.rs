@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::fmt::{Display, Write};
+use std::fmt::{Debug, Display, Write};
 use std::str::{CharIndices, Chars};
 
 use crate::error::{Error, ErrorKind};
@@ -164,16 +164,31 @@ fn json_string_from_json() {
 }
 
 #[test]
+fn json_string_from_raw() {
+    assert_eq!(JsonString::from(String::from("a")), JsonString::from("a"));
+}
+
+#[test]
 fn json_string_cmp() {
     #[track_caller]
-    fn test_json(json: &str, expected: &str) {
+    fn test_json<'a, T>(json: &'a str, expected: T)
+    where
+        T: Debug,
+        JsonString<'a>: PartialEq<T>,
+    {
         assert_eq!(JsonString::from_json(json).unwrap(), expected);
     }
+
     #[track_caller]
-    fn test_json_ne(json: &str, expected: &str) {
+    fn test_json_ne<'a, T>(json: &'a str, expected: T)
+    where
+        T: Debug,
+        JsonString<'a>: PartialEq<T>,
+    {
         assert_ne!(JsonString::from_json(json).unwrap(), expected);
     }
 
+    // Test &str comparisons
     test_json(r#""Hello, World!""#, "Hello, World!");
     test_json(r#""\"\\\/\b\f\n\r\t\u25eF""#, "\"\\/\x07\x0c\n\r\t\u{25ef}");
     test_json("\"\u{25ef}\"", "\u{25ef}");
@@ -183,6 +198,25 @@ fn json_string_cmp() {
     test_json_ne(r#""\n""#, "x");
     // Test regular char not matching in decoded comparison
     test_json_ne(r#""\na""#, "\nx");
+
+    // Test JsonString comparisons
+    // Decoded length not being the same between two JsonStrings.
+    test_json_ne(
+        r#""\u0000""#,
+        JsonString::from_json(r#""\u0000\u0000""#).unwrap(),
+    );
+    // Same decoded length, lhs doesn't have escapes, rhs does
+    test_json_ne(r#""ab""#, JsonString::from_json(r#""\u0000""#).unwrap());
+    // Raw strings in JsonString
+    assert_eq!(JsonString::from("a"), JsonString::from("a"));
+    assert_eq!(
+        JsonString::from_json("\"a\"").unwrap(),
+        JsonString::from("a")
+    );
+    assert_eq!(
+        JsonString::from("a"),
+        JsonString::from_json("\"a\"").unwrap()
+    );
 }
 
 #[test]
@@ -360,12 +394,24 @@ impl<'a> Display for Decoded<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct AsJson<'a> {
     chars: Chars<'a>,
     state: EscapeState,
     info: JsonStringInfo,
 }
 
+impl<'a> Display for AsJson<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for ch in self.clone() {
+            f.write_char(ch)?;
+        }
+
+        Ok(())
+    }
+}
+
+#[derive(Clone)]
 enum EscapeState {
     AlreadyEscaped,
     None,

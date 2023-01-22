@@ -383,6 +383,7 @@ fn json_formatting() {
         "\t",
         "\r",
     );
+    test_roundtrip_encoding(r#""\u0000""#);
 }
 
 #[test]
