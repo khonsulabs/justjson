@@ -192,6 +192,101 @@
 <span id="192">192</span>
 <span id="193">193</span>
 <span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::convert::Infallible;
 <span class="kw">use </span>std::fmt::Display;
 
@@ -242,7 +337,7 @@
 }
 
 <span class="doccomment">/// An error from parsing JSON.
-</span><span class="attribute">#[derive(Debug, Eq, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Eq, PartialEq, Clone)]
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>ErrorKind&lt;DelegateError = Infallible&gt; {
     <span class="doccomment">/// An invalid UTF-8 sequence was encountered.
@@ -338,6 +433,67 @@
     }
 }
 
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>into_fallable_test() {
+    <span class="kw">for </span>kind <span class="kw">in </span>[
+        ErrorKind::Utf8,
+        ErrorKind::UnexpectedEof,
+        ErrorKind::ExpectedObjectKey,
+        ErrorKind::ExpectedColon,
+        ErrorKind::ExpectedValue,
+        ErrorKind::ExpectedCommaOrEndOfObject,
+        ErrorKind::ExpectedCommaOrEndOfArray,
+        ErrorKind::IllegalTrailingComma,
+        ErrorKind::Unexpected(<span class="string">b&#39;/&#39;</span>),
+        ErrorKind::TrailingNonWhitespace,
+        ErrorKind::ObjectKeysMustBeStrings,
+        ErrorKind::ExpectedExponent,
+        ErrorKind::ExpectedDecimalDigit,
+        ErrorKind::ExpectedDigit,
+        ErrorKind::InvalidHexadecimal,
+        ErrorKind::InvalidEscape,
+        ErrorKind::UnclosedObject,
+        ErrorKind::UnclosedArray,
+        ErrorKind::UnclosedString,
+        ErrorKind::ExpectedString,
+        ErrorKind::ExpectedNumber,
+        ErrorKind::RecursionLimitReached,
+        ErrorKind::PayloadsShouldBeObjectOrArray,
+    ] {
+        <span class="kw">match </span>(kind.clone(), kind.into_fallable::&lt;String&gt;()) {
+            (ErrorKind::Utf8, ErrorKind::Utf8)
+            | (ErrorKind::UnexpectedEof, ErrorKind::UnexpectedEof)
+            | (ErrorKind::ExpectedObjectKey, ErrorKind::ExpectedObjectKey)
+            | (ErrorKind::ExpectedColon, ErrorKind::ExpectedColon)
+            | (ErrorKind::ExpectedValue, ErrorKind::ExpectedValue)
+            | (ErrorKind::ExpectedCommaOrEndOfObject, ErrorKind::ExpectedCommaOrEndOfObject)
+            | (ErrorKind::ExpectedCommaOrEndOfArray, ErrorKind::ExpectedCommaOrEndOfArray)
+            | (ErrorKind::IllegalTrailingComma, ErrorKind::IllegalTrailingComma)
+            | (ErrorKind::TrailingNonWhitespace, ErrorKind::TrailingNonWhitespace)
+            | (ErrorKind::ObjectKeysMustBeStrings, ErrorKind::ObjectKeysMustBeStrings)
+            | (ErrorKind::ExpectedExponent, ErrorKind::ExpectedExponent)
+            | (ErrorKind::ExpectedDecimalDigit, ErrorKind::ExpectedDecimalDigit)
+            | (ErrorKind::ExpectedDigit, ErrorKind::ExpectedDigit)
+            | (ErrorKind::InvalidHexadecimal, ErrorKind::InvalidHexadecimal)
+            | (ErrorKind::InvalidEscape, ErrorKind::InvalidEscape)
+            | (ErrorKind::UnclosedObject, ErrorKind::UnclosedObject)
+            | (ErrorKind::UnclosedArray, ErrorKind::UnclosedArray)
+            | (ErrorKind::UnclosedString, ErrorKind::UnclosedString)
+            | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)
+            | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)
+            | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)
+            | (
+                ErrorKind::PayloadsShouldBeObjectOrArray,
+                ErrorKind::PayloadsShouldBeObjectOrArray,
+            ) =&gt; {}
+            (ErrorKind::Unexpected(before), ErrorKind::Unexpected(after)) =&gt; {
+                <span class="macro">assert_eq!</span>(before, after);
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+        }
+    }
+}
+
 <span class="kw">impl</span>&lt;DelegateError&gt; std::error::Error <span class="kw">for </span>ErrorKind&lt;DelegateError&gt; <span class="kw">where
     </span>DelegateError: std::fmt::Debug + Display
 {
@@ -384,6 +540,40 @@
             }
             ErrorKind::ErrorFromDelegate(err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;error from delegate: {err}&quot;</span>),
         }
+    }
+}
+
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>display_tests() {
+    <span class="comment">// This test only ensures that display doesn&#39;t panic. It does not validate
+    // that the messages are actually good.
+    </span><span class="kw">for </span>kind <span class="kw">in </span>[
+        ErrorKind::Utf8,
+        ErrorKind::UnexpectedEof,
+        ErrorKind::ExpectedObjectKey,
+        ErrorKind::ExpectedColon,
+        ErrorKind::ExpectedValue,
+        ErrorKind::ExpectedCommaOrEndOfObject,
+        ErrorKind::ExpectedCommaOrEndOfArray,
+        ErrorKind::IllegalTrailingComma,
+        ErrorKind::Unexpected(<span class="string">b&#39;/&#39;</span>),
+        ErrorKind::TrailingNonWhitespace,
+        ErrorKind::ObjectKeysMustBeStrings,
+        ErrorKind::ExpectedExponent,
+        ErrorKind::ExpectedDecimalDigit,
+        ErrorKind::ExpectedDigit,
+        ErrorKind::InvalidHexadecimal,
+        ErrorKind::InvalidEscape,
+        ErrorKind::UnclosedObject,
+        ErrorKind::UnclosedArray,
+        ErrorKind::UnclosedString,
+        ErrorKind::ExpectedString,
+        ErrorKind::ExpectedNumber,
+        ErrorKind::RecursionLimitReached,
+        ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::ErrorFromDelegate(<span class="string">&quot;oops&quot;</span>),
+    ] {
+        Error { kind, offset: <span class="number">0 </span>}.to_string();
     }
 }
 </code></pre></div>
