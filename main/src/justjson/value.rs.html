@@ -1031,7 +1031,7 @@
             }
         }
 
-        <span class="macro">write!</span>(<span class="self">self</span>.writer, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, str.decoded())
+        <span class="macro">write!</span>(<span class="self">self</span>.writer, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, str.as_json())
     }
 
     <span class="kw">fn </span>new_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {

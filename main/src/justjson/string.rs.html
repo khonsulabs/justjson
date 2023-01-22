@@ -594,8 +594,54 @@
 <span id="594">594</span>
 <span id="595">595</span>
 <span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
-<span class="kw">use </span>std::fmt::{Display, Write};
+<span class="kw">use </span>std::fmt::{Debug, Display, Write};
 <span class="kw">use </span>std::str::{CharIndices, Chars};
 
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, ErrorKind};
@@ -760,17 +806,32 @@
 }
 
 <span class="attribute">#[test]
+</span><span class="kw">fn </span>json_string_from_raw() {
+    <span class="macro">assert_eq!</span>(JsonString::from(String::from(<span class="string">&quot;a&quot;</span>)), JsonString::from(<span class="string">&quot;a&quot;</span>));
+}
+
+<span class="attribute">#[test]
 </span><span class="kw">fn </span>json_string_cmp() {
     <span class="attribute">#[track_caller]
-    </span><span class="kw">fn </span>test_json(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
+    </span><span class="kw">fn </span>test_json&lt;<span class="lifetime">&#39;a</span>, T&gt;(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, expected: T)
+    <span class="kw">where
+        </span>T: Debug,
+        JsonString&lt;<span class="lifetime">&#39;a</span>&gt;: PartialEq&lt;T&gt;,
+    {
         <span class="macro">assert_eq!</span>(JsonString::from_json(json).unwrap(), expected);
     }
+
     <span class="attribute">#[track_caller]
-    </span><span class="kw">fn </span>test_json_ne(json: <span class="kw-2">&amp;</span>str, expected: <span class="kw-2">&amp;</span>str) {
+    </span><span class="kw">fn </span>test_json_ne&lt;<span class="lifetime">&#39;a</span>, T&gt;(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, expected: T)
+    <span class="kw">where
+        </span>T: Debug,
+        JsonString&lt;<span class="lifetime">&#39;a</span>&gt;: PartialEq&lt;T&gt;,
+    {
         <span class="macro">assert_ne!</span>(JsonString::from_json(json).unwrap(), expected);
     }
 
-    test_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>, <span class="string">&quot;Hello, World!&quot;</span>);
+    <span class="comment">// Test &amp;str comparisons
+    </span>test_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>, <span class="string">&quot;Hello, World!&quot;</span>);
     test_json(<span class="string">r#&quot;&quot;\&quot;\\\/\b\f\n\r\t\u25eF&quot;&quot;#</span>, <span class="string">&quot;\&quot;\\/\x07\x0c\n\r\t\u{25ef}&quot;</span>);
     test_json(<span class="string">&quot;\&quot;\u{25ef}\&quot;&quot;</span>, <span class="string">&quot;\u{25ef}&quot;</span>);
     <span class="comment">// Test decoded length not being the same
@@ -779,6 +840,25 @@
     </span>test_json_ne(<span class="string">r#&quot;&quot;\n&quot;&quot;#</span>, <span class="string">&quot;x&quot;</span>);
     <span class="comment">// Test regular char not matching in decoded comparison
     </span>test_json_ne(<span class="string">r#&quot;&quot;\na&quot;&quot;#</span>, <span class="string">&quot;\nx&quot;</span>);
+
+    <span class="comment">// Test JsonString comparisons
+    // Decoded length not being the same between two JsonStrings.
+    </span>test_json_ne(
+        <span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>,
+        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000\u0000&quot;&quot;#</span>).unwrap(),
+    );
+    <span class="comment">// Same decoded length, lhs doesn&#39;t have escapes, rhs does
+    </span>test_json_ne(<span class="string">r#&quot;&quot;ab&quot;&quot;#</span>, JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap());
+    <span class="comment">// Raw strings in JsonString
+    </span><span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;a&quot;</span>), JsonString::from(<span class="string">&quot;a&quot;</span>));
+    <span class="macro">assert_eq!</span>(
+        JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap(),
+        JsonString::from(<span class="string">&quot;a&quot;</span>)
+    );
+    <span class="macro">assert_eq!</span>(
+        JsonString::from(<span class="string">&quot;a&quot;</span>),
+        JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap()
+    );
 }
 
 <span class="attribute">#[test]
@@ -956,13 +1036,25 @@
     }
 }
 
-<span class="kw">pub struct </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
     chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
     state: EscapeState,
     info: JsonStringInfo,
 }
 
-<span class="kw">enum </span>EscapeState {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">for </span>ch <span class="kw">in </span><span class="self">self</span>.clone() {
+            f.write_char(ch)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">enum </span>EscapeState {
     AlreadyEscaped,
     <span class="prelude-val">None</span>,
     Single(u8),
