@@ -48,7 +48,7 @@ impl Error<Infallible> {
 }
 
 /// An error from parsing JSON.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 #[non_exhaustive]
 pub enum ErrorKind<DelegateError = Infallible> {
     /// An invalid UTF-8 sequence was encountered.
@@ -144,6 +144,67 @@ impl ErrorKind<Infallible> {
     }
 }
 
+#[test]
+fn into_fallable_test() {
+    for kind in [
+        ErrorKind::Utf8,
+        ErrorKind::UnexpectedEof,
+        ErrorKind::ExpectedObjectKey,
+        ErrorKind::ExpectedColon,
+        ErrorKind::ExpectedValue,
+        ErrorKind::ExpectedCommaOrEndOfObject,
+        ErrorKind::ExpectedCommaOrEndOfArray,
+        ErrorKind::IllegalTrailingComma,
+        ErrorKind::Unexpected(b'/'),
+        ErrorKind::TrailingNonWhitespace,
+        ErrorKind::ObjectKeysMustBeStrings,
+        ErrorKind::ExpectedExponent,
+        ErrorKind::ExpectedDecimalDigit,
+        ErrorKind::ExpectedDigit,
+        ErrorKind::InvalidHexadecimal,
+        ErrorKind::InvalidEscape,
+        ErrorKind::UnclosedObject,
+        ErrorKind::UnclosedArray,
+        ErrorKind::UnclosedString,
+        ErrorKind::ExpectedString,
+        ErrorKind::ExpectedNumber,
+        ErrorKind::RecursionLimitReached,
+        ErrorKind::PayloadsShouldBeObjectOrArray,
+    ] {
+        match (kind.clone(), kind.into_fallable::<String>()) {
+            (ErrorKind::Utf8, ErrorKind::Utf8)
+            | (ErrorKind::UnexpectedEof, ErrorKind::UnexpectedEof)
+            | (ErrorKind::ExpectedObjectKey, ErrorKind::ExpectedObjectKey)
+            | (ErrorKind::ExpectedColon, ErrorKind::ExpectedColon)
+            | (ErrorKind::ExpectedValue, ErrorKind::ExpectedValue)
+            | (ErrorKind::ExpectedCommaOrEndOfObject, ErrorKind::ExpectedCommaOrEndOfObject)
+            | (ErrorKind::ExpectedCommaOrEndOfArray, ErrorKind::ExpectedCommaOrEndOfArray)
+            | (ErrorKind::IllegalTrailingComma, ErrorKind::IllegalTrailingComma)
+            | (ErrorKind::TrailingNonWhitespace, ErrorKind::TrailingNonWhitespace)
+            | (ErrorKind::ObjectKeysMustBeStrings, ErrorKind::ObjectKeysMustBeStrings)
+            | (ErrorKind::ExpectedExponent, ErrorKind::ExpectedExponent)
+            | (ErrorKind::ExpectedDecimalDigit, ErrorKind::ExpectedDecimalDigit)
+            | (ErrorKind::ExpectedDigit, ErrorKind::ExpectedDigit)
+            | (ErrorKind::InvalidHexadecimal, ErrorKind::InvalidHexadecimal)
+            | (ErrorKind::InvalidEscape, ErrorKind::InvalidEscape)
+            | (ErrorKind::UnclosedObject, ErrorKind::UnclosedObject)
+            | (ErrorKind::UnclosedArray, ErrorKind::UnclosedArray)
+            | (ErrorKind::UnclosedString, ErrorKind::UnclosedString)
+            | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)
+            | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)
+            | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)
+            | (
+                ErrorKind::PayloadsShouldBeObjectOrArray,
+                ErrorKind::PayloadsShouldBeObjectOrArray,
+            ) => {}
+            (ErrorKind::Unexpected(before), ErrorKind::Unexpected(after)) => {
+                assert_eq!(before, after);
+            }
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl<DelegateError> std::error::Error for ErrorKind<DelegateError> where
     DelegateError: std::fmt::Debug + Display
 {
@@ -190,5 +251,39 @@ where
             }
             ErrorKind::ErrorFromDelegate(err) => write!(f, "error from delegate: {err}"),
         }
+    }
+}
+
+#[test]
+fn display_tests() {
+    // This test only ensures that display doesn't panic. It does not validate
+    // that the messages are actually good.
+    for kind in [
+        ErrorKind::Utf8,
+        ErrorKind::UnexpectedEof,
+        ErrorKind::ExpectedObjectKey,
+        ErrorKind::ExpectedColon,
+        ErrorKind::ExpectedValue,
+        ErrorKind::ExpectedCommaOrEndOfObject,
+        ErrorKind::ExpectedCommaOrEndOfArray,
+        ErrorKind::IllegalTrailingComma,
+        ErrorKind::Unexpected(b'/'),
+        ErrorKind::TrailingNonWhitespace,
+        ErrorKind::ObjectKeysMustBeStrings,
+        ErrorKind::ExpectedExponent,
+        ErrorKind::ExpectedDecimalDigit,
+        ErrorKind::ExpectedDigit,
+        ErrorKind::InvalidHexadecimal,
+        ErrorKind::InvalidEscape,
+        ErrorKind::UnclosedObject,
+        ErrorKind::UnclosedArray,
+        ErrorKind::UnclosedString,
+        ErrorKind::ExpectedString,
+        ErrorKind::ExpectedNumber,
+        ErrorKind::RecursionLimitReached,
+        ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::ErrorFromDelegate("oops"),
+    ] {
+        Error { kind, offset: 0 }.to_string();
     }
 }

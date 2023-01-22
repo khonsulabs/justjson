@@ -47,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `JsonString::from(&str)` has been added to convert from a Rust string to its
   JSON-encoded form.
 
+## Changed
+
+- `thiserror` has been removed from the dependencies in favor of manually
+  implementing `std::error::Error`. This makes `justjson` dependency free (for
+  now).
+
 ## v0.1.1
 
 ### Fixed
