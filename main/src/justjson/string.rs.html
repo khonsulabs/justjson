@@ -640,6 +640,16 @@
 <span id="640">640</span>
 <span id="641">641</span>
 <span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::fmt::{Debug, Display, Write};
 <span class="kw">use </span>std::str::{CharIndices, Chars};
@@ -850,7 +860,8 @@
     <span class="comment">// Same decoded length, lhs doesn&#39;t have escapes, rhs does
     </span>test_json_ne(<span class="string">r#&quot;&quot;ab&quot;&quot;#</span>, JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap());
     <span class="comment">// Raw strings in JsonString
-    </span><span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;a&quot;</span>), JsonString::from(<span class="string">&quot;a&quot;</span>));
+    </span><span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;a&quot;</span>), <span class="string">&quot;a&quot;</span>);
+    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;a&quot;</span>), JsonString::from(<span class="string">&quot;a&quot;</span>));
     <span class="macro">assert_eq!</span>(
         JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap(),
         JsonString::from(<span class="string">&quot;a&quot;</span>)
@@ -869,6 +880,15 @@
     <span class="kw">let </span>has_escapes = JsonString::from_json(<span class="string">r#&quot;&quot;\r&quot;&quot;#</span>).unwrap();
     <span class="kw">let </span>Cow::Owned(string) = has_escapes.decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
     <span class="macro">assert_eq!</span>(string, <span class="string">&quot;\r&quot;</span>);
+    <span class="kw">let </span>decoded_via_display = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, has_escapes.decoded());
+    <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">&quot;\r&quot;</span>);
+
+    <span class="kw">let </span>raw_string = JsonString::from(<span class="string">r#&quot;raw string&quot;#</span>);
+    <span class="kw">let </span>Cow::Borrowed(string) = raw_string.decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
+    <span class="macro">assert_eq!</span>(string, <span class="string">&quot;raw string&quot;</span>);
+
+    <span class="kw">let </span>decoded_via_display = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, raw_string.decoded());
+    <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">&quot;raw string&quot;</span>);
 }
 
 <span class="doccomment">/// Information about a [`JsonString`]:
@@ -1255,12 +1275,12 @@
 
 <span class="attribute">#[test]
 </span><span class="kw">fn </span>escape() {
-    <span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{25ef}&quot;</span>;
+    <span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}&quot;</span>;
     <span class="kw">let </span>raw = JsonString::from(original);
     <span class="kw">let </span>decoded = raw.decoded().collect::&lt;String&gt;();
     <span class="macro">assert_eq!</span>(decoded, original);
     <span class="kw">let </span>json = raw.as_json().collect::&lt;String&gt;();
-    <span class="macro">assert_eq!</span>(json, <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\u{25ef}&quot;</span>);
+    <span class="macro">assert_eq!</span>(json, <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}&quot;</span>);
 }
 
 <span class="attribute">#[derive(Debug, Clone, Eq, PartialEq)]
