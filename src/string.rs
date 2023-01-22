@@ -208,6 +208,7 @@ fn json_string_cmp() {
     // Same decoded length, lhs doesn't have escapes, rhs does
     test_json_ne(r#""ab""#, JsonString::from_json(r#""\u0000""#).unwrap());
     // Raw strings in JsonString
+    assert_eq!(JsonString::from("a"), "a");
     assert_eq!(JsonString::from("a"), JsonString::from("a"));
     assert_eq!(
         JsonString::from_json("\"a\"").unwrap(),
@@ -227,6 +228,15 @@ fn decode_if_needed() {
     let has_escapes = JsonString::from_json(r#""\r""#).unwrap();
     let Cow::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "\r");
+    let decoded_via_display = format!("{}", has_escapes.decoded());
+    assert_eq!(decoded_via_display, "\r");
+
+    let raw_string = JsonString::from(r#"raw string"#);
+    let Cow::Borrowed(string) = raw_string.decode_if_needed() else { unreachable!() };
+    assert_eq!(string, "raw string");
+
+    let decoded_via_display = format!("{}", raw_string.decoded());
+    assert_eq!(decoded_via_display, "raw string");
 }
 
 /// Information about a [`JsonString`]:
@@ -613,12 +623,12 @@ pub(crate) static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
 
 #[test]
 fn escape() {
-    let original = "\"\\/\u{07}\t\n\r\u{0c}\u{25ef}";
+    let original = "\"\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}";
     let raw = JsonString::from(original);
     let decoded = raw.decoded().collect::<String>();
     assert_eq!(decoded, original);
     let json = raw.as_json().collect::<String>();
-    assert_eq!(json, "\\\"\\\\/\\b\\t\\n\\r\\f\u{25ef}");
+    assert_eq!(json, "\\\"\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}");
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
