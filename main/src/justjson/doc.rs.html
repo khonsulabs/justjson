@@ -441,9 +441,11 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::convert::Infallible;
-<span class="kw">use </span>std::iter::Cloned;
-<span class="kw">use </span>std::slice;
+<span id="444">444</span>
+</pre><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::convert::Infallible;
+<span class="kw">use </span>core::iter::Cloned;
+<span class="kw">use </span>core::slice;
 
 <span class="kw">use </span><span class="kw">crate</span>::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
 <span class="kw">use </span><span class="kw">crate</span>::value::Entry;
@@ -862,7 +864,7 @@
     <span class="kw">let </span>doc = Document::from_json(source).unwrap();
     <span class="macro">assert_eq!</span>(
         doc.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
-        <span class="macro">vec!</span>[
+        <span class="macro">alloc::vec!</span>[
             Node::Object { length: <span class="number">5 </span>},
             Node::String(JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap()),
             Node::Number(JsonNumber::from_json(<span class="string">&quot;1&quot;</span>).unwrap()),

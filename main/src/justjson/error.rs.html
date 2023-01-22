@@ -287,8 +287,11 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::convert::Infallible;
-<span class="kw">use </span>std::fmt::Display;
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+</pre><pre class="rust"><code><span class="kw">use </span>core::convert::Infallible;
+<span class="kw">use </span>core::fmt::Display;
 
 <span class="doccomment">/// A JSON parsing error with location information.
 </span><span class="attribute">#[derive(Debug, PartialEq)]
@@ -312,7 +315,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;DelegateError&gt; std::error::Error <span class="kw">for </span>Error&lt;DelegateError&gt; <span class="kw">where
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;DelegateError&gt; std::error::Error <span class="kw">for </span>Error&lt;DelegateError&gt; <span class="kw">where
     </span>DelegateError: std::fmt::Debug + Display
 {
 }
@@ -321,7 +325,7 @@
 <span class="kw">where
     </span>DelegateError: Display,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;error at {}: {}&quot;</span>, <span class="self">self</span>.offset, <span class="self">self</span>.kind)
     }
 }
@@ -460,7 +464,7 @@
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
     ] {
-        <span class="kw">match </span>(kind.clone(), kind.into_fallable::&lt;String&gt;()) {
+        <span class="kw">match </span>(kind.clone(), kind.into_fallable::&lt;u8&gt;()) {
             (ErrorKind::Utf8, ErrorKind::Utf8)
             | (ErrorKind::UnexpectedEof, ErrorKind::UnexpectedEof)
             | (ErrorKind::ExpectedObjectKey, ErrorKind::ExpectedObjectKey)
@@ -494,7 +498,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;DelegateError&gt; std::error::Error <span class="kw">for </span>ErrorKind&lt;DelegateError&gt; <span class="kw">where
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;DelegateError&gt; std::error::Error <span class="kw">for </span>ErrorKind&lt;DelegateError&gt; <span class="kw">where
     </span>DelegateError: std::fmt::Debug + Display
 {
 }
@@ -503,7 +508,7 @@
 <span class="kw">where
     </span>DelegateError: Display,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             ErrorKind::Utf8 =&gt; f.write_str(<span class="string">&quot;invalid utf-8&quot;</span>),
             ErrorKind::UnexpectedEof =&gt; f.write_str(<span class="string">&quot;unexpected end of file&quot;</span>),
@@ -545,6 +550,7 @@
 
 <span class="attribute">#[test]
 </span><span class="kw">fn </span>display_tests() {
+    <span class="kw">use </span>alloc::string::ToString;
     <span class="comment">// This test only ensures that display doesn&#39;t panic. It does not validate
     // that the messages are actually good.
     </span><span class="kw">for </span>kind <span class="kw">in </span>[

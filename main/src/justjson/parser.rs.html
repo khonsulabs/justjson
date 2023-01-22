@@ -964,10 +964,11 @@
 <span id="964">964</span>
 <span id="965">965</span>
 <span id="966">966</span>
-</pre><pre class="rust"><code><span class="kw">use </span>core::slice;
-<span class="kw">use </span>std::borrow::Cow;
-<span class="kw">use </span>std::iter::Peekable;
-<span class="kw">use </span>std::marker::PhantomData;
+<span id="967">967</span>
+</pre><pre class="rust"><code><span class="kw">use </span>alloc::borrow::Cow;
+<span class="kw">use </span>core::iter::Peekable;
+<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>core::slice;
 
 <span class="kw">use </span><span class="kw">crate</span>::string::{
     merge_surrogate_pair, StringContents, HEX_OFFSET_TABLE, HIGH_SURROGATE_MAX, HIGH_SURROGATE_MIN,
@@ -1387,7 +1388,7 @@
                         <span class="kw">break </span><span class="prelude-val">Ok</span>(JsonString {
                             source: StringContents::Json {
                                 source: Cow::Borrowed(<span class="kw">unsafe </span>{
-                                    std::str::from_utf8_unchecked(
+                                    core::str::from_utf8_unchecked(
                                         <span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start + <span class="number">1</span>..offset],
                                     )
                                 }),
@@ -1409,7 +1410,8 @@
 
                         <span class="kw">let </span>unicode_end = <span class="self">self</span>.source.offset;
                         string_info.add_bytes(unicode_end - utf8_start);
-                        <span class="kw">if </span>std::str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[utf8_start..unicode_end]).is_err()
+                        <span class="kw">if </span>core::str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[utf8_start..unicode_end])
+                            .is_err()
                         {
                             <span class="comment">// The offset on this is incorrect.
                             </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error {
@@ -1598,7 +1600,7 @@
 
         <span class="prelude-val">Ok</span>(JsonNumber {
             source: Cow::Borrowed(<span class="kw">unsafe </span>{
-                std::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start..<span class="self">self</span>.source.offset])
+                core::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start..<span class="self">self</span>.source.offset])
             }),
         })
     }

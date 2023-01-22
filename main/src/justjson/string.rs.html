@@ -650,9 +650,11 @@
 <span id="650">650</span>
 <span id="651">651</span>
 <span id="652">652</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
-<span class="kw">use </span>std::fmt::{Debug, Display, Write};
-<span class="kw">use </span>std::str::{CharIndices, Chars};
+<span id="653">653</span>
+</pre><pre class="rust"><code><span class="kw">use </span>alloc::borrow::Cow;
+<span class="kw">use </span>alloc::string::String;
+<span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug, Display, Formatter, Write};
+<span class="kw">use </span>core::str::{CharIndices, Chars};
 
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, ErrorKind};
 <span class="kw">use </span><span class="kw">crate</span>::value::Value;
@@ -880,14 +882,14 @@
     <span class="kw">let </span>has_escapes = JsonString::from_json(<span class="string">r#&quot;&quot;\r&quot;&quot;#</span>).unwrap();
     <span class="kw">let </span>Cow::Owned(string) = has_escapes.decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
     <span class="macro">assert_eq!</span>(string, <span class="string">&quot;\r&quot;</span>);
-    <span class="kw">let </span>decoded_via_display = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, has_escapes.decoded());
+    <span class="kw">let </span>decoded_via_display = <span class="macro">alloc::format!</span>(<span class="string">&quot;{}&quot;</span>, has_escapes.decoded());
     <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">&quot;\r&quot;</span>);
 
     <span class="kw">let </span>raw_string = JsonString::from(<span class="string">r#&quot;raw string&quot;#</span>);
     <span class="kw">let </span>Cow::Borrowed(string) = raw_string.decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
     <span class="macro">assert_eq!</span>(string, <span class="string">&quot;raw string&quot;</span>);
 
-    <span class="kw">let </span>decoded_via_display = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, raw_string.decoded());
+    <span class="kw">let </span>decoded_via_display = <span class="macro">alloc::format!</span>(<span class="string">&quot;{}&quot;</span>, raw_string.decoded());
     <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">&quot;raw string&quot;</span>);
 }
 
@@ -947,8 +949,8 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>JsonStringInfo {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>JsonStringInfo {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">&quot;EscapeInfo&quot;</span>)
             .field(<span class="string">&quot;has_escapes&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.has_escapes())
             .field(<span class="string">&quot;unescaped_length&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.unescaped_length())
@@ -961,7 +963,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>info = JsonStringInfo::NONE;
     info.add_bytes_from_escape(<span class="number">1</span>);
     <span class="macro">assert_eq!</span>(
-        <span class="macro">format!</span>(<span class="string">&quot;{info:?}&quot;</span>),
+        <span class="macro">alloc::format!</span>(<span class="string">&quot;{info:?}&quot;</span>),
         <span class="string">&quot;EscapeInfo { has_escapes: true, unescaped_length: 1 }&quot;
     </span>);
 }
@@ -1047,7 +1049,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>ch <span class="kw">in </span><span class="self">self</span>.clone() {
             f.write_char(ch)<span class="question-mark">?</span>;
         }
@@ -1064,7 +1066,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>ch <span class="kw">in </span><span class="self">self</span>.clone() {
             f.write_char(ch)<span class="question-mark">?</span>;
         }
