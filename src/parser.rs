@@ -28,7 +28,7 @@ impl<'a> Parser<'a, false> {
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    pub fn parse_json_bytes<D>(value: &'a [u8], delegate: D) -> Result<D::Value, Error>
+    pub fn parse_json_bytes<D>(value: &'a [u8], delegate: D) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -44,7 +44,7 @@ impl<'a> Parser<'a, false> {
         value: &'a [u8],
         config: ParseConfig,
         delegate: D,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -58,7 +58,7 @@ impl<'a> Parser<'a, true> {
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    pub fn parse_json<D>(value: &'a str, delegate: D) -> Result<D::Value, Error>
+    pub fn parse_json<D>(value: &'a str, delegate: D) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -74,7 +74,7 @@ impl<'a> Parser<'a, true> {
         value: &'a str,
         config: ParseConfig,
         delegate: D,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -83,7 +83,11 @@ impl<'a> Parser<'a, true> {
 }
 
 impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
-    fn parse_bytes<D>(source: &'a [u8], config: ParseConfig, delegate: D) -> Result<D::Value, Error>
+    fn parse_bytes<D>(
+        source: &'a [u8],
+        config: ParseConfig,
+        delegate: D,
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -119,11 +123,14 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
     }
 
-    fn read_from_source<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error>
+    fn read_from_source<D>(
+        &mut self,
+        state: &mut ParseState<'a, D>,
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
-        let (offset, byte) = self.source.next_non_ws()?;
+        let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
         self.read_from_first_byte(offset, byte, state)
     }
 
@@ -132,36 +139,86 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         offset: usize,
         first: &'a u8,
         state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
         let value = match (offset, first) {
-            (offset, b'"') => state.delegate.string(self.read_string_from_source(offset)?),
+            (offset, b'"') => state
+                .delegate
+                .string(
+                    self.read_string_from_source(offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
             (offset, b'{') => {
                 state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                self.read_object_from_source(state)?
+                self.read_object_from_source(offset, state)?
             }
             (offset, b'[') => {
                 state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                self.read_array_from_source(state)?
+                self.read_array_from_source(offset, state)?
             }
             (offset, ch) if ch == &b'-' => state
                 .delegate
-                .number(self.read_number_from_source(InitialNumberState::Sign, offset)?),
+                .number(
+                    self.read_number_from_source(InitialNumberState::Sign, offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
             (offset, b'0') => state
                 .delegate
-                .number(self.read_number_from_source(InitialNumberState::Zero, offset)?),
+                .number(
+                    self.read_number_from_source(InitialNumberState::Zero, offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
             (offset, ch) if (b'1'..=b'9').contains(ch) => state
                 .delegate
-                .number(self.read_number_from_source(InitialNumberState::Digit, offset)?),
-            (_, b't') => {
-                self.read_literal_from_source::<D>(b"rue", state.delegate.boolean(true))?
-            }
-            (_, b'f') => {
-                self.read_literal_from_source::<D>(b"alse", state.delegate.boolean(false))?
-            }
-            (_, b'n') => self.read_literal_from_source::<D>(b"ull", state.delegate.null())?,
+                .number(
+                    self.read_number_from_source(InitialNumberState::Digit, offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
+            (_, b't') => self
+                .read_literal_from_source::<D>(
+                    b"rue",
+                    state.delegate.boolean(true).map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?,
+                )
+                .map_err(Error::into_fallable)?,
+            (_, b'f') => self
+                .read_literal_from_source::<D>(
+                    b"alse",
+                    state.delegate.boolean(false).map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?,
+                )
+                .map_err(Error::into_fallable)?,
+            (_, b'n') => self
+                .read_literal_from_source::<D>(
+                    b"ull",
+                    state.delegate.null().map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?,
+                )
+                .map_err(Error::into_fallable)?,
             (offset, other) => {
                 return Err(Error {
                     offset,
@@ -175,18 +232,25 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
     fn read_object_from_source<D>(
         &mut self,
+        start: usize,
         state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
-        let mut inner = || {
-            let mut obj = state.delegate.begin_object();
+        let mut inner = || -> Result<D::Value, Error<D::Error>> {
+            let mut obj = state.delegate.begin_object().map_err(|kind| Error {
+                offset: start,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })?;
+            let mut last_offset;
             loop {
-                let (offset, byte) = self.source.next_non_ws()?;
+                let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
+                last_offset = offset;
 
                 let key = if byte == &b'"' {
-                    self.read_string_from_source(offset)?
+                    self.read_string_from_source(offset)
+                        .map_err(Error::into_fallable)?
                 } else if byte == &b'}' {
                     if state.delegate.object_is_empty(&obj) || state.config.allow_trailing_commas {
                         break;
@@ -210,9 +274,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     });
                 };
 
-                let key = state.delegate.object_key(&mut obj, key);
+                let key = state
+                    .delegate
+                    .object_key(&mut obj, key)
+                    .map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?;
 
-                match self.source.next_non_ws() {
+                match self.source.next_non_ws().map_err(Error::into_fallable) {
                     Ok((_, b':')) => {}
                     Ok((offset, _)) => {
                         return Err(Error {
@@ -227,9 +297,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
 
                 let value = self.read_from_source(state)?;
-                state.delegate.object_value(&mut obj, key, value);
+                state
+                    .delegate
+                    .object_value(&mut obj, key, value)
+                    .map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?;
 
-                match self.source.next_non_ws()? {
+                match self.source.next_non_ws().map_err(Error::into_fallable)? {
                     (_, b',') => {}
                     (_, b'}') => break,
                     (offset, _) => {
@@ -241,7 +317,10 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
             }
 
-            Ok(state.delegate.end_object(obj))
+            state.delegate.end_object(obj).map_err(|kind| Error {
+                offset: last_offset,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })
         };
         let result = inner().map_err(|mut err| {
             if matches!(err.kind, ErrorKind::UnexpectedEof) {
@@ -255,15 +334,21 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
     fn read_array_from_source<D>(
         &mut self,
+        start: usize,
         state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
-        let mut inner = || {
-            let mut array = state.delegate.begin_array();
+        let mut inner = || -> Result<D::Value, Error<D::Error>> {
+            let mut array = state.delegate.begin_array().map_err(|kind| Error {
+                offset: start,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })?;
+            let mut last_offset;
             loop {
-                let (offset, byte) = self.source.next_non_ws()?;
+                let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
+                last_offset = offset;
 
                 let value = if byte == &b']' {
                     if state.delegate.array_is_empty(&array) || state.config.allow_trailing_commas {
@@ -278,9 +363,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     self.read_from_first_byte(offset, byte, state)?
                 };
 
-                state.delegate.array_value(&mut array, value);
+                state
+                    .delegate
+                    .array_value(&mut array, value)
+                    .map_err(|kind| Error {
+                        offset: last_offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?;
 
-                match self.source.next_non_ws()? {
+                match self.source.next_non_ws().map_err(Error::into_fallable)? {
                     (_, b',') => {}
                     (_, b']') => break,
                     (offset, _) => {
@@ -292,7 +383,10 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
             }
 
-            Ok(state.delegate.end_array(array))
+            state.delegate.end_array(array).map_err(|kind| Error {
+                offset: last_offset,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })
         };
 
         let result = inner().map_err(|mut err| {
@@ -579,36 +673,51 @@ pub trait ParseDelegate<'a> {
     type Array;
     /// The type that is used to represent the key of a field in a JSON object.
     type Key;
+    /// The error type for this delegate.
+    type Error;
 
     /// Returns the value representation of `null`.
-    fn null(&mut self) -> Self::Value;
+    fn null(&mut self) -> Result<Self::Value, Self::Error>;
     /// Returns the value representation of a boolean.
-    fn boolean(&mut self, value: bool) -> Self::Value;
+    fn boolean(&mut self, value: bool) -> Result<Self::Value, Self::Error>;
     /// Returns the value representation of a [`JsonNumber`].
-    fn number(&mut self, value: JsonNumber<'a>) -> Self::Value;
+    fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error>;
     /// Returns the value representation of a [`JsonString`].
-    fn string(&mut self, value: JsonString<'a>) -> Self::Value;
+    fn string(&mut self, value: JsonString<'a>) -> Result<Self::Value, Self::Error>;
 
     /// Returns an empty object.
-    fn begin_object(&mut self) -> Self::Object;
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error>;
     /// Processes the key for a new value in an object. Returns the key
     /// representation of the [`JsonString`].
-    fn object_key(&mut self, object: &mut Self::Object, key: JsonString<'a>) -> Self::Key;
+    fn object_key(
+        &mut self,
+        object: &mut Self::Object,
+        key: JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error>;
     /// Adds a new key-value pair to an object.
-    fn object_value(&mut self, object: &mut Self::Object, key: Self::Key, value: Self::Value);
+    fn object_value(
+        &mut self,
+        object: &mut Self::Object,
+        key: Self::Key,
+        value: Self::Value,
+    ) -> Result<(), Self::Error>;
     /// Returns true if the object passed is empty.
     fn object_is_empty(&self, object: &Self::Object) -> bool;
     /// Returns the value representation of the object passed.
-    fn end_object(&mut self, object: Self::Object) -> Self::Value;
+    fn end_object(&mut self, object: Self::Object) -> Result<Self::Value, Self::Error>;
 
     /// Returns an empty array.
-    fn begin_array(&mut self) -> Self::Array;
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error>;
     /// Adds a new value to an array.
-    fn array_value(&mut self, array: &mut Self::Array, value: Self::Value);
+    fn array_value(
+        &mut self,
+        array: &mut Self::Array,
+        value: Self::Value,
+    ) -> Result<(), Self::Error>;
     /// Returns true if the array passed is empty.
     fn array_is_empty(&self, array: &Self::Array) -> bool;
     /// Returns the value representation of the array passed.
-    fn end_array(&mut self, array: Self::Array) -> Self::Value;
+    fn end_array(&mut self, array: Self::Array) -> Result<Self::Value, Self::Error>;
 
     /// Returns the [`JsonKind`] of `value`.
     fn kind_of(&self, value: &Self::Value) -> JsonKind;
@@ -805,7 +914,7 @@ where
     D: ParseDelegate<'a>,
 {
     #[inline]
-    pub fn begin_nest(&mut self) -> Result<(), ErrorKind> {
+    pub fn begin_nest(&mut self) -> Result<(), ErrorKind<D::Error>> {
         if self.config.recursion_limit.is_some() {
             if self.remaining_depth > 0 {
                 self.remaining_depth -= 1;

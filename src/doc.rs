@@ -1,3 +1,4 @@
+use std::convert::Infallible;
 use std::iter::Cloned;
 use std::slice;
 
@@ -217,43 +218,56 @@ impl<'a> Nodes<'a> {
 
 impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
     type Array = usize;
+    type Error = Infallible;
     type Key = ();
     type Object = usize;
     type Value = usize;
 
     #[inline]
-    fn null(&mut self) -> Self::Value {
-        self.push_null()
+    fn null(&mut self) -> Result<Self::Value, Self::Error> {
+        Ok(self.push_null())
     }
 
     #[inline]
-    fn boolean(&mut self, value: bool) -> Self::Value {
-        self.push_bool(value)
+    fn boolean(&mut self, value: bool) -> Result<Self::Value, Self::Error> {
+        Ok(self.push_bool(value))
     }
 
     #[inline]
-    fn number(&mut self, value: JsonNumber<'a>) -> Self::Value {
-        self.push_number(value)
+    fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(self.push_number(value))
     }
 
     #[inline]
-    fn string(&mut self, value: JsonString<'a>) -> Self::Value {
-        self.push_string(value)
+    fn string(&mut self, value: JsonString<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(self.push_string(value))
     }
 
     #[inline]
-    fn begin_object(&mut self) -> Self::Object {
-        self.push_object()
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
+        Ok(self.push_object())
     }
 
     #[inline]
-    fn object_key(&mut self, object: &mut Self::Object, key: JsonString<'a>) -> Self::Key {
+    fn object_key(
+        &mut self,
+        object: &mut Self::Object,
+        key: JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error> {
         self.extend_object(*object);
         self.push_string(key);
+        Ok(())
     }
 
     #[inline]
-    fn object_value(&mut self, _object: &mut Self::Object, _key: Self::Key, _value: Self::Value) {}
+    fn object_value(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: Self::Key,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        Ok(())
+    }
 
     #[inline]
     fn object_is_empty(&self, object: &Self::Object) -> bool {
@@ -262,18 +276,23 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
     }
 
     #[inline]
-    fn end_object(&mut self, object: Self::Object) -> Self::Value {
-        object
+    fn end_object(&mut self, object: Self::Object) -> Result<Self::Value, Self::Error> {
+        Ok(object)
     }
 
     #[inline]
-    fn begin_array(&mut self) -> Self::Array {
-        self.push_array()
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
+        Ok(self.push_array())
     }
 
     #[inline]
-    fn array_value(&mut self, array: &mut Self::Array, _value: Self::Value) {
+    fn array_value(
+        &mut self,
+        array: &mut Self::Array,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
         self.extend_array(*array);
+        Ok(())
     }
 
     #[inline]
@@ -283,8 +302,8 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
     }
 
     #[inline]
-    fn end_array(&mut self, array: Self::Array) -> Self::Value {
-        array
+    fn end_array(&mut self, array: Self::Array) -> Result<Self::Value, Self::Error> {
+        Ok(array)
     }
 
     #[inline]

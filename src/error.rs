@@ -1,15 +1,17 @@
+use std::convert::Infallible;
+
 /// A JSON parsing error with location information.
 #[derive(thiserror::Error, Debug, PartialEq)]
 #[error("error at {offset}: {kind}")]
-pub struct Error {
+pub struct Error<DelegateError = Infallible> {
     pub(crate) offset: usize,
-    pub(crate) kind: ErrorKind,
+    pub(crate) kind: ErrorKind<DelegateError>,
 }
 
-impl Error {
+impl<DelegateError> Error<DelegateError> {
     /// Returns the kind of the error.
     #[must_use]
-    pub const fn kind(&self) -> &ErrorKind {
+    pub const fn kind(&self) -> &ErrorKind<DelegateError> {
         &self.kind
     }
 
@@ -21,10 +23,20 @@ impl Error {
     }
 }
 
+impl Error<Infallible> {
+    #[must_use]
+    pub(crate) fn into_fallable<DelegateError>(self) -> Error<DelegateError> {
+        Error {
+            offset: self.offset,
+            kind: self.kind.into_fallable(),
+        }
+    }
+}
+
 /// An error from parsing JSON.
 #[derive(thiserror::Error, Debug, Eq, PartialEq)]
 #[non_exhaustive]
-pub enum ErrorKind {
+pub enum ErrorKind<DelegateError = Infallible> {
     /// An invalid UTF-8 sequence was encountered.
     #[error("invalid utf-8")]
     Utf8,
@@ -107,4 +119,39 @@ pub enum ErrorKind {
     /// configuration is set to `false`.
     #[error("the recursion limit has been reached")]
     PayloadsShouldBeObjectOrArray,
+    /// An error was returned from a
+    /// [`ParseDelegate`](crate::parser::ParseDelegate).
+    #[error("error from delegate: {0}")]
+    ErrorFromDelegate(DelegateError),
+}
+
+impl ErrorKind<Infallible> {
+    fn into_fallable<DelegateError>(self) -> ErrorKind<DelegateError> {
+        match self {
+            ErrorKind::Utf8 => ErrorKind::Utf8,
+            ErrorKind::UnexpectedEof => ErrorKind::UnexpectedEof,
+            ErrorKind::ExpectedObjectKey => ErrorKind::ExpectedObjectKey,
+            ErrorKind::ExpectedColon => ErrorKind::ExpectedColon,
+            ErrorKind::ExpectedValue => ErrorKind::ExpectedValue,
+            ErrorKind::ExpectedCommaOrEndOfObject => ErrorKind::ExpectedCommaOrEndOfObject,
+            ErrorKind::ExpectedCommaOrEndOfArray => ErrorKind::ExpectedCommaOrEndOfArray,
+            ErrorKind::IllegalTrailingComma => ErrorKind::IllegalTrailingComma,
+            ErrorKind::Unexpected(ch) => ErrorKind::Unexpected(ch),
+            ErrorKind::TrailingNonWhitespace => ErrorKind::TrailingNonWhitespace,
+            ErrorKind::ObjectKeysMustBeStrings => ErrorKind::ObjectKeysMustBeStrings,
+            ErrorKind::ExpectedExponent => ErrorKind::ExpectedExponent,
+            ErrorKind::ExpectedDecimalDigit => ErrorKind::ExpectedDecimalDigit,
+            ErrorKind::ExpectedDigit => ErrorKind::ExpectedDigit,
+            ErrorKind::InvalidHexadecimal => ErrorKind::InvalidHexadecimal,
+            ErrorKind::InvalidEscape => ErrorKind::InvalidEscape,
+            ErrorKind::UnclosedObject => ErrorKind::UnclosedObject,
+            ErrorKind::UnclosedArray => ErrorKind::UnclosedArray,
+            ErrorKind::UnclosedString => ErrorKind::UnclosedString,
+            ErrorKind::ExpectedString => ErrorKind::ExpectedString,
+            ErrorKind::ExpectedNumber => ErrorKind::ExpectedNumber,
+            ErrorKind::RecursionLimitReached => ErrorKind::RecursionLimitReached,
+            ErrorKind::PayloadsShouldBeObjectOrArray => ErrorKind::PayloadsShouldBeObjectOrArray,
+            ErrorKind::ErrorFromDelegate(_) => unreachable!(),
+        }
+    }
 }

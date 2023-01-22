@@ -1,3 +1,4 @@
+use std::convert::Infallible;
 use std::fmt::{self, Display};
 use std::ops::{Deref, DerefMut};
 
@@ -291,47 +292,58 @@ impl<'a> Display for Value<'a> {
     }
 }
 
-struct ValueParser;
+pub(crate) struct ValueParser;
 
 impl<'a> ParseDelegate<'a> for ValueParser {
     type Array = Vec<Value<'a>>;
+    type Error = Infallible;
     type Key = JsonString<'a>;
     type Object = Object<'a>;
     type Value = Value<'a>;
 
     #[inline]
-    fn null(&mut self) -> Self::Value {
-        Value::Null
+    fn null(&mut self) -> Result<Self::Value, Self::Error> {
+        Ok(Value::Null)
     }
 
     #[inline]
-    fn boolean(&mut self, value: bool) -> Self::Value {
-        Value::Boolean(value)
+    fn boolean(&mut self, value: bool) -> Result<Self::Value, Self::Error> {
+        Ok(Value::Boolean(value))
     }
 
     #[inline]
-    fn number(&mut self, value: JsonNumber<'a>) -> Self::Value {
-        Value::Number(value)
+    fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(Value::Number(value))
     }
 
     #[inline]
-    fn string(&mut self, value: JsonString<'a>) -> Self::Value {
-        Value::String(value)
+    fn string(&mut self, value: JsonString<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(Value::String(value))
     }
 
     #[inline]
-    fn begin_object(&mut self) -> Self::Object {
-        Object::default()
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
+        Ok(Object::default())
     }
 
     #[inline]
-    fn object_key(&mut self, _object: &mut Self::Object, key: JsonString<'a>) -> Self::Key {
-        key
+    fn object_key(
+        &mut self,
+        _object: &mut Self::Object,
+        key: JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error> {
+        Ok(key)
     }
 
     #[inline]
-    fn object_value(&mut self, object: &mut Self::Object, key: Self::Key, value: Self::Value) {
+    fn object_value(
+        &mut self,
+        object: &mut Self::Object,
+        key: Self::Key,
+        value: Self::Value,
+    ) -> Result<(), Self::Error> {
         object.push(Entry { key, value });
+        Ok(())
     }
 
     #[inline]
@@ -340,18 +352,23 @@ impl<'a> ParseDelegate<'a> for ValueParser {
     }
 
     #[inline]
-    fn end_object(&mut self, object: Self::Object) -> Self::Value {
-        Value::Object(object)
+    fn end_object(&mut self, object: Self::Object) -> Result<Self::Value, Self::Error> {
+        Ok(Value::Object(object))
     }
 
     #[inline]
-    fn begin_array(&mut self) -> Self::Array {
-        Vec::new()
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
+        Ok(Vec::new())
     }
 
     #[inline]
-    fn array_value(&mut self, array: &mut Self::Array, value: Self::Value) {
+    fn array_value(
+        &mut self,
+        array: &mut Self::Array,
+        value: Self::Value,
+    ) -> Result<(), Self::Error> {
         array.push(value);
+        Ok(())
     }
 
     #[inline]
@@ -360,8 +377,8 @@ impl<'a> ParseDelegate<'a> for ValueParser {
     }
 
     #[inline]
-    fn end_array(&mut self, array: Self::Array) -> Self::Value {
-        Value::Array(array)
+    fn end_array(&mut self, array: Self::Array) -> Result<Self::Value, Self::Error> {
+        Ok(Value::Array(array))
     }
 
     #[inline]

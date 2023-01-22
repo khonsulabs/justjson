@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Object::push()` has been removed, and its `Deref` implementation now targets
   `Vec<Entry<'a>>`. This allows all `Vec` methods to be used to access the
   contents of an Object, including its own `push()` function.
+- `ParseDelegate::Error` is a new associated type that is now able to be
+  returned from most `ParseDelegate` functions as the Error type of the Result.
+  Previously, most functions did not return a Result.
+
+  Returning an error from a `ParseDelegate` function will stop parsing the
+  underlying document immediately and return the error in
+  `ErrorKind::ErrorFromDelegate`.
 
 ## Fixes
 
