@@ -855,6 +855,115 @@
 <span id="855">855</span>
 <span id="856">856</span>
 <span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::slice;
 <span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::iter::Peekable;
@@ -885,7 +994,7 @@
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>parse_json_bytes&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    </span><span class="kw">pub fn </span>parse_json_bytes&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
@@ -901,7 +1010,7 @@
         value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
         config: ParseConfig,
         delegate: D,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
@@ -915,7 +1024,7 @@
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>parse_json&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    </span><span class="kw">pub fn </span>parse_json&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
@@ -931,7 +1040,7 @@
         value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
         config: ParseConfig,
         delegate: D,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
@@ -940,7 +1049,11 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Parser&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt; {
-    <span class="kw">fn </span>parse_bytes&lt;D&gt;(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], config: ParseConfig, delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    <span class="kw">fn </span>parse_bytes&lt;D&gt;(
+        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+        config: ParseConfig,
+        delegate: D,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
@@ -976,11 +1089,14 @@
         }
     }
 
-    <span class="kw">fn </span>read_from_source&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    <span class="kw">fn </span>read_from_source&lt;D&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
-        <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.next_non_ws()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.next_non_ws().map_err(Error::into_fallable)<span class="question-mark">?</span>;
         <span class="self">self</span>.read_from_first_byte(offset, byte, state)
     }
 
@@ -989,36 +1105,86 @@
         offset: usize,
         first: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8,
         state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
         <span class="kw">let </span>value = <span class="kw">match </span>(offset, first) {
-            (offset, <span class="string">b&#39;&quot;&#39;</span>) =&gt; state.delegate.string(<span class="self">self</span>.read_string_from_source(offset)<span class="question-mark">?</span>),
+            (offset, <span class="string">b&#39;&quot;&#39;</span>) =&gt; state
+                .delegate
+                .string(
+                    <span class="self">self</span>.read_string_from_source(offset)
+                        .map_err(Error::into_fallable)<span class="question-mark">?</span>,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })<span class="question-mark">?</span>,
             (offset, <span class="string">b&#39;{&#39;</span>) =&gt; {
                 state.begin_nest().map_err(|kind| Error { offset, kind })<span class="question-mark">?</span>;
-                <span class="self">self</span>.read_object_from_source(state)<span class="question-mark">?
+                <span class="self">self</span>.read_object_from_source(offset, state)<span class="question-mark">?
             </span>}
             (offset, <span class="string">b&#39;[&#39;</span>) =&gt; {
                 state.begin_nest().map_err(|kind| Error { offset, kind })<span class="question-mark">?</span>;
-                <span class="self">self</span>.read_array_from_source(state)<span class="question-mark">?
+                <span class="self">self</span>.read_array_from_source(offset, state)<span class="question-mark">?
             </span>}
             (offset, ch) <span class="kw">if </span>ch == <span class="kw-2">&amp;</span><span class="string">b&#39;-&#39; </span>=&gt; state
                 .delegate
-                .number(<span class="self">self</span>.read_number_from_source(InitialNumberState::Sign, offset)<span class="question-mark">?</span>),
+                .number(
+                    <span class="self">self</span>.read_number_from_source(InitialNumberState::Sign, offset)
+                        .map_err(Error::into_fallable)<span class="question-mark">?</span>,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })<span class="question-mark">?</span>,
             (offset, <span class="string">b&#39;0&#39;</span>) =&gt; state
                 .delegate
-                .number(<span class="self">self</span>.read_number_from_source(InitialNumberState::Zero, offset)<span class="question-mark">?</span>),
+                .number(
+                    <span class="self">self</span>.read_number_from_source(InitialNumberState::Zero, offset)
+                        .map_err(Error::into_fallable)<span class="question-mark">?</span>,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })<span class="question-mark">?</span>,
             (offset, ch) <span class="kw">if </span>(<span class="string">b&#39;1&#39;</span>..=<span class="string">b&#39;9&#39;</span>).contains(ch) =&gt; state
                 .delegate
-                .number(<span class="self">self</span>.read_number_from_source(InitialNumberState::Digit, offset)<span class="question-mark">?</span>),
-            (<span class="kw">_</span>, <span class="string">b&#39;t&#39;</span>) =&gt; {
-                <span class="self">self</span>.read_literal_from_source::&lt;D&gt;(<span class="string">b&quot;rue&quot;</span>, state.delegate.boolean(<span class="bool-val">true</span>))<span class="question-mark">?
-            </span>}
-            (<span class="kw">_</span>, <span class="string">b&#39;f&#39;</span>) =&gt; {
-                <span class="self">self</span>.read_literal_from_source::&lt;D&gt;(<span class="string">b&quot;alse&quot;</span>, state.delegate.boolean(<span class="bool-val">false</span>))<span class="question-mark">?
-            </span>}
-            (<span class="kw">_</span>, <span class="string">b&#39;n&#39;</span>) =&gt; <span class="self">self</span>.read_literal_from_source::&lt;D&gt;(<span class="string">b&quot;ull&quot;</span>, state.delegate.null())<span class="question-mark">?</span>,
+                .number(
+                    <span class="self">self</span>.read_number_from_source(InitialNumberState::Digit, offset)
+                        .map_err(Error::into_fallable)<span class="question-mark">?</span>,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })<span class="question-mark">?</span>,
+            (<span class="kw">_</span>, <span class="string">b&#39;t&#39;</span>) =&gt; <span class="self">self
+                </span>.read_literal_from_source::&lt;D&gt;(
+                    <span class="string">b&quot;rue&quot;</span>,
+                    state.delegate.boolean(<span class="bool-val">true</span>).map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })<span class="question-mark">?</span>,
+                )
+                .map_err(Error::into_fallable)<span class="question-mark">?</span>,
+            (<span class="kw">_</span>, <span class="string">b&#39;f&#39;</span>) =&gt; <span class="self">self
+                </span>.read_literal_from_source::&lt;D&gt;(
+                    <span class="string">b&quot;alse&quot;</span>,
+                    state.delegate.boolean(<span class="bool-val">false</span>).map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })<span class="question-mark">?</span>,
+                )
+                .map_err(Error::into_fallable)<span class="question-mark">?</span>,
+            (<span class="kw">_</span>, <span class="string">b&#39;n&#39;</span>) =&gt; <span class="self">self
+                </span>.read_literal_from_source::&lt;D&gt;(
+                    <span class="string">b&quot;ull&quot;</span>,
+                    state.delegate.null().map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })<span class="question-mark">?</span>,
+                )
+                .map_err(Error::into_fallable)<span class="question-mark">?</span>,
             (offset, other) =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                     offset,
@@ -1032,18 +1198,25 @@
 
     <span class="kw">fn </span>read_object_from_source&lt;D&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        start: usize,
         state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>inner = || {
-            <span class="kw">let </span><span class="kw-2">mut </span>obj = state.delegate.begin_object();
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = || -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>obj = state.delegate.begin_object().map_err(|kind| Error {
+                offset: start,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>last_offset;
             <span class="kw">loop </span>{
-                <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.next_non_ws()<span class="question-mark">?</span>;
+                <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.next_non_ws().map_err(Error::into_fallable)<span class="question-mark">?</span>;
+                last_offset = offset;
 
                 <span class="kw">let </span>key = <span class="kw">if </span>byte == <span class="kw-2">&amp;</span><span class="string">b&#39;&quot;&#39; </span>{
-                    <span class="self">self</span>.read_string_from_source(offset)<span class="question-mark">?
+                    <span class="self">self</span>.read_string_from_source(offset)
+                        .map_err(Error::into_fallable)<span class="question-mark">?
                 </span>} <span class="kw">else if </span>byte == <span class="kw-2">&amp;</span><span class="string">b&#39;}&#39; </span>{
                     <span class="kw">if </span>state.delegate.object_is_empty(<span class="kw-2">&amp;</span>obj) || state.config.allow_trailing_commas {
                         <span class="kw">break</span>;
@@ -1067,9 +1240,15 @@
                     });
                 };
 
-                <span class="kw">let </span>key = state.delegate.object_key(<span class="kw-2">&amp;mut </span>obj, key);
+                <span class="kw">let </span>key = state
+                    .delegate
+                    .object_key(<span class="kw-2">&amp;mut </span>obj, key)
+                    .map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })<span class="question-mark">?</span>;
 
-                <span class="kw">match </span><span class="self">self</span>.source.next_non_ws() {
+                <span class="kw">match </span><span class="self">self</span>.source.next_non_ws().map_err(Error::into_fallable) {
                     <span class="prelude-val">Ok</span>((<span class="kw">_</span>, <span class="string">b&#39;:&#39;</span>)) =&gt; {}
                     <span class="prelude-val">Ok</span>((offset, <span class="kw">_</span>)) =&gt; {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
@@ -1084,9 +1263,15 @@
                 }
 
                 <span class="kw">let </span>value = <span class="self">self</span>.read_from_source(state)<span class="question-mark">?</span>;
-                state.delegate.object_value(<span class="kw-2">&amp;mut </span>obj, key, value);
+                state
+                    .delegate
+                    .object_value(<span class="kw-2">&amp;mut </span>obj, key, value)
+                    .map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })<span class="question-mark">?</span>;
 
-                <span class="kw">match </span><span class="self">self</span>.source.next_non_ws()<span class="question-mark">? </span>{
+                <span class="kw">match </span><span class="self">self</span>.source.next_non_ws().map_err(Error::into_fallable)<span class="question-mark">? </span>{
                     (<span class="kw">_</span>, <span class="string">b&#39;,&#39;</span>) =&gt; {}
                     (<span class="kw">_</span>, <span class="string">b&#39;}&#39;</span>) =&gt; <span class="kw">break</span>,
                     (offset, <span class="kw">_</span>) =&gt; {
@@ -1098,7 +1283,10 @@
                 }
             }
 
-            <span class="prelude-val">Ok</span>(state.delegate.end_object(obj))
+            state.delegate.end_object(obj).map_err(|kind| Error {
+                offset: last_offset,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })
         };
         <span class="kw">let </span>result = inner().map_err(|<span class="kw-2">mut </span>err| {
             <span class="kw">if </span><span class="macro">matches!</span>(err.kind, ErrorKind::UnexpectedEof) {
@@ -1112,15 +1300,21 @@
 
     <span class="kw">fn </span>read_array_from_source&lt;D&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        start: usize,
         state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
         </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>inner = || {
-            <span class="kw">let </span><span class="kw-2">mut </span>array = state.delegate.begin_array();
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = || -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>array = state.delegate.begin_array().map_err(|kind| Error {
+                offset: start,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>last_offset;
             <span class="kw">loop </span>{
-                <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.next_non_ws()<span class="question-mark">?</span>;
+                <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.next_non_ws().map_err(Error::into_fallable)<span class="question-mark">?</span>;
+                last_offset = offset;
 
                 <span class="kw">let </span>value = <span class="kw">if </span>byte == <span class="kw-2">&amp;</span><span class="string">b&#39;]&#39; </span>{
                     <span class="kw">if </span>state.delegate.array_is_empty(<span class="kw-2">&amp;</span>array) || state.config.allow_trailing_commas {
@@ -1135,9 +1329,15 @@
                     <span class="self">self</span>.read_from_first_byte(offset, byte, state)<span class="question-mark">?
                 </span>};
 
-                state.delegate.array_value(<span class="kw-2">&amp;mut </span>array, value);
+                state
+                    .delegate
+                    .array_value(<span class="kw-2">&amp;mut </span>array, value)
+                    .map_err(|kind| Error {
+                        offset: last_offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })<span class="question-mark">?</span>;
 
-                <span class="kw">match </span><span class="self">self</span>.source.next_non_ws()<span class="question-mark">? </span>{
+                <span class="kw">match </span><span class="self">self</span>.source.next_non_ws().map_err(Error::into_fallable)<span class="question-mark">? </span>{
                     (<span class="kw">_</span>, <span class="string">b&#39;,&#39;</span>) =&gt; {}
                     (<span class="kw">_</span>, <span class="string">b&#39;]&#39;</span>) =&gt; <span class="kw">break</span>,
                     (offset, <span class="kw">_</span>) =&gt; {
@@ -1149,7 +1349,10 @@
                 }
             }
 
-            <span class="prelude-val">Ok</span>(state.delegate.end_array(array))
+            state.delegate.end_array(array).map_err(|kind| Error {
+                offset: last_offset,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })
         };
 
         <span class="kw">let </span>result = inner().map_err(|<span class="kw-2">mut </span>err| {
@@ -1436,36 +1639,51 @@
     </span><span class="kw">type </span>Array;
     <span class="doccomment">/// The type that is used to represent the key of a field in a JSON object.
     </span><span class="kw">type </span>Key;
+    <span class="doccomment">/// The error type for this delegate.
+    </span><span class="kw">type </span>Error;
 
     <span class="doccomment">/// Returns the value representation of `null`.
-    </span><span class="kw">fn </span>null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Value;
+    </span><span class="kw">fn </span>null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Returns the value representation of a boolean.
-    </span><span class="kw">fn </span>boolean(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self</span>::Value;
+    </span><span class="kw">fn </span>boolean(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Returns the value representation of a [`JsonNumber`].
-    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self</span>::Value;
+    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Returns the value representation of a [`JsonString`].
-    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self</span>::Value;
+    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Returns an empty object.
-    </span><span class="kw">fn </span>begin_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Object;
+    </span><span class="kw">fn </span>begin_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Object, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Processes the key for a new value in an object. Returns the key
     /// representation of the [`JsonString`].
-    </span><span class="kw">fn </span>object_key(<span class="kw-2">&amp;mut </span><span class="self">self</span>, object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object, key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self</span>::Key;
+    </span><span class="kw">fn </span>object_key(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
+        key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Adds a new key-value pair to an object.
-    </span><span class="kw">fn </span>object_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object, key: <span class="self">Self</span>::Key, value: <span class="self">Self</span>::Value);
+    </span><span class="kw">fn </span>object_value(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
+        key: <span class="self">Self</span>::Key,
+        value: <span class="self">Self</span>::Value,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Returns true if the object passed is empty.
     </span><span class="kw">fn </span>object_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, object: <span class="kw-2">&amp;</span><span class="self">Self</span>::Object) -&gt; bool;
     <span class="doccomment">/// Returns the value representation of the object passed.
-    </span><span class="kw">fn </span>end_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, object: <span class="self">Self</span>::Object) -&gt; <span class="self">Self</span>::Value;
+    </span><span class="kw">fn </span>end_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, object: <span class="self">Self</span>::Object) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Returns an empty array.
-    </span><span class="kw">fn </span>begin_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Array;
+    </span><span class="kw">fn </span>begin_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Array, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Adds a new value to an array.
-    </span><span class="kw">fn </span>array_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, array: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Array, value: <span class="self">Self</span>::Value);
+    </span><span class="kw">fn </span>array_value(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        array: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Array,
+        value: <span class="self">Self</span>::Value,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Returns true if the array passed is empty.
     </span><span class="kw">fn </span>array_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, array: <span class="kw-2">&amp;</span><span class="self">Self</span>::Array) -&gt; bool;
     <span class="doccomment">/// Returns the value representation of the array passed.
-    </span><span class="kw">fn </span>end_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, array: <span class="self">Self</span>::Array) -&gt; <span class="self">Self</span>::Value;
+    </span><span class="kw">fn </span>end_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, array: <span class="self">Self</span>::Array) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Returns the [`JsonKind`] of `value`.
     </span><span class="kw">fn </span>kind_of(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span><span class="self">Self</span>::Value) -&gt; JsonKind;
@@ -1662,7 +1880,7 @@
     </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
 {
     <span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>begin_nest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
+    </span><span class="kw">pub fn </span>begin_nest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&lt;D::Error&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.config.recursion_limit.is_some() {
             <span class="kw">if </span><span class="self">self</span>.remaining_depth &gt; <span class="number">0 </span>{
                 <span class="self">self</span>.remaining_depth -= <span class="number">1</span>;
