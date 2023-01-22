@@ -47,7 +47,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">use std::convert::Infallible;</pre>
+                <pre class="has-background-white py-0 px-2">use core::convert::Infallible;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -60,7 +60,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">use std::fmt::Display;</pre>
+                <pre class="has-background-white py-0 px-2">use core::fmt::Display;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -372,7 +372,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; std::error::Error for Error&lt;DelegateError&gt; where</pre>
+                <pre class="has-background-white py-0 px-2">#[cfg(feature = &quot;std&quot;)]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -385,7 +385,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    DelegateError: std::fmt::Debug + Display</pre>
+                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; std::error::Error for Error&lt;DelegateError&gt; where</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -398,7 +398,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">{</pre>
+                <pre class="has-background-white py-0 px-2">    DelegateError: std::fmt::Debug + Display</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -411,7 +411,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">{</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -424,7 +424,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -437,7 +437,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; Display for Error&lt;DelegateError&gt;</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -450,7 +450,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">where</pre>
+                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; Display for Error&lt;DelegateError&gt;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -463,7 +463,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    DelegateError: Display,</pre>
+                <pre class="has-background-white py-0 px-2">where</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -476,7 +476,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">{</pre>
+                <pre class="has-background-white py-0 px-2">    DelegateError: Display,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -485,11 +485,11 @@
                 <a href="#35">35</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;&#x27;_&gt;) -&gt; std::fmt::Result {</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">{</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -502,7 +502,7 @@
                 24
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        write!(f, &quot;error at {}: {}&quot;, self.offset, self.kind)</pre>
+                <pre class="has-background-success-light py-0 px-2">    fn fmt(&amp;self, f: &amp;mut core::fmt::Formatter&lt;&#x27;_&gt;) -&gt; core::fmt::Result {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -515,7 +515,7 @@
                 24
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    }</pre>
+                <pre class="has-background-success-light py-0 px-2">        write!(f, &quot;error at {}: {}&quot;, self.offset, self.kind)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -524,11 +524,11 @@
                 <a href="#38">38</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                24
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -541,7 +541,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -554,7 +554,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl Error&lt;Infallible&gt; {</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -567,7 +567,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
+                <pre class="has-background-white py-0 px-2">impl Error&lt;Infallible&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -576,11 +576,11 @@
                 <a href="#42">42</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                647
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    pub(crate) fn into_fallable&lt;DelegateError&gt;(self) -&gt; Error&lt;DelegateError&gt; {</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -593,7 +593,7 @@
                 647
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Error {</pre>
+                <pre class="has-background-success-light py-0 px-2">    pub(crate) fn into_fallable&lt;DelegateError&gt;(self) -&gt; Error&lt;DelegateError&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -606,7 +606,7 @@
                 647
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            offset: self.offset,</pre>
+                <pre class="has-background-success-light py-0 px-2">        Error {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -619,7 +619,7 @@
                 647
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            kind: self.kind.into_fallable(),</pre>
+                <pre class="has-background-success-light py-0 px-2">            offset: self.offset,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -632,7 +632,7 @@
                 647
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        }</pre>
+                <pre class="has-background-success-light py-0 px-2">            kind: self.kind.into_fallable(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -645,7 +645,7 @@
                 647
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    }</pre>
+                <pre class="has-background-success-light py-0 px-2">        }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -654,11 +654,11 @@
                 <a href="#48">48</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                647
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -671,7 +671,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -684,7 +684,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; An error from parsing JSON.</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -693,11 +693,11 @@
                 <a href="#51">51</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                44
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[derive(Debug, Eq, PartialEq, Clone)]</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; An error from parsing JSON.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -706,11 +706,11 @@
                 <a href="#52">52</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                44
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">#[non_exhaustive]</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">#[derive(Debug, Eq, PartialEq, Clone)]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -723,7 +723,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">pub enum ErrorKind&lt;DelegateError = Infallible&gt; {</pre>
+                <pre class="has-background-white py-0 px-2">#[non_exhaustive]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -736,7 +736,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An invalid UTF-8 sequence was encountered.</pre>
+                <pre class="has-background-white py-0 px-2">pub enum ErrorKind&lt;DelegateError = Infallible&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -749,7 +749,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    Utf8,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An invalid UTF-8 sequence was encountered.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -762,7 +762,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An end-of-file was encountered when it wasn&#x27;t expected.</pre>
+                <pre class="has-background-white py-0 px-2">    Utf8,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -775,7 +775,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    UnexpectedEof,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An end-of-file was encountered when it wasn&#x27;t expected.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -788,7 +788,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an object, something was encountered that was not a valid object key.</pre>
+                <pre class="has-background-white py-0 px-2">    UnexpectedEof,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -801,7 +801,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedObjectKey,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an object, something was encountered that was not a valid object key.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -814,7 +814,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an object, a colon was expected after an object&#x27;s key.</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedObjectKey,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -827,7 +827,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedColon,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an object, a colon was expected after an object&#x27;s key.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -840,7 +840,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A [`Value`][crate::Value] was expected.</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedColon,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -853,7 +853,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedValue,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A [`Value`][crate::Value] was expected.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -866,7 +866,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an object, either the end of an object (`}`) or a comma</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedValue,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -879,7 +879,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; was expected.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an object, either the end of an object (`}`) or a comma</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -892,7 +892,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedCommaOrEndOfObject,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; was expected.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -905,7 +905,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an array, either the end of an array (`]`) or a comma was</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedCommaOrEndOfObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -918,7 +918,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; expected.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; While parsing an array, either the end of an array (`]`) or a comma was</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -931,7 +931,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedCommaOrEndOfArray,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; expected.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -944,7 +944,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; When parsing an object or an array, a trailing comma was detected. The</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedCommaOrEndOfArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -957,7 +957,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; JSON specification disallows trailing commas.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; When parsing an object or an array, a trailing comma was detected. The</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -970,7 +970,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    IllegalTrailingComma,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; JSON specification disallows trailing commas.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -983,7 +983,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An unexpected character was encountered while parsing a</pre>
+                <pre class="has-background-white py-0 px-2">    IllegalTrailingComma,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -996,7 +996,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; [`Value`][crate::Value].</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An unexpected character was encountered while parsing a</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1009,7 +1009,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    Unexpected(u8),</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; [`Value`][crate::Value].</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1022,7 +1022,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The source being parsed contained additional non-whitespace data after a</pre>
+                <pre class="has-background-white py-0 px-2">    Unexpected(u8),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1035,7 +1035,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; [`Value`][crate::Value] was parsed.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The source being parsed contained additional non-whitespace data after a</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1048,7 +1048,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    TrailingNonWhitespace,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; [`Value`][crate::Value] was parsed.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1061,7 +1061,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A non-string was encountered for an object key. The JSON standard</pre>
+                <pre class="has-background-white py-0 px-2">    TrailingNonWhitespace,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1074,7 +1074,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; requires all keys to be strings.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A non-string was encountered for an object key. The JSON standard</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1087,7 +1087,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ObjectKeysMustBeStrings,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; requires all keys to be strings.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1100,7 +1100,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An exponent was expected on a floating point number.</pre>
+                <pre class="has-background-white py-0 px-2">    ObjectKeysMustBeStrings,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1113,7 +1113,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedExponent,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An exponent was expected on a floating point number.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1126,7 +1126,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; At least one decimal digit was expected on a floating point number.</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedExponent,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1139,7 +1139,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedDecimalDigit,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; At least one decimal digit was expected on a floating point number.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1152,7 +1152,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; At least one integer digit was expected on a floating point number.</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedDecimalDigit,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1165,7 +1165,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedDigit,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; At least one integer digit was expected on a floating point number.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1178,7 +1178,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An invalid hexadecimal character was encountered in a unicode escape</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedDigit,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1191,7 +1191,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; sequence in a string.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An invalid hexadecimal character was encountered in a unicode escape</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1204,7 +1204,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    InvalidHexadecimal,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; sequence in a string.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1217,7 +1217,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An invalid character was escaped.</pre>
+                <pre class="has-background-white py-0 px-2">    InvalidHexadecimal,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1230,7 +1230,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    InvalidEscape,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An invalid character was escaped.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1243,7 +1243,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An object is missing its end (`}`).</pre>
+                <pre class="has-background-white py-0 px-2">    InvalidEscape,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1256,7 +1256,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    UnclosedObject,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An object is missing its end (`}`).</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1269,7 +1269,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An array is missing its end (`]`).</pre>
+                <pre class="has-background-white py-0 px-2">    UnclosedObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1282,7 +1282,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    UnclosedArray,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An array is missing its end (`]`).</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1295,7 +1295,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A string is missing its end (`&quot;`).</pre>
+                <pre class="has-background-white py-0 px-2">    UnclosedArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1308,7 +1308,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    UnclosedString,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A string is missing its end (`&quot;`).</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1321,7 +1321,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A string was expected, but another type was found.</pre>
+                <pre class="has-background-white py-0 px-2">    UnclosedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1334,7 +1334,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedString,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A string was expected, but another type was found.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1347,7 +1347,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A number was expected, but another type was found.</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1360,7 +1360,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ExpectedNumber,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A number was expected, but another type was found.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1373,7 +1373,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The JSON being parsed has more depth than the parser was configured to</pre>
+                <pre class="has-background-white py-0 px-2">    ExpectedNumber,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1386,7 +1386,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; allow.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The JSON being parsed has more depth than the parser was configured to</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1399,7 +1399,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    RecursionLimitReached,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; allow.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1412,7 +1412,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A value that wasn&#x27;t an object or array was contained in a JSON payload.</pre>
+                <pre class="has-background-white py-0 px-2">    RecursionLimitReached,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1425,7 +1425,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F;</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; A value that wasn&#x27;t an object or array was contained in a JSON payload.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1438,7 +1438,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; This error is only returned when the `allow_all_types_at_root`</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1451,7 +1451,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; configuration is set to `false`.</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; This error is only returned when the `allow_all_types_at_root`</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1464,7 +1464,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    PayloadsShouldBeObjectOrArray,</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; configuration is set to `false`.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1477,7 +1477,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An error was returned from a</pre>
+                <pre class="has-background-white py-0 px-2">    PayloadsShouldBeObjectOrArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1490,7 +1490,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; [`ParseDelegate`](crate::parser::ParseDelegate).</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; An error was returned from a</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1503,7 +1503,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    ErrorFromDelegate(DelegateError),</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; [`ParseDelegate`](crate::parser::ParseDelegate).</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1516,7 +1516,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">    ErrorFromDelegate(DelegateError),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1529,7 +1529,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1542,7 +1542,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl ErrorKind&lt;Infallible&gt; {</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1551,11 +1551,11 @@
                 <a href="#117">117</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                670
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    fn into_fallable&lt;DelegateError&gt;(self) -&gt; ErrorKind&lt;DelegateError&gt; {</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">impl ErrorKind&lt;Infallible&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1568,13 +1568,26 @@
                 670
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        match self {</pre>
+                <pre class="has-background-success-light py-0 px-2">    fn into_fallable&lt;DelegateError&gt;(self) -&gt; ErrorKind&lt;DelegateError&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="119">
                 <a href="#119">119</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                670
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        match self {</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="120">
+                <a href="#120">120</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1586,8 +1599,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="120">
-                <a href="#120">120</a>
+                id="121">
+                <a href="#121">121</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1595,19 +1608,6 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnexpectedEof =&gt; ErrorKind::UnexpectedEof,</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="121">
-                <a href="#121">121</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedObjectKey =&gt; ErrorKind::ExpectedObjectKey,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1620,7 +1620,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedColon =&gt; ErrorKind::ExpectedColon,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedObjectKey =&gt; ErrorKind::ExpectedObjectKey,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1633,7 +1633,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedValue =&gt; ErrorKind::ExpectedValue,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedColon =&gt; ErrorKind::ExpectedColon,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1646,7 +1646,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfObject =&gt; ErrorKind::ExpectedCommaOrEndOfObject,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedValue =&gt; ErrorKind::ExpectedValue,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1659,7 +1659,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfArray =&gt; ErrorKind::ExpectedCommaOrEndOfArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfObject =&gt; ErrorKind::ExpectedCommaOrEndOfObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1672,7 +1672,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::IllegalTrailingComma =&gt; ErrorKind::IllegalTrailingComma,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfArray =&gt; ErrorKind::ExpectedCommaOrEndOfArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1682,10 +1682,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                73
+                1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::Unexpected(ch) =&gt; ErrorKind::Unexpected(ch),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::IllegalTrailingComma =&gt; ErrorKind::IllegalTrailingComma,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1695,10 +1695,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                73
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::TrailingNonWhitespace =&gt; ErrorKind::TrailingNonWhitespace,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::Unexpected(ch) =&gt; ErrorKind::Unexpected(ch),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1711,13 +1711,26 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ObjectKeysMustBeStrings =&gt; ErrorKind::ObjectKeysMustBeStrings,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::TrailingNonWhitespace =&gt; ErrorKind::TrailingNonWhitespace,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="130">
                 <a href="#130">130</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ObjectKeysMustBeStrings =&gt; ErrorKind::ObjectKeysMustBeStrings,</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="131">
+                <a href="#131">131</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1729,8 +1742,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="131">
-                <a href="#131">131</a>
+                id="132">
+                <a href="#132">132</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1742,8 +1755,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="132">
-                <a href="#132">132</a>
+                id="133">
+                <a href="#133">133</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1755,8 +1768,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="133">
-                <a href="#133">133</a>
+                id="134">
+                <a href="#134">134</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1768,8 +1781,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="134">
-                <a href="#134">134</a>
+                id="135">
+                <a href="#135">135</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1777,19 +1790,6 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">            ErrorKind::InvalidEscape =&gt; ErrorKind::InvalidEscape,</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="135">
-                <a href="#135">135</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedObject =&gt; ErrorKind::UnclosedObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1802,7 +1802,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedArray =&gt; ErrorKind::UnclosedArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedObject =&gt; ErrorKind::UnclosedObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1812,10 +1812,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                37
+                1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedString =&gt; ErrorKind::UnclosedString,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedArray =&gt; ErrorKind::UnclosedArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1825,10 +1825,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                37
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedString =&gt; ErrorKind::ExpectedString,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedString =&gt; ErrorKind::UnclosedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1841,7 +1841,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedNumber =&gt; ErrorKind::ExpectedNumber,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedString =&gt; ErrorKind::ExpectedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1854,7 +1854,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::RecursionLimitReached =&gt; ErrorKind::RecursionLimitReached,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedNumber =&gt; ErrorKind::ExpectedNumber,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1867,13 +1867,26 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::PayloadsShouldBeObjectOrArray =&gt; ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::RecursionLimitReached =&gt; ErrorKind::RecursionLimitReached,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="142">
                 <a href="#142">142</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::PayloadsShouldBeObjectOrArray =&gt; ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="143">
+                <a href="#143">143</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-danger-light has-background-danger">
@@ -1885,8 +1898,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="143">
-                <a href="#143">143</a>
+                id="144">
+                <a href="#144">144</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -1898,8 +1911,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="144">
-                <a href="#144">144</a>
+                id="145">
+                <a href="#145">145</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -1907,19 +1920,6 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="145">
-                <a href="#145">145</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1932,7 +1932,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1941,11 +1941,11 @@
                 <a href="#147">147</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1958,7 +1958,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">fn into_fallable_test() {</pre>
+                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1968,10 +1968,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                23
+                1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    for kind in [</pre>
+                <pre class="has-background-success-light py-0 px-2">fn into_fallable_test() {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1981,10 +1981,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                23
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Utf8,</pre>
+                <pre class="has-background-success-light py-0 px-2">    for kind in [</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1997,7 +1997,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnexpectedEof,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Utf8,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2010,7 +2010,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedObjectKey,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnexpectedEof,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2023,7 +2023,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedColon,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedObjectKey,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2036,7 +2036,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedValue,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedColon,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2049,7 +2049,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfObject,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedValue,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2062,7 +2062,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2075,7 +2075,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::IllegalTrailingComma,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2088,7 +2088,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Unexpected(b&#x27;&#x2F;&#x27;),</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::IllegalTrailingComma,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2101,7 +2101,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::TrailingNonWhitespace,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Unexpected(b&#x27;&#x2F;&#x27;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2114,7 +2114,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ObjectKeysMustBeStrings,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::TrailingNonWhitespace,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2127,7 +2127,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedExponent,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ObjectKeysMustBeStrings,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2140,7 +2140,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDecimalDigit,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedExponent,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2153,7 +2153,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDigit,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDecimalDigit,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2166,7 +2166,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidHexadecimal,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDigit,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2179,7 +2179,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidEscape,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidHexadecimal,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2192,7 +2192,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedObject,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidEscape,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2205,7 +2205,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2218,7 +2218,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedString,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2231,7 +2231,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedString,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2244,7 +2244,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedNumber,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2257,7 +2257,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::RecursionLimitReached,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedNumber,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2270,13 +2270,26 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::RecursionLimitReached,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="173">
                 <a href="#173">173</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="174">
+                <a href="#174">174</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -2288,28 +2301,15 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="174">
-                <a href="#174">174</a>
+                id="175">
+                <a href="#175">175</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
                 23
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        match (kind.clone(), kind.into_fallable::&lt;String&gt;()) {</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="175">
-                <a href="#175">175</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            (ErrorKind::Utf8, ErrorKind::Utf8)</pre>
+                <pre class="has-background-success-light py-0 px-2">        match (kind.clone(), kind.into_fallable::&lt;u8&gt;()) {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2322,7 +2322,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnexpectedEof, ErrorKind::UnexpectedEof)</pre>
+                <pre class="has-background-white py-0 px-2">            (ErrorKind::Utf8, ErrorKind::Utf8)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2335,7 +2335,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedObjectKey, ErrorKind::ExpectedObjectKey)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnexpectedEof, ErrorKind::UnexpectedEof)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2348,7 +2348,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedColon, ErrorKind::ExpectedColon)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedObjectKey, ErrorKind::ExpectedObjectKey)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2361,7 +2361,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedValue, ErrorKind::ExpectedValue)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedColon, ErrorKind::ExpectedColon)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2374,7 +2374,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedCommaOrEndOfObject, ErrorKind::ExpectedCommaOrEndOfObject)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedValue, ErrorKind::ExpectedValue)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2387,7 +2387,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedCommaOrEndOfArray, ErrorKind::ExpectedCommaOrEndOfArray)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedCommaOrEndOfObject, ErrorKind::ExpectedCommaOrEndOfObject)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2400,7 +2400,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::IllegalTrailingComma, ErrorKind::IllegalTrailingComma)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedCommaOrEndOfArray, ErrorKind::ExpectedCommaOrEndOfArray)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2413,7 +2413,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::TrailingNonWhitespace, ErrorKind::TrailingNonWhitespace)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::IllegalTrailingComma, ErrorKind::IllegalTrailingComma)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2426,7 +2426,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ObjectKeysMustBeStrings, ErrorKind::ObjectKeysMustBeStrings)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::TrailingNonWhitespace, ErrorKind::TrailingNonWhitespace)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2439,7 +2439,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedExponent, ErrorKind::ExpectedExponent)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ObjectKeysMustBeStrings, ErrorKind::ObjectKeysMustBeStrings)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2452,7 +2452,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedDecimalDigit, ErrorKind::ExpectedDecimalDigit)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedExponent, ErrorKind::ExpectedExponent)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2465,7 +2465,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedDigit, ErrorKind::ExpectedDigit)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedDecimalDigit, ErrorKind::ExpectedDecimalDigit)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2478,7 +2478,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::InvalidHexadecimal, ErrorKind::InvalidHexadecimal)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedDigit, ErrorKind::ExpectedDigit)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2491,7 +2491,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::InvalidEscape, ErrorKind::InvalidEscape)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::InvalidHexadecimal, ErrorKind::InvalidHexadecimal)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2504,7 +2504,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnclosedObject, ErrorKind::UnclosedObject)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::InvalidEscape, ErrorKind::InvalidEscape)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2517,7 +2517,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnclosedArray, ErrorKind::UnclosedArray)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnclosedObject, ErrorKind::UnclosedObject)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2530,7 +2530,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnclosedString, ErrorKind::UnclosedString)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnclosedArray, ErrorKind::UnclosedArray)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2543,7 +2543,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::UnclosedString, ErrorKind::UnclosedString)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2556,7 +2556,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2569,7 +2569,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2582,7 +2582,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            | (</pre>
+                <pre class="has-background-white py-0 px-2">            | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2595,7 +2595,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">                ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
+                <pre class="has-background-white py-0 px-2">            | (</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2617,11 +2617,11 @@
                 <a href="#199">199</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                22
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ) =&gt; {}</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">                ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2631,10 +2631,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                22
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            (ErrorKind::Unexpected(before), ErrorKind::Unexpected(after)) =&gt; {</pre>
+                <pre class="has-background-success-light py-0 px-2">            ) =&gt; {}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2647,13 +2647,26 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                assert_eq!(before, after);</pre>
+                <pre class="has-background-success-light py-0 px-2">            (ErrorKind::Unexpected(before), ErrorKind::Unexpected(after)) =&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="202">
                 <a href="#202">202</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">                assert_eq!(before, after);</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="203">
+                <a href="#203">203</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -2665,8 +2678,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="203">
-                <a href="#203">203</a>
+                id="204">
+                <a href="#204">204</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-danger-light has-background-danger">
@@ -2674,19 +2687,6 @@
             </div>
             <div class="column has-background-danger-light p-0">
                 <pre class="has-background-danger-light py-0 px-2">            _ =&gt; unreachable!(),</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="204">
-                <a href="#204">204</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">        }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2699,7 +2699,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    }</pre>
+                <pre class="has-background-white py-0 px-2">        }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2708,11 +2708,11 @@
                 <a href="#206">206</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">}</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2721,11 +2721,11 @@
                 <a href="#207">207</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2738,7 +2738,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; std::error::Error for ErrorKind&lt;DelegateError&gt; where</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2751,7 +2751,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    DelegateError: std::fmt::Debug + Display</pre>
+                <pre class="has-background-white py-0 px-2">#[cfg(feature = &quot;std&quot;)]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2764,7 +2764,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">{</pre>
+                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; std::error::Error for ErrorKind&lt;DelegateError&gt; where</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2777,7 +2777,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">    DelegateError: std::fmt::Debug + Display</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2790,7 +2790,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">{</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2803,7 +2803,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; Display for ErrorKind&lt;DelegateError&gt;</pre>
+                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2816,7 +2816,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">where</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2829,7 +2829,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    DelegateError: Display,</pre>
+                <pre class="has-background-white py-0 px-2">impl&lt;DelegateError&gt; Display for ErrorKind&lt;DelegateError&gt;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2842,7 +2842,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">{</pre>
+                <pre class="has-background-white py-0 px-2">where</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2851,11 +2851,11 @@
                 <a href="#217">217</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;&#x27;_&gt;) -&gt; std::fmt::Result {</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    DelegateError: Display,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2864,11 +2864,11 @@
                 <a href="#218">218</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        match self {</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">{</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2878,10 +2878,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                24
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::Utf8 =&gt; f.write_str(&quot;invalid utf-8&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">    fn fmt(&amp;self, f: &amp;mut core::fmt::Formatter&lt;&#x27;_&gt;) -&gt; core::fmt::Result {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2891,10 +2891,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                24
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnexpectedEof =&gt; f.write_str(&quot;unexpected end of file&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">        match self {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2907,7 +2907,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedObjectKey =&gt; f.write_str(&quot;expected object key&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::Utf8 =&gt; f.write_str(&quot;invalid utf-8&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2920,7 +2920,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedColon =&gt; f.write_str(&quot;expected colon (&#x27;:&#x27;)&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnexpectedEof =&gt; f.write_str(&quot;unexpected end of file&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2933,7 +2933,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedValue =&gt; f.write_str(&quot;expected value&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedObjectKey =&gt; f.write_str(&quot;expected object key&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2946,7 +2946,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfObject =&gt; f.write_str(&quot;expected comma or end of object&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedColon =&gt; f.write_str(&quot;expected colon (&#x27;:&#x27;)&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2959,7 +2959,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfArray =&gt; f.write_str(&quot;expected comma or end of array&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedValue =&gt; f.write_str(&quot;expected value&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2972,7 +2972,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::IllegalTrailingComma =&gt; f.write_str(&quot;trailing commas are not allowed&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfObject =&gt; f.write_str(&quot;expected comma or end of object&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2985,7 +2985,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::Unexpected(ch) =&gt; write!(f, &quot;unexpected character: &#x27;{ch}&#x27;&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedCommaOrEndOfArray =&gt; f.write_str(&quot;expected comma or end of array&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2994,11 +2994,11 @@
                 <a href="#228">228</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            ErrorKind::TrailingNonWhitespace =&gt; {</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::IllegalTrailingComma =&gt; f.write_str(&quot;trailing commas are not allowed&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3011,7 +3011,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;trailing non-whitespace data was encountered&quot;)</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::Unexpected(ch) =&gt; write!(f, &quot;unexpected character: &#x27;{ch}&#x27;&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3024,7 +3024,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            }</pre>
+                <pre class="has-background-white py-0 px-2">            ErrorKind::TrailingNonWhitespace =&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3037,7 +3037,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ObjectKeysMustBeStrings =&gt; f.write_str(&quot;object keys must be strings&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;trailing non-whitespace data was encountered&quot;)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3050,7 +3050,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            ErrorKind::ExpectedExponent =&gt; {</pre>
+                <pre class="has-background-white py-0 px-2">            }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3063,7 +3063,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;expected exponent sign or digit for number literal&quot;)</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ObjectKeysMustBeStrings =&gt; f.write_str(&quot;object keys must be strings&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3076,7 +3076,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            }</pre>
+                <pre class="has-background-white py-0 px-2">            ErrorKind::ExpectedExponent =&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3085,11 +3085,11 @@
                 <a href="#235">235</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            ErrorKind::ExpectedDecimalDigit =&gt; {</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;expected exponent sign or digit for number literal&quot;)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3098,11 +3098,11 @@
                 <a href="#236">236</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;expected decimal digit for number literal&quot;)</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">            }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3115,7 +3115,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            }</pre>
+                <pre class="has-background-white py-0 px-2">            ErrorKind::ExpectedDecimalDigit =&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3128,7 +3128,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedDigit =&gt; f.write_str(&quot;expected decimal digit for number literal&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;expected decimal digit for number literal&quot;)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3141,7 +3141,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            ErrorKind::InvalidHexadecimal =&gt; {</pre>
+                <pre class="has-background-white py-0 px-2">            }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3154,7 +3154,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;invalid hexadecimal in unicode escape sequence&quot;)</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedDigit =&gt; f.write_str(&quot;expected decimal digit for number literal&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3167,7 +3167,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            }</pre>
+                <pre class="has-background-white py-0 px-2">            ErrorKind::InvalidHexadecimal =&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3180,7 +3180,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::InvalidEscape =&gt; f.write_str(&quot;invalid escaped character&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;invalid hexadecimal in unicode escape sequence&quot;)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3189,11 +3189,11 @@
                 <a href="#243">243</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedObject =&gt; f.write_str(&quot;expected end of object (&#x27;}}&#x27;)&quot;),</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">            }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3206,7 +3206,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedArray =&gt; f.write_str(&quot;expected end of array (&#x27;]&#x27;)&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::InvalidEscape =&gt; f.write_str(&quot;invalid escaped character&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3219,7 +3219,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedString =&gt; f.write_str(&quot;expected end of string (&#x27;\&quot;&#x27;)&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedObject =&gt; f.write_str(&quot;expected end of object (&#x27;}}&#x27;)&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3232,7 +3232,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedString =&gt; f.write_str(&quot;expected a string&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedArray =&gt; f.write_str(&quot;expected end of array (&#x27;]&#x27;)&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3245,7 +3245,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedNumber =&gt; f.write_str(&quot;expected a number&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::UnclosedString =&gt; f.write_str(&quot;expected end of string (&#x27;\&quot;&#x27;)&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3258,7 +3258,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::RecursionLimitReached =&gt; f.write_str(&quot;the recursion limit has been reached&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedString =&gt; f.write_str(&quot;expected a string&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3267,11 +3267,11 @@
                 <a href="#249">249</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            ErrorKind::PayloadsShouldBeObjectOrArray =&gt; {</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ExpectedNumber =&gt; f.write_str(&quot;expected a number&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3284,7 +3284,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;JSON only allows objects or arrays at the root&quot;)</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::RecursionLimitReached =&gt; f.write_str(&quot;the recursion limit has been reached&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3297,7 +3297,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">            }</pre>
+                <pre class="has-background-white py-0 px-2">            ErrorKind::PayloadsShouldBeObjectOrArray =&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3310,7 +3310,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ErrorFromDelegate(err) =&gt; write!(f, &quot;error from delegate: {err}&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;JSON only allows objects or arrays at the root&quot;)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3323,7 +3323,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">        }</pre>
+                <pre class="has-background-white py-0 px-2">            }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3333,10 +3333,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    }</pre>
+                <pre class="has-background-success-light py-0 px-2">            ErrorKind::ErrorFromDelegate(err) =&gt; write!(f, &quot;error from delegate: {err}&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3349,13 +3349,39 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">        }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="256">
                 <a href="#256">256</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                24
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    }</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="257">
+                <a href="#257">257</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">}</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="258">
+                <a href="#258">258</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -3367,8 +3393,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="257">
-                <a href="#257">257</a>
+                id="259">
+                <a href="#259">259</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -3380,8 +3406,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="258">
-                <a href="#258">258</a>
+                id="260">
+                <a href="#260">260</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -3393,8 +3419,21 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="259">
-                <a href="#259">259</a>
+                id="261">
+                <a href="#261">261</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    use alloc::string::ToString;</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="262">
+                <a href="#262">262</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -3406,8 +3445,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="260">
-                <a href="#260">260</a>
+                id="263">
+                <a href="#263">263</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -3419,8 +3458,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="261">
-                <a href="#261">261</a>
+                id="264">
+                <a href="#264">264</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -3428,45 +3467,6 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    for kind in [</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="262">
-                <a href="#262">262</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Utf8,</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="263">
-                <a href="#263">263</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnexpectedEof,</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="264">
-                <a href="#264">264</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedObjectKey,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3479,7 +3479,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedColon,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Utf8,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3492,7 +3492,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedValue,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnexpectedEof,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3505,7 +3505,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfObject,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedObjectKey,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3518,7 +3518,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedColon,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3531,7 +3531,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::IllegalTrailingComma,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedValue,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3544,7 +3544,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Unexpected(b&#x27;&#x2F;&#x27;),</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3557,7 +3557,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::TrailingNonWhitespace,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedCommaOrEndOfArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3570,7 +3570,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ObjectKeysMustBeStrings,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::IllegalTrailingComma,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3583,7 +3583,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedExponent,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::Unexpected(b&#x27;&#x2F;&#x27;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3596,7 +3596,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDecimalDigit,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::TrailingNonWhitespace,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3609,7 +3609,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDigit,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ObjectKeysMustBeStrings,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3622,7 +3622,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidHexadecimal,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedExponent,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3635,7 +3635,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidEscape,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDecimalDigit,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3648,7 +3648,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedObject,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedDigit,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3661,7 +3661,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidHexadecimal,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3674,7 +3674,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedString,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::InvalidEscape,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3687,7 +3687,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedString,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedObject,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3700,7 +3700,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedNumber,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedArray,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3713,7 +3713,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::RecursionLimitReached,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::UnclosedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3726,7 +3726,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedString,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3739,13 +3739,52 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ErrorFromDelegate(&quot;oops&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ExpectedNumber,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="286">
                 <a href="#286">286</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::RecursionLimitReached,</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="287">
+                <a href="#287">287</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::PayloadsShouldBeObjectOrArray,</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="288">
+                <a href="#288">288</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ErrorFromDelegate(&quot;oops&quot;),</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="289">
+                <a href="#289">289</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -3757,8 +3796,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="287">
-                <a href="#287">287</a>
+                id="290">
+                <a href="#290">290</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -3770,8 +3809,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="288">
-                <a href="#288">288</a>
+                id="291">
+                <a href="#291">291</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -3783,8 +3822,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="289">
-                <a href="#289">289</a>
+                id="292">
+                <a href="#292">292</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -3796,7 +3835,7 @@
         </div></div>
         <footer class="footer">
             <div class="content has-text-centered">
-                <p class="heading">Date: 2023-01-22 16:01</p>
+                <p class="heading">Date: 2023-01-22 16:27</p>
             </div>
         </footer>
     </body>
