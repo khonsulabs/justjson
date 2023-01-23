@@ -7,8 +7,29 @@ use crate::anystr::AnyStr;
 use crate::error::{Error, ErrorKind};
 use crate::parser::{ParseDelegate, Parser};
 
-/// A JSON-encoded string.
-// TODO document comparisons
+/// A JSON string.
+///
+/// Internally, this type may be represented by either an already escaped JSON
+/// string or an unescaped string.
+///
+/// This type implements `Eq` and `PartialEq` such that the escapes are always
+/// handled correctly. Consider the following examples:
+///
+/// ```rust
+/// use justjson::JsonString;
+///
+/// let json = JsonString::from_json(r#""Check out this cat: \"\ud83d\ude39\"""#).unwrap();
+/// assert_eq!(json, "Check out this cat: \"😹\"");
+/// let alternate_form =
+///     JsonString::from_json("\"Check out this cat: \\\"\u{1f639}\\\"\"").unwrap();
+/// assert_eq!(json, alternate_form)
+/// ```
+///
+/// When the underlying representation is an encoded JSON string, the
+/// [`JsonStringInfo`] is stored from the parsing operation. This allows the
+/// comparison implementations to perform quick length checks on the decoded
+/// length to avoid comparing the bytes of strings that decode to different
+/// lengths.
 #[derive(Debug, Eq, Clone)]
 
 pub struct JsonString<'a> {
