@@ -13,24 +13,31 @@
 )]
 #![deny(unsafe_code)]
 #![no_std]
+#![cfg_attr(any(docsrs, feature = "nightly"), feature(doc_auto_cfg))]
 
 #[cfg(any(feature = "std", test))]
 extern crate std;
 
+#[cfg(feature = "alloc")]
 extern crate alloc;
 
+pub use crate::cow::CowStr;
 pub use crate::error::{Error, ErrorKind};
 pub use crate::number::JsonNumber;
 pub use crate::string::{JsonString, JsonStringInfo};
+#[cfg(feature = "alloc")]
 pub use crate::value::{Object, Value};
 
+mod cow;
 /// A JSON DOM representation with minimal processing.
+#[cfg(feature = "alloc")]
 pub mod doc;
 mod error;
 mod number;
 /// A low-level event-driven JSON parser.
 pub mod parser;
 mod string;
-#[cfg(test)]
+#[cfg(all(test, feature = "alloc"))]
 mod tests;
+#[cfg(feature = "alloc")]
 mod value;

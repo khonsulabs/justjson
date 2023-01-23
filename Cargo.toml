@@ -10,7 +10,15 @@ categories = ["parser-implementations"]
 readme = "./README.md"
 rust-version = "1.58"
 
+[features]
+default = ["std"]
+std = ["alloc"]
+alloc = []
+nightly = []      # Enables unstable documentation features outside of docs.rs
+
 [dependencies]
+# heapless = { version = "0.7.16", optional = true }
+
 
 [workspace]
 members = ["benchmarks", "xtask"]
@@ -22,3 +30,22 @@ debug = true
 [profile.release]
 lto = true
 debug = true
+
+[[test]]
+name = "roundtrip"
+required-features = ["alloc"]
+
+[[test]]
+name = "jsonorg"
+required-features = ["alloc"]
+
+[[test]]
+name = "jsontestsuite"
+required-features = ["alloc"]
+
+[[example]]
+name = "borrowed-value"
+required-features = ["alloc"]
+
+[package.metadata.docs.rs]
+rustc-args = ["--cfg", "docsrs"]

@@ -1,10 +1,11 @@
-use alloc::borrow::Cow;
+#[cfg(feature = "alloc")]
 use alloc::string::String;
 use core::fmt::{self, Debug, Display, Formatter, Write};
 use core::str::{CharIndices, Chars};
 
+use crate::cow::CowStr;
 use crate::error::{Error, ErrorKind};
-use crate::value::Value;
+use crate::parser::{ParseDelegate, Parser};
 
 /// A JSON-encoded string.
 // TODO document comparisons
@@ -23,14 +24,7 @@ impl<'a> JsonString<'a> {
     /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
     pub fn from_json(json: &'a str) -> Result<Self, Error> {
-        if let Value::String(str) = Value::from_json(json)? {
-            Ok(str)
-        } else {
-            Err(Error {
-                offset: 0,
-                kind: ErrorKind::ExpectedString,
-            })
-        }
+        Parser::parse_json(json, StringParser).map_err(Error::into_infallable)
     }
 
     /// Returns the contained string after decoding any escape sequences, if
@@ -41,11 +35,12 @@ impl<'a> JsonString<'a> {
     /// sequences, so this function is nearly instananeous when there are no
     /// escape sequences.
     #[must_use]
-    pub fn decode_if_needed(&self) -> Cow<'_, str> {
+    #[cfg(feature = "alloc")]
+    pub fn decode_if_needed(&self) -> CowStr<'_> {
         match &self.source {
             StringContents::Json { source, info } => {
                 if info.has_escapes() {
-                    Cow::Owned(self.decoded().collect())
+                    CowStr::Owned(self.decoded().collect())
                 } else {
                     source.clone()
                 }
@@ -70,15 +65,16 @@ impl<'a> JsonString<'a> {
 impl<'a> From<&'a str> for JsonString<'a> {
     fn from(value: &'a str) -> Self {
         Self {
-            source: StringContents::Raw(Cow::Borrowed(value)),
+            source: StringContents::Raw(CowStr::Borrowed(value)),
         }
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<'a> From<String> for JsonString<'a> {
     fn from(value: String) -> Self {
         Self {
-            source: StringContents::Raw(Cow::Owned(value)),
+            source: StringContents::Raw(CowStr::Owned(value)),
         }
     }
 }
@@ -147,12 +143,13 @@ impl<'a, 'b> PartialEq<JsonString<'a>> for JsonString<'b> {
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn json_string_from_json() {
     assert_eq!(
         JsonString::from_json(r#""Hello, World!""#).unwrap(),
         JsonString {
             source: StringContents::Json {
-                source: Cow::Borrowed(r#"Hello, World!"#),
+                source: CowStr::Borrowed(r#"Hello, World!"#),
                 info: JsonStringInfo::new(false, 13),
             }
         }
@@ -165,11 +162,13 @@ fn json_string_from_json() {
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn json_string_from_raw() {
     assert_eq!(JsonString::from(String::from("a")), JsonString::from("a"));
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn json_string_cmp() {
     #[track_caller]
     fn test_json<'a, T>(json: &'a str, expected: T)
@@ -222,18 +221,19 @@ fn json_string_cmp() {
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn decode_if_needed() {
     let empty = JsonString::from_json(r#""""#).unwrap();
-    let Cow::Borrowed(string) = empty.decode_if_needed() else { unreachable!() };
+    let CowStr::Borrowed(string) = empty.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "");
     let has_escapes = JsonString::from_json(r#""\r""#).unwrap();
-    let Cow::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
+    let CowStr::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "\r");
     let decoded_via_display = alloc::format!("{}", has_escapes.decoded());
     assert_eq!(decoded_via_display, "\r");
 
     let raw_string = JsonString::from(r#"raw string"#);
-    let Cow::Borrowed(string) = raw_string.decode_if_needed() else { unreachable!() };
+    let CowStr::Borrowed(string) = raw_string.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "raw string");
 
     let decoded_via_display = alloc::format!("{}", raw_string.decoded());
@@ -306,6 +306,7 @@ impl fmt::Debug for JsonStringInfo {
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn test_string_info_debug() {
     let mut info = JsonStringInfo::NONE;
     info.add_bytes_from_escape(1);
@@ -623,6 +624,7 @@ pub(crate) static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
 };
 
 #[test]
+#[cfg(feature = "alloc")]
 fn escape() {
     let original = "\"\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}";
     let raw = JsonString::from(original);
@@ -635,10 +637,10 @@ fn escape() {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum StringContents<'a> {
     Json {
-        source: Cow<'a, str>,
+        source: CowStr<'a>,
         info: JsonStringInfo,
     },
-    Raw(Cow<'a, str>),
+    Raw(CowStr<'a>),
 }
 
 pub(crate) const HIGH_SURROGATE_MIN: u32 = 0xD800;
@@ -650,4 +652,82 @@ pub(crate) const DECODED_SURROGATE_BASE: u32 = 0x1_0000;
 #[inline]
 pub(crate) fn merge_surrogate_pair(high: u32, low: u32) -> u32 {
     DECODED_SURROGATE_BASE | ((high - HIGH_SURROGATE_MIN) * 0x400) | (low - LOW_SURROGATE_MIN)
+}
+struct StringParser;
+
+impl<'a> ParseDelegate<'a> for StringParser {
+    type Array = ();
+    type Error = ErrorKind;
+    type Key = ();
+    type Object = ();
+    type Value = JsonString<'a>;
+
+    fn null(&mut self) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedString)
+    }
+
+    fn boolean(&mut self, _value: bool) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedString)
+    }
+
+    fn number(&mut self, _value: crate::JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedString)
+    }
+
+    fn string(&mut self, value: JsonString<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(value)
+    }
+
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
+        Err(ErrorKind::ExpectedString)
+    }
+
+    fn object_key(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: crate::JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error> {
+        unreachable!()
+    }
+
+    fn object_value(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: Self::Key,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        unreachable!()
+    }
+
+    fn object_is_empty(&self, _object: &Self::Object) -> bool {
+        unreachable!()
+    }
+
+    fn end_object(&mut self, _object: Self::Object) -> Result<Self::Value, Self::Error> {
+        unreachable!()
+    }
+
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
+        Err(ErrorKind::ExpectedString)
+    }
+
+    fn array_value(
+        &mut self,
+        _array: &mut Self::Array,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        unreachable!()
+    }
+
+    fn array_is_empty(&self, _array: &Self::Array) -> bool {
+        unreachable!()
+    }
+
+    fn end_array(&mut self, _array: Self::Array) -> Result<Self::Value, Self::Error> {
+        unreachable!()
+    }
+
+    fn kind_of(&self, _value: &Self::Value) -> crate::parser::JsonKind {
+        unreachable!()
+    }
 }

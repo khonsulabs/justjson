@@ -48,6 +48,16 @@ impl Error<Infallible> {
     }
 }
 
+impl Error<ErrorKind> {
+    #[must_use]
+    pub(crate) fn into_infallable(self) -> Error {
+        Error {
+            offset: self.offset,
+            kind: self.kind.into_infallable(),
+        }
+    }
+}
+
 /// An error from parsing JSON.
 #[derive(Debug, Eq, PartialEq, Clone)]
 #[non_exhaustive]
@@ -141,6 +151,37 @@ impl ErrorKind<Infallible> {
             ErrorKind::RecursionLimitReached => ErrorKind::RecursionLimitReached,
             ErrorKind::PayloadsShouldBeObjectOrArray => ErrorKind::PayloadsShouldBeObjectOrArray,
             ErrorKind::ErrorFromDelegate(_) => unreachable!(),
+        }
+    }
+}
+
+impl ErrorKind<ErrorKind> {
+    fn into_infallable(self) -> ErrorKind {
+        match self {
+            ErrorKind::Utf8 => ErrorKind::Utf8,
+            ErrorKind::UnexpectedEof => ErrorKind::UnexpectedEof,
+            ErrorKind::ExpectedObjectKey => ErrorKind::ExpectedObjectKey,
+            ErrorKind::ExpectedColon => ErrorKind::ExpectedColon,
+            ErrorKind::ExpectedValue => ErrorKind::ExpectedValue,
+            ErrorKind::ExpectedCommaOrEndOfObject => ErrorKind::ExpectedCommaOrEndOfObject,
+            ErrorKind::ExpectedCommaOrEndOfArray => ErrorKind::ExpectedCommaOrEndOfArray,
+            ErrorKind::IllegalTrailingComma => ErrorKind::IllegalTrailingComma,
+            ErrorKind::Unexpected(ch) => ErrorKind::Unexpected(ch),
+            ErrorKind::TrailingNonWhitespace => ErrorKind::TrailingNonWhitespace,
+            ErrorKind::ObjectKeysMustBeStrings => ErrorKind::ObjectKeysMustBeStrings,
+            ErrorKind::ExpectedExponent => ErrorKind::ExpectedExponent,
+            ErrorKind::ExpectedDecimalDigit => ErrorKind::ExpectedDecimalDigit,
+            ErrorKind::ExpectedDigit => ErrorKind::ExpectedDigit,
+            ErrorKind::InvalidHexadecimal => ErrorKind::InvalidHexadecimal,
+            ErrorKind::InvalidEscape => ErrorKind::InvalidEscape,
+            ErrorKind::UnclosedObject => ErrorKind::UnclosedObject,
+            ErrorKind::UnclosedArray => ErrorKind::UnclosedArray,
+            ErrorKind::UnclosedString => ErrorKind::UnclosedString,
+            ErrorKind::ExpectedString => ErrorKind::ExpectedString,
+            ErrorKind::ExpectedNumber => ErrorKind::ExpectedNumber,
+            ErrorKind::RecursionLimitReached => ErrorKind::RecursionLimitReached,
+            ErrorKind::PayloadsShouldBeObjectOrArray => ErrorKind::PayloadsShouldBeObjectOrArray,
+            ErrorKind::ErrorFromDelegate(kind) => kind,
         }
     }
 }
@@ -257,6 +298,7 @@ where
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn display_tests() {
     use alloc::string::ToString;
     // This test only ensures that display doesn't panic. It does not validate

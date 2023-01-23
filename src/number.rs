@@ -1,12 +1,12 @@
-use alloc::borrow::Cow;
-
-use crate::{Error, ErrorKind, Value};
+use crate::cow::CowStr;
+use crate::parser::{ParseDelegate, Parser};
+use crate::{Error, ErrorKind};
 
 /// A JSON-encoded number.
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct JsonNumber<'a> {
     /// The JSON source for this number.
-    pub(crate) source: Cow<'a, str>,
+    pub(crate) source: CowStr<'a>,
 }
 
 impl<'a> JsonNumber<'a> {
@@ -17,14 +17,7 @@ impl<'a> JsonNumber<'a> {
     /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
     pub fn from_json(json: &'a str) -> Result<Self, Error> {
-        if let Value::Number(str) = Value::from_json(json)? {
-            Ok(str)
-        } else {
-            Err(Error {
-                offset: 0,
-                kind: ErrorKind::ExpectedNumber,
-            })
-        }
+        Parser::parse_json(json, NumberParser).map_err(Error::into_infallable)
     }
 
     /// Returns the JSON-encoded representation of this number.
@@ -61,12 +54,92 @@ impl<'a> JsonNumber<'a> {
     }
 }
 
+struct NumberParser;
+
+impl<'a> ParseDelegate<'a> for NumberParser {
+    type Array = ();
+    type Error = ErrorKind;
+    type Key = ();
+    type Object = ();
+    type Value = JsonNumber<'a>;
+
+    fn null(&mut self) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn boolean(&mut self, _value: bool) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(value)
+    }
+
+    fn string(&mut self, _value: crate::JsonString<'a>) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn object_key(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: crate::JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error> {
+        unreachable!()
+    }
+
+    fn object_value(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: Self::Key,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        unreachable!()
+    }
+
+    fn object_is_empty(&self, _object: &Self::Object) -> bool {
+        unreachable!()
+    }
+
+    fn end_object(&mut self, _object: Self::Object) -> Result<Self::Value, Self::Error> {
+        unreachable!()
+    }
+
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn array_value(
+        &mut self,
+        _array: &mut Self::Array,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        unreachable!()
+    }
+
+    fn array_is_empty(&self, _array: &Self::Array) -> bool {
+        unreachable!()
+    }
+
+    fn end_array(&mut self, _array: Self::Array) -> Result<Self::Value, Self::Error> {
+        unreachable!()
+    }
+
+    fn kind_of(&self, _value: &Self::Value) -> crate::parser::JsonKind {
+        unreachable!()
+    }
+}
+
 #[test]
+#[cfg(feature = "alloc")]
 fn json_number_from_json() {
     assert_eq!(
         JsonNumber::from_json("1").unwrap(),
         JsonNumber {
-            source: Cow::Borrowed("1")
+            source: CowStr::Borrowed("1")
         }
     );
 
@@ -77,6 +150,7 @@ fn json_number_from_json() {
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn json_number_conversions() {
     let one = JsonNumber::from_json("1").unwrap();
     assert_eq!(one.as_i64().unwrap(), 1);

@@ -1,3 +1,4 @@
+#[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 use core::convert::Infallible;
 use core::iter::Cloned;

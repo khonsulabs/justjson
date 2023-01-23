@@ -1,8 +1,8 @@
-use alloc::borrow::Cow;
 use core::iter::Peekable;
 use core::marker::PhantomData;
 use core::slice;
 
+use crate::cow::CowStr;
 use crate::string::{
     merge_surrogate_pair, StringContents, HEX_OFFSET_TABLE, HIGH_SURROGATE_MAX, HIGH_SURROGATE_MIN,
     LOW_SURROGATE_MAX, LOW_SURROGATE_MIN, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
@@ -420,7 +420,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     b'"' => {
                         break Ok(JsonString {
                             source: StringContents::Json {
-                                source: Cow::Borrowed(unsafe {
+                                source: CowStr::Borrowed(unsafe {
                                     core::str::from_utf8_unchecked(
                                         &self.source.bytes[start + 1..offset],
                                     )
@@ -632,7 +632,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
 
         Ok(JsonNumber {
-            source: Cow::Borrowed(unsafe {
+            source: CowStr::Borrowed(unsafe {
                 core::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
             }),
         })
@@ -869,6 +869,8 @@ impl ParseConfig {
     /// Allows trailing commas when parsing objects and arrays.
     ///
     /// ```rust
+    /// # #[cfg(feature = "alloc")]
+    /// # fn wrapper() {
     /// use justjson::parser::ParseConfig;
     /// use justjson::Value;
     ///
@@ -876,6 +878,7 @@ impl ParseConfig {
     /// Value::from_json(source).expect_err("not enabled by default");
     /// let config = ParseConfig::new().allowing_trailing_commas();
     /// Value::from_json_with_config(source, config).expect("now parses");
+    /// # }
     /// ```
     pub const fn allowing_trailing_commas(mut self) -> Self {
         self.allow_trailing_commas = true;

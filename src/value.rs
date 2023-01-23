@@ -1,5 +1,5 @@
-use alloc::string::String;
-use alloc::vec::Vec;
+#[cfg(feature = "alloc")]
+use alloc::{string::String, vec::Vec};
 use core::convert::Infallible;
 use core::fmt::{self, Display};
 use core::ops::{Deref, DerefMut};

@@ -1,9 +1,12 @@
-use alloc::borrow::Cow;
-use alloc::string::{String, ToString};
-use alloc::vec;
+#[cfg(feature = "alloc")]
+use alloc::{
+    string::{String, ToString},
+    vec,
+};
 use core::fmt::Write;
 use std::println;
 
+use crate::cow::CowStr;
 use crate::doc::Document;
 use crate::parser::{ParseDelegate, Parser};
 use crate::string::StringContents;
@@ -65,7 +68,7 @@ fn basic_string() {
         br#""hello""#,
         &Value::String(JsonString {
             source: StringContents::Json {
-                source: Cow::Borrowed("hello"),
+                source: CowStr::Borrowed("hello"),
                 info: JsonStringInfo::new(false, 5),
             },
         }),
@@ -74,7 +77,7 @@ fn basic_string() {
         br#""""#,
         &Value::String(JsonString {
             source: StringContents::Json {
-                source: Cow::Borrowed(""),
+                source: CowStr::Borrowed(""),
                 info: JsonStringInfo::new(false, 0),
             },
         }),
@@ -87,7 +90,7 @@ fn escapey_string() {
         br#""\"\\\/\b\f\n\r\t\u25eF""#,
         &Value::String(JsonString {
             source: StringContents::Json {
-                source: Cow::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#),
+                source: CowStr::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#),
                 info: JsonStringInfo::new(true, 11),
             },
         }),
@@ -118,7 +121,7 @@ fn one_mapping() {
         &Value::Object(Object::from_iter([(
             JsonString {
                 source: StringContents::Json {
-                    source: Cow::Borrowed("hello"),
+                    source: CowStr::Borrowed("hello"),
                     info: JsonStringInfo::new(false, 5),
                 },
             },
@@ -135,7 +138,7 @@ fn two_mappings() {
             (
                 JsonString {
                     source: StringContents::Json {
-                        source: Cow::Borrowed("hello"),
+                        source: CowStr::Borrowed("hello"),
                         info: JsonStringInfo::new(false, 5),
                     },
                 },
@@ -144,7 +147,7 @@ fn two_mappings() {
             (
                 JsonString {
                     source: StringContents::Json {
-                        source: Cow::Borrowed("world"),
+                        source: CowStr::Borrowed("world"),
                         info: JsonStringInfo::new(false, 5),
                     },
                 },
@@ -174,7 +177,7 @@ fn numbers() {
         test_json_parse(
             &[b],
             &Value::Number(JsonNumber {
-                source: Cow::Borrowed(std::str::from_utf8(&[b]).unwrap()),
+                source: CowStr::Borrowed(std::str::from_utf8(&[b]).unwrap()),
             }),
         );
     }
@@ -182,28 +185,28 @@ fn numbers() {
     test_json_parse(
         br#"-1"#,
         &Value::Number(JsonNumber {
-            source: Cow::Borrowed(r#"-1"#),
+            source: CowStr::Borrowed(r#"-1"#),
         }),
     );
 
     test_json_parse(
         br#"-1.0"#,
         &Value::Number(JsonNumber {
-            source: Cow::Borrowed(r#"-1.0"#),
+            source: CowStr::Borrowed(r#"-1.0"#),
         }),
     );
 
     test_json_parse(
         br#"-1.0e1"#,
         &Value::Number(JsonNumber {
-            source: Cow::Borrowed(r#"-1.0e1"#),
+            source: CowStr::Borrowed(r#"-1.0e1"#),
         }),
     );
 
     test_json_parse(
         br#"-1.0E-1"#,
         &Value::Number(JsonNumber {
-            source: Cow::Borrowed(r#"-1.0E-1"#),
+            source: CowStr::Borrowed(r#"-1.0E-1"#),
         }),
     );
 }
@@ -216,7 +219,7 @@ fn object_of_everything() {
             (
                 JsonString::from_json(r#""a""#).unwrap(),
                 Value::Number(JsonNumber {
-                    source: Cow::Borrowed(r#"1"#),
+                    source: CowStr::Borrowed(r#"1"#),
                 }),
             ),
             (
@@ -245,7 +248,7 @@ fn array_of_everything() {
         br#"[1,true,"hello",[],{}]"#,
         &Value::Array(vec![
             Value::Number(JsonNumber {
-                source: Cow::Borrowed(r#"1"#),
+                source: CowStr::Borrowed(r#"1"#),
             }),
             Value::Boolean(true),
             Value::String(JsonString::from_json(r#""hello""#).unwrap()),
