@@ -757,6 +757,27 @@
 <a href="#757" id="757">757</a>
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug, Display, Formatter, Write};
@@ -766,8 +787,29 @@
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, ErrorKind};
 <span class="kw">use </span><span class="kw">crate</span>::parser::{ParseDelegate, Parser};
 
-<span class="doccomment">/// A JSON-encoded string.
-</span><span class="comment">// TODO document comparisons
+<span class="doccomment">/// A JSON string.
+///
+/// Internally, this type may be represented by either an already escaped JSON
+/// string or an unescaped string.
+///
+/// This type implements `Eq` and `PartialEq` such that the escapes are always
+/// handled correctly. Consider the following examples:
+///
+/// ```rust
+/// use justjson::JsonString;
+///
+/// let json = JsonString::from_json(r#&quot;&quot;Check out this cat: \&quot;\ud83d\ude39\&quot;&quot;&quot;#).unwrap();
+/// assert_eq!(json, &quot;Check out this cat: \&quot;😹\&quot;&quot;);
+/// let alternate_form =
+///     JsonString::from_json(&quot;\&quot;Check out this cat: \\\&quot;\u{1f639}\\\&quot;\&quot;&quot;).unwrap();
+/// assert_eq!(json, alternate_form)
+/// ```
+///
+/// When the underlying representation is an encoded JSON string, the
+/// [`JsonStringInfo`] is stored from the parsing operation. This allows the
+/// comparison implementations to perform quick length checks on the decoded
+/// length to avoid comparing the bytes of strings that decode to different
+/// lengths.
 </span><span class="attr">#[derive(Debug, Eq, Clone)]
 
 </span><span class="kw">pub struct </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
