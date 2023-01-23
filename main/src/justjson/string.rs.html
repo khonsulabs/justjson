@@ -1448,7 +1448,7 @@
         _object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
         _key: <span class="kw">crate</span>::JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
     }
 
     <span class="kw">fn </span>object_value(
@@ -1457,15 +1457,15 @@
         _key: <span class="self">Self</span>::Key,
         _value: <span class="self">Self</span>::Value,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
     }
 
     <span class="kw">fn </span>object_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, _object: <span class="kw-2">&amp;</span><span class="self">Self</span>::Object) -&gt; bool {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
     }
 
     <span class="kw">fn </span>end_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _object: <span class="self">Self</span>::Object) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
     }
 
     <span class="kw">fn </span>begin_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Array, <span class="self">Self</span>::Error&gt; {
@@ -1477,19 +1477,19 @@
         _array: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Array,
         _value: <span class="self">Self</span>::Value,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
     }
 
     <span class="kw">fn </span>array_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, _array: <span class="kw-2">&amp;</span><span class="self">Self</span>::Array) -&gt; bool {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
     }
 
     <span class="kw">fn </span>end_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _array: <span class="self">Self</span>::Array) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
     }
 
     <span class="kw">fn </span>kind_of(<span class="kw-2">&amp;</span><span class="self">self</span>, _value: <span class="kw-2">&amp;</span><span class="self">Self</span>::Value) -&gt; <span class="kw">crate</span>::parser::JsonKind {
-        <span class="macro">unreachable!</span>()
+        <span class="macro">unreachable!</span>(<span class="string">&quot;allow_all_types_at_root is always true&quot;</span>)
     }
 }
 
