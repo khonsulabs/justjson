@@ -1,12 +1,13 @@
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
-use core::convert::Infallible;
 use core::iter::Cloned;
+use core::marker::PhantomData;
 use core::slice;
 
 use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
-use crate::value::Entry;
-use crate::{Error, JsonNumber, JsonString, Object, Value};
+#[cfg(feature = "alloc")]
+use crate::{value::Entry, Object, Value};
+use crate::{Error, ErrorKind, JsonNumber, JsonString};
 
 /// A parsed JSON payload.
 ///
@@ -40,18 +41,24 @@ use crate::{Error, JsonNumber, JsonString, Object, Value};
 /// - [`next_value()`](DocumentIter::next_value): Returns a [`Value`] from the
 ///   iterator.
 #[derive(Debug, Eq, PartialEq)]
-pub struct Document<'a> {
-    nodes: Nodes<'a>,
+pub struct GenericDocument<'a, Backing> {
+    nodes: Nodes<'a, Backing>,
 }
 
-impl<'a> Document<'a> {
+impl<'a, Backing> GenericDocument<'a, Backing>
+where
+    Backing: NodeCollection<'a>,
+{
     /// Parses a JSON payload from `source`.
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    pub fn from_json_bytes(source: &'a [u8]) -> Result<Document<'a>, Error> {
+    pub fn from_json_bytes(source: &'a [u8]) -> Result<Self, Error>
+    where
+        Backing: Default,
+    {
         let mut nodes = Nodes::default();
-        Parser::parse_json_bytes(source, &mut nodes)?;
+        Parser::parse_json_bytes(source, &mut nodes).map_err(Error::into_infallable)?;
         Ok(Self { nodes })
     }
 
@@ -59,12 +66,13 @@ impl<'a> Document<'a> {
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    pub fn from_json_bytes_with_config(
-        source: &'a [u8],
-        config: ParseConfig,
-    ) -> Result<Document<'a>, Error> {
+    pub fn from_json_bytes_with_config(source: &'a [u8], config: ParseConfig) -> Result<Self, Error>
+    where
+        Backing: Default,
+    {
         let mut nodes = Nodes::default();
-        Parser::parse_json_bytes_with_config(source, config, &mut nodes)?;
+        Parser::parse_json_bytes_with_config(source, config, &mut nodes)
+            .map_err(Error::into_infallable)?;
         Ok(Self { nodes })
     }
 
@@ -72,9 +80,12 @@ impl<'a> Document<'a> {
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    pub fn from_json(source: &'a str) -> Result<Document<'a>, Error> {
+    pub fn from_json(source: &'a str) -> Result<Self, Error>
+    where
+        Backing: Default,
+    {
         let mut nodes = Nodes::default();
-        Parser::parse_json(source, &mut nodes)?;
+        Parser::parse_json(source, &mut nodes).map_err(Error::into_infallable)?;
         Ok(Self { nodes })
     }
 
@@ -82,12 +93,13 @@ impl<'a> Document<'a> {
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    pub fn from_json_with_config(
-        source: &'a str,
-        config: ParseConfig,
-    ) -> Result<Document<'a>, Error> {
+    pub fn from_json_with_config(source: &'a str, config: ParseConfig) -> Result<Self, Error>
+    where
+        Backing: Default,
+    {
         let mut nodes = Nodes::default();
-        Parser::parse_json_with_config(source, config, &mut nodes)?;
+        Parser::parse_json_with_config(source, config, &mut nodes)
+            .map_err(Error::into_infallable)?;
         Ok(Self { nodes })
     }
 
@@ -98,14 +110,19 @@ impl<'a> Document<'a> {
     }
 }
 
-impl<'a> From<Document<'a>> for Value<'a> {
-    fn from(doc: Document<'a>) -> Self {
-        let mut nodes = doc.nodes.0.into_iter();
+#[cfg(feature = "alloc")]
+impl<'a, Backing> From<GenericDocument<'a, Backing>> for Value<'a>
+where
+    Backing: NodeCollection<'a>,
+{
+    fn from(doc: GenericDocument<'a, Backing>) -> Self {
+        let mut nodes = doc.nodes.collection.into_iter();
         let root = nodes.next().expect("empty document is invalid");
         hydrate_value_from_node(root, &mut nodes)
     }
 }
 
+#[cfg(feature = "alloc")]
 fn hydrate_value_from_node<'a, I>(node: Node<'a>, remaining_nodes: &mut I) -> Value<'a>
 where
     I: Iterator<Item = Node<'a>>,
@@ -139,13 +156,16 @@ where
     }
 }
 
-impl<'doc, 'a> IntoIterator for &'doc Document<'a> {
+impl<'doc, 'a, Backing> IntoIterator for &'doc GenericDocument<'a, Backing>
+where
+    Backing: NodeCollection<'a>,
+{
     type IntoIter = DocumentIter<'doc, 'a>;
     type Item = Node<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
         DocumentIter {
-            nodes: self.nodes.0.iter().cloned(),
+            nodes: self.nodes.collection.as_ref().iter().cloned(),
         }
     }
 }
@@ -174,80 +194,89 @@ pub enum Node<'a> {
 }
 
 #[derive(Default, Debug, Eq, PartialEq)]
-struct Nodes<'a>(Vec<Node<'a>>);
+struct Nodes<'a, Backing> {
+    collection: Backing,
+    _phantom: PhantomData<&'a ()>,
+}
 
-impl<'a> Nodes<'a> {
-    fn push_node(&mut self, node: Node<'a>) -> usize {
-        let index = self.0.len();
-        self.0.push(node);
-        index
+impl<'a, Backing> Nodes<'a, Backing>
+where
+    Backing: NodeCollection<'a>,
+{
+    fn push_node(&mut self, node: Node<'a>) -> Result<usize, ErrorKind> {
+        let index = self.collection.as_ref().len();
+        self.collection.push(node)?;
+        Ok(index)
     }
 
-    pub fn push_null(&mut self) -> usize {
+    pub fn push_null(&mut self) -> Result<usize, ErrorKind> {
         self.push_node(Node::Null)
     }
 
-    pub fn push_bool(&mut self, boolean: bool) -> usize {
+    pub fn push_bool(&mut self, boolean: bool) -> Result<usize, ErrorKind> {
         self.push_node(Node::Boolean(boolean))
     }
 
-    pub fn push_string(&mut self, string: JsonString<'a>) -> usize {
+    pub fn push_string(&mut self, string: JsonString<'a>) -> Result<usize, ErrorKind> {
         self.push_node(Node::String(string))
     }
 
-    pub fn push_number(&mut self, number: JsonNumber<'a>) -> usize {
+    pub fn push_number(&mut self, number: JsonNumber<'a>) -> Result<usize, ErrorKind> {
         self.push_node(Node::Number(number))
     }
 
-    pub fn push_object(&mut self) -> usize {
+    pub fn push_object(&mut self) -> Result<usize, ErrorKind> {
         self.push_node(Node::Object { length: 0 })
     }
 
-    pub fn push_array(&mut self) -> usize {
+    pub fn push_array(&mut self) -> Result<usize, ErrorKind> {
         self.push_node(Node::Array { length: 0 })
     }
 
     pub fn extend_object(&mut self, index: usize) {
-        let Node::Object { length: len } = &mut self.0[index] else { unreachable!("extended wrong type") };
+        let Node::Object { length: len } = &mut self.collection.as_mut()[index] else { unreachable!("extended wrong type") };
         *len += 1;
     }
 
     pub fn extend_array(&mut self, index: usize) {
-        let Node::Array { length: len } = &mut self.0[index] else { unreachable!("extended wrong type") };
+        let Node::Array { length: len } = &mut self.collection.as_mut()[index] else { unreachable!("extended wrong type") };
         *len += 1;
     }
 }
 
-impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
+impl<'a, 'b, Backing> ParseDelegate<'a> for &'b mut Nodes<'a, Backing>
+where
+    Backing: NodeCollection<'a>,
+{
     type Array = usize;
-    type Error = Infallible;
+    type Error = ErrorKind;
     type Key = ();
     type Object = usize;
     type Value = usize;
 
     #[inline]
     fn null(&mut self) -> Result<Self::Value, Self::Error> {
-        Ok(self.push_null())
+        self.push_null()
     }
 
     #[inline]
     fn boolean(&mut self, value: bool) -> Result<Self::Value, Self::Error> {
-        Ok(self.push_bool(value))
+        self.push_bool(value)
     }
 
     #[inline]
     fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
-        Ok(self.push_number(value))
+        self.push_number(value)
     }
 
     #[inline]
     fn string(&mut self, value: JsonString<'a>) -> Result<Self::Value, Self::Error> {
-        Ok(self.push_string(value))
+        self.push_string(value)
     }
 
     #[inline]
     fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
-        Ok(self.push_object())
+        self.push_object()
     }
 
     #[inline]
@@ -257,7 +286,7 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
         key: JsonString<'a>,
     ) -> Result<Self::Key, Self::Error> {
         self.extend_object(*object);
-        self.push_string(key);
+        self.push_string(key)?;
         Ok(())
     }
 
@@ -273,7 +302,7 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
 
     #[inline]
     fn object_is_empty(&self, object: &Self::Object) -> bool {
-        let Node::Object { length: len } = &self.0[*object] else { unreachable!("invalid object") };
+        let Node::Object { length: len } = &self.collection.as_ref()[*object] else { unreachable!("invalid object") };
         *len == 0
     }
 
@@ -284,7 +313,7 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
 
     #[inline]
     fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
-        Ok(self.push_array())
+        self.push_array()
     }
 
     #[inline]
@@ -299,7 +328,7 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
 
     #[inline]
     fn array_is_empty(&self, array: &Self::Array) -> bool {
-        let Node::Array { length: len } = &self.0[*array] else { unreachable!("invalid array") };
+        let Node::Array { length: len } = &self.collection.as_ref()[*array] else { unreachable!("invalid array") };
         *len == 0
     }
 
@@ -310,7 +339,7 @@ impl<'a, 'b> ParseDelegate<'a> for &'b mut Nodes<'a> {
 
     #[inline]
     fn kind_of(&self, value: &Self::Value) -> JsonKind {
-        match &self.0[*value] {
+        match &self.collection.as_ref()[*value] {
             Node::Null => JsonKind::Null,
             Node::Boolean(_) => JsonKind::Boolean,
             Node::String(_) => JsonKind::String,
@@ -350,6 +379,7 @@ impl<'doc, 'a> DocumentIter<'doc, 'a> {
     /// assert_eq!(array.len(), 4);
     /// assert!(nodes.next().is_none());
     /// ```
+    #[cfg(feature = "alloc")]
     pub fn next_value(&mut self) -> Option<Value<'a>> {
         let node = self.nodes.next()?;
 
@@ -357,33 +387,6 @@ impl<'doc, 'a> DocumentIter<'doc, 'a> {
     }
 
     /// Skips a [`Value`], including any nested values.
-    ///
-    /// ```rust
-    /// use justjson::doc::{Document, Node};
-    /// use justjson::Value;
-    ///
-    /// let doc = Document::from_json(
-    ///     r#"{
-    ///         "a": [1, 2, 3, 4],
-    ///         "b": {"a": 1, "b": 2},
-    ///         "c": true
-    ///     }"#,
-    /// )
-    /// .unwrap();
-    ///
-    /// let mut nodes = doc.iter();
-    /// assert_eq!(nodes.next(), Some(Node::Object { length: 3 }));
-    /// let Node::String(key) = nodes.next().unwrap() else { unreachable!() };
-    /// assert_eq!(key, "a");
-    /// nodes.skip_next_value();
-    /// let Node::String(key) = nodes.next().unwrap() else { unreachable!() };
-    /// assert_eq!(key, "b");
-    /// nodes.skip_next_value();
-    /// let Node::String(key) = nodes.next().unwrap() else { unreachable!() };
-    /// assert_eq!(key, "c");
-    /// assert_eq!(nodes.next_value(), Some(Value::Boolean(true)));
-    /// assert!(nodes.next().is_none());
-    /// ```
     pub fn skip_next_value(&mut self) {
         if let Some(node) = self.nodes.next() {
             match node {
@@ -416,6 +419,7 @@ impl<'doc, 'a> Iterator for DocumentIter<'doc, 'a> {
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn document_iteration() {
     let source = r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#;
     let doc = Document::from_json(source).unwrap();
@@ -443,3 +447,33 @@ fn document_iteration() {
     iter.skip_next_value();
     assert!(iter.next().is_none());
 }
+
+/// A collection for use with [`GenericDocument`].
+pub trait NodeCollection<'a>:
+    AsRef<[Node<'a>]> + AsMut<[Node<'a>]> + IntoIterator<Item = Node<'a>>
+{
+    /// Push `node` to the end of the collection.
+    fn push(&mut self, node: Node<'a>) -> Result<(), ErrorKind>;
+}
+
+#[cfg(feature = "alloc")]
+impl<'a> NodeCollection<'a> for Vec<Node<'a>> {
+    #[inline]
+    fn push(&mut self, node: Node<'a>) -> Result<(), ErrorKind> {
+        self.push(node);
+        Ok(())
+    }
+}
+
+#[cfg(feature = "heapless")]
+impl<'a, const N: usize> NodeCollection<'a> for heapless::Vec<Node<'a>, N> {
+    #[inline]
+    fn push(&mut self, node: Node<'a>) -> Result<(), ErrorKind> {
+        self.push(node).map_err(|_| ErrorKind::PaylodTooLarge)
+    }
+}
+
+/// A convenience alias for a [`GenericDocument`] that uses a `Vec` from
+/// `std`/`alloc`.
+#[cfg(feature = "alloc")]
+pub type Document<'a> = GenericDocument<'a, Vec<Node<'a>>>;

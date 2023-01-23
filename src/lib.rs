@@ -30,7 +30,6 @@ pub use crate::value::{Object, Value};
 
 mod anystr;
 /// A JSON DOM representation with minimal processing.
-#[cfg(feature = "alloc")]
 pub mod doc;
 mod error;
 mod number;

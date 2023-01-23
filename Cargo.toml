@@ -17,7 +17,7 @@ alloc = []
 nightly = []      # Enables unstable documentation features outside of docs.rs
 
 [dependencies]
-# heapless = { version = "0.7.16", optional = true }
+heapless = { version = "0.7.16", optional = true }
 
 
 [workspace]
@@ -38,6 +38,10 @@ required-features = ["alloc"]
 [[example]]
 name = "borrowed-value"
 required-features = ["alloc"]
+
+[[example]]
+name = "heapless"
+required-features = ["heapless"]
 
 [package.metadata.docs.rs]
 rustc-args = ["--cfg", "docsrs"]

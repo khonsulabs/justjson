@@ -119,6 +119,9 @@ pub enum ErrorKind<DelegateError = Infallible> {
     /// This error is only returned when the `allow_all_types_at_root`
     /// configuration is set to `false`.
     PayloadsShouldBeObjectOrArray,
+    /// A [`GenericDocument`](crate::doc::GenericDocument) being parsed was too
+    /// large to fit in the collection provided.
+    PaylodTooLarge,
     /// An error was returned from a
     /// [`ParseDelegate`](crate::parser::ParseDelegate).
     ErrorFromDelegate(DelegateError),
@@ -150,6 +153,7 @@ impl ErrorKind<Infallible> {
             ErrorKind::ExpectedNumber => ErrorKind::ExpectedNumber,
             ErrorKind::RecursionLimitReached => ErrorKind::RecursionLimitReached,
             ErrorKind::PayloadsShouldBeObjectOrArray => ErrorKind::PayloadsShouldBeObjectOrArray,
+            ErrorKind::PaylodTooLarge => ErrorKind::PaylodTooLarge,
             ErrorKind::ErrorFromDelegate(_) => unreachable!("infallible"),
         }
     }
@@ -181,6 +185,7 @@ impl ErrorKind<ErrorKind> {
             ErrorKind::ExpectedNumber => ErrorKind::ExpectedNumber,
             ErrorKind::RecursionLimitReached => ErrorKind::RecursionLimitReached,
             ErrorKind::PayloadsShouldBeObjectOrArray => ErrorKind::PayloadsShouldBeObjectOrArray,
+            ErrorKind::PaylodTooLarge => ErrorKind::PaylodTooLarge,
             ErrorKind::ErrorFromDelegate(kind) => kind,
         }
     }
@@ -212,6 +217,7 @@ fn into_fallable_test() {
         ErrorKind::ExpectedNumber,
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::PaylodTooLarge,
     ] {
         match (kind.clone(), kind.into_fallable::<u8>()) {
             (ErrorKind::Utf8, ErrorKind::Utf8)
@@ -235,6 +241,7 @@ fn into_fallable_test() {
             | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)
             | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)
             | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)
+            | (ErrorKind::PaylodTooLarge, ErrorKind::PaylodTooLarge)
             | (
                 ErrorKind::PayloadsShouldBeObjectOrArray,
                 ErrorKind::PayloadsShouldBeObjectOrArray,
@@ -273,6 +280,7 @@ fn into_infallable_test() {
         ErrorKind::ExpectedNumber,
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::PaylodTooLarge,
         ErrorKind::ErrorFromDelegate(ErrorKind::ExpectedColon),
     ] {
         match (kind.clone(), kind.into_infallable()) {
@@ -297,6 +305,7 @@ fn into_infallable_test() {
             | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)
             | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)
             | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)
+            | (ErrorKind::PaylodTooLarge, ErrorKind::PaylodTooLarge)
             | (
                 ErrorKind::PayloadsShouldBeObjectOrArray,
                 ErrorKind::PayloadsShouldBeObjectOrArray,
@@ -356,6 +365,9 @@ where
             ErrorKind::RecursionLimitReached => f.write_str("the recursion limit has been reached"),
             ErrorKind::PayloadsShouldBeObjectOrArray => {
                 f.write_str("JSON only allows objects or arrays at the root")
+            }
+            ErrorKind::PaylodTooLarge => {
+                f.write_str("the payload is too large to be parsed into the destination structure")
             }
             ErrorKind::ErrorFromDelegate(err) => write!(f, "error from delegate: {err}"),
         }

@@ -19,4 +19,4 @@ jobs:
       # Do not pass --all-features, as it enables the "nightly" flag.
       - name: Run unit tests
         run: |
-          cargo test --all-targets
+          cargo test --all-targets --features heapless
