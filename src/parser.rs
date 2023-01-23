@@ -451,6 +451,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     b'"' => {
                         break Ok(JsonString {
                             source: StringContents::Json {
+                                // SAFETY: the UTF8 has been manually verified by the parser.
                                 source: AnyStr::Borrowed(unsafe {
                                     core::str::from_utf8_unchecked(
                                         &self.source.bytes[start + 1..offset],
@@ -458,7 +459,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                                 }),
                                 info: string_info,
                             },
-                        })
+                        });
                     }
                     b'\\' => self.read_string_escape(&mut string_info)?,
                     128..=255 => {
@@ -550,6 +551,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     }
 
                     if decoded_is_surrogate_pair {
+                        // SAFETY: we have manually marged the surrogate pair
+                        // into a single valid codepoint, and this cannot fail.
                         unsafe { char::from_u32_unchecked(decoded) }
                     } else {
                         return Err(Error {
@@ -663,6 +666,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
 
         Ok(JsonNumber {
+            // SAFETY: To reach this point, we can only have read ascii
+            // characters.
             source: AnyStr::Borrowed(unsafe {
                 core::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
             }),
