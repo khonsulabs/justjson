@@ -30,7 +30,8 @@ impl khonsu_tools::universal::code_coverage::Config for Config {
             String::from("test"),
             String::from("--workspace"),
             String::from("--all-targets"),
-            String::from("--features heapless"),
+            String::from("--features"),
+            String::from("heapless"),
         ]
     }
 }

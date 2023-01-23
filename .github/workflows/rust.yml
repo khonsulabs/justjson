@@ -12,11 +12,56 @@ jobs:
       - name: Install Rust
         uses: hecrj/setup-rust-action@v1
 
-      - name: Run clippy
+      - name: Run clippy (all features)
         run: |
-          cargo clippy
+          cargo clippy --features heapless
+
+      - name: Run clippy (no features)
+        run: |
+          cargo clippy --no-default-features
+
+      - name: Run clippy (alloc)
+        run: |
+          cargo clippy --no-default-features --features alloc
+
+      - name: Run clippy (heapless)
+        run: |
+          cargo clippy --no-default-features --features heapless
 
       # Do not pass --all-features, as it enables the "nightly" flag.
       - name: Run unit tests
         run: |
           cargo test --all-targets --features heapless
+
+  build-nostd:
+    name: Build on no_std target (thumbv7em-none-eabi)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          targets: thumbv7em-none-eabi
+      - run: cargo build --target thumbv7em-none-eabi --lib --release --no-default-features
+
+  build-alloc:
+    name: Build on no_std target (thumbv7em-none-eabi)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          targets: thumbv7em-none-eabi
+      - run: cargo build --target thumbv7em-none-eabi --lib --release --no-default-features --features alloc
+
+  build-heapless:
+    name: Build on no_std target (thumbv7em-none-eabi)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          targets: thumbv7em-none-eabi
+      - run: cargo build --target thumbv7em-none-eabi --lib --release --no-default-features --features heapless
