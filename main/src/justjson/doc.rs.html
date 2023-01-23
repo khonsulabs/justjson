@@ -477,6 +477,10 @@
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
 <a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::iter::Cloned;
@@ -956,5 +960,9 @@
 /// `std`/`alloc`.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">pub type </span>Document&lt;<span class="lifetime">&#39;a</span>&gt; = GenericDocument&lt;<span class="lifetime">&#39;a</span>, Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;;
+
+<span class="doccomment">/// A convenience alias for a [`GenericDocument`] that uses a `heapless::Vec`.
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
+</span><span class="kw">pub type </span>HeaplessDocument&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>N: usize&gt; = GenericDocument&lt;<span class="lifetime">&#39;a</span>, heapless::Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;, N&gt;&gt;;
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (5e37043d6 2023-01-22)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -34,7 +34,7 @@ present, allowing this comparison to be very efficient.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>json = justjson::JsonString::from_json(<span class="string">&quot;\&quot;Hello, World!\&quot;&quot;</span>).unwrap();
 <span class="macro">assert_eq!</span>(json, <span class="string">&quot;Hello, World!&quot;</span>);</code></pre></div>
-<p>JustJson also offers an even faster method for parsing: <a href="https://khonsulabs.github.io/justjson/main/justjson/doc/struct.Document.html"><code>Document</code></a>.
+<p>JustJson also offers an even faster method for parsing: <a href="https://khonsulabs.github.io/justjson/main/justjson/doc/type.Document.html"><code>Document</code></a>.
 When parsing an array or an object into a <code>Value</code>, the parser doesn’t know how
 large each array or object will be until it parses the rest of the object.
 <code>Document</code> builds a tree representing the JSON value in a single <code>Vec</code>, further
@@ -75,6 +75,20 @@ small/json-deserializer/bytes
 <p>This crate uses unsafe code only when converting from raw incoming data to UTF-8
 data. The parser fully verifies that the data is valid UTF-8 before these
 functions are used.</p>
+<h3 id="no_std-support"><a href="#no_std-support"><code>no_std</code> support</a></h3>
+<p>By default, this crate enables the <code>std</code> feature, which adds support for Rust’s
+standard library types. By disabling default features, this crate can be used in
+<code>no_std</code> projects. For example, in your Cargo.toml:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+justjson = { version = &quot;*&quot;, default-features = false }
+</code></pre></div>
+<p>The <a href="https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html"><code>Value</code></a> type requires the <code>alloc</code> feature to be enabled.</p>
+<p>The <a href="https://khonsulabs.github.io/justjson/main/justjson/doc/type.Document.html"><code>Document</code></a> type alias requires the <code>alloc</code> feature, but the
+<a href="https://khonsulabs.github.io/justjson/main/justjson/doc/struct.GenericDocument.html"><code>GenericDocument</code></a> type allows providing your own collection type.</p>
+<p>With the <code>heapless</code> feature enabled, the <a href="https://khonsulabs.github.io/justjson/main/justjson/doc/type.HeaplessDocument.html"><code>HeaplessDocument</code></a> type
+can be used to parse documents using the <a href="https://github.com/japaric/heapless">heapless</a> crate’s <code>Vec</code> type
+for storage. This enables parsing JSON in environments where the <code>alloc</code> crate
+isn’t supported.</p>
 <h3 id="open-source-licenses"><a href="#open-source-licenses">Open-source Licenses</a></h3>
 <p>This project, like all projects from <a href="https://khonsulabs.com/">Khonsu Labs</a>, are
 open-source. This repository is available under the <a href="./LICENSE-MIT">MIT License</a>
