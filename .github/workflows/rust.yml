@@ -16,6 +16,7 @@ jobs:
         run: |
           cargo clippy
 
+      # Do not pass --all-features, as it enables the "nightly" flag.
       - name: Run unit tests
         run: |
-          cargo test --all-features --all-targets
+          cargo test --all-targets

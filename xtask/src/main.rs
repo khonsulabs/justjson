@@ -10,11 +10,26 @@ enum Config {}
 
 impl khonsu_tools::Config for Config {
     type Publish = Self;
-    type Universal = DefaultConfig;
+    type Universal = Self;
+}
+
+impl khonsu_tools::universal::Config for Config {
+    type Audit = DefaultConfig;
+    type CodeCoverage = Self;
 }
 
 impl khonsu_tools::publish::Config for Config {
     fn paths() -> Vec<String> {
         vec![String::from(".")]
+    }
+}
+
+impl khonsu_tools::universal::code_coverage::Config for Config {
+    fn cargo_args() -> Vec<String> {
+        vec![
+            String::from("test"),
+            String::from("--workspace"),
+            String::from("--all-targets"),
+        ]
     }
 }
