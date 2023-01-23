@@ -477,3 +477,7 @@ impl<'a, const N: usize> NodeCollection<'a> for heapless::Vec<Node<'a>, N> {
 /// `std`/`alloc`.
 #[cfg(feature = "alloc")]
 pub type Document<'a> = GenericDocument<'a, Vec<Node<'a>>>;
+
+/// A convenience alias for a [`GenericDocument`] that uses a `heapless::Vec`.
+#[cfg(feature = "heapless")]
+pub type HeaplessDocument<'a, const N: usize> = GenericDocument<'a, heapless::Vec<Node<'a>, N>>;
