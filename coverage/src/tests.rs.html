@@ -151,7 +151,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">use crate::cow::CowStr;</pre>
+                <pre class="has-background-white py-0 px-2">use crate::anystr::AnyStr;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -957,7 +957,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                source: CowStr::Borrowed(&quot;hello&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                source: AnyStr::Borrowed(&quot;hello&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1074,7 +1074,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                source: CowStr::Borrowed(&quot;&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                source: AnyStr::Borrowed(&quot;&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1243,7 +1243,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                source: CowStr::Borrowed(r#&quot;\&quot;\\\&#x2F;\b\f\n\r\t\u25eF&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">                source: AnyStr::Borrowed(r#&quot;\&quot;\\\&#x2F;\b\f\n\r\t\u25eF&quot;#),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1646,7 +1646,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                    source: CowStr::Borrowed(&quot;hello&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                    source: AnyStr::Borrowed(&quot;hello&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1867,7 +1867,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                        source: CowStr::Borrowed(&quot;hello&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                        source: AnyStr::Borrowed(&quot;hello&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -1984,7 +1984,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                        source: CowStr::Borrowed(&quot;world&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">                        source: AnyStr::Borrowed(&quot;world&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2374,7 +2374,7 @@
                 10
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                source: CowStr::Borrowed(std::str::from_utf8(&amp;[b]).unwrap()),</pre>
+                <pre class="has-background-success-light py-0 px-2">                source: AnyStr::Borrowed(std::str::from_utf8(&amp;[b]).unwrap()),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2478,7 +2478,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: CowStr::Borrowed(r#&quot;-1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1&quot;#),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2569,7 +2569,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: CowStr::Borrowed(r#&quot;-1.0&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1.0&quot;#),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2660,7 +2660,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: CowStr::Borrowed(r#&quot;-1.0e1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1.0e1&quot;#),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2751,7 +2751,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: CowStr::Borrowed(r#&quot;-1.0E-1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1.0E-1&quot;#),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2920,7 +2920,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                    source: CowStr::Borrowed(r#&quot;1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">                    source: AnyStr::Borrowed(r#&quot;1&quot;#),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3297,7 +3297,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                source: CowStr::Borrowed(r#&quot;1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">                source: AnyStr::Borrowed(r#&quot;1&quot;#),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -7696,7 +7696,7 @@
         </div></div>
         <footer class="footer">
             <div class="content has-text-centered">
-                <p class="heading">Date: 2023-01-23 15:12</p>
+                <p class="heading">Date: 2023-01-23 16:07</p>
             </div>
         </footer>
     </body>
