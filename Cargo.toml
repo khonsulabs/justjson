@@ -35,14 +35,6 @@ debug = true
 name = "roundtrip"
 required-features = ["alloc"]
 
-[[test]]
-name = "jsonorg"
-required-features = ["alloc"]
-
-[[test]]
-name = "jsontestsuite"
-required-features = ["alloc"]
-
 [[example]]
 name = "borrowed-value"
 required-features = ["alloc"]

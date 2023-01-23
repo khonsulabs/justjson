@@ -1,4 +1,4 @@
-use crate::cow::CowStr;
+use crate::anystr::AnyStr;
 use crate::parser::{ParseDelegate, Parser};
 use crate::{Error, ErrorKind};
 
@@ -6,7 +6,7 @@ use crate::{Error, ErrorKind};
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct JsonNumber<'a> {
     /// The JSON source for this number.
-    pub(crate) source: CowStr<'a>,
+    pub(crate) source: AnyStr<'a>,
 }
 
 impl<'a> JsonNumber<'a> {
@@ -139,7 +139,7 @@ fn json_number_from_json() {
     assert_eq!(
         JsonNumber::from_json("1").unwrap(),
         JsonNumber {
-            source: CowStr::Borrowed("1")
+            source: AnyStr::Borrowed("1")
         }
     );
 
@@ -156,4 +156,28 @@ fn json_number_conversions() {
     assert_eq!(one.as_i64().unwrap(), 1);
     assert_eq!(one.as_u64().unwrap(), 1);
     assert!((one.as_f64().unwrap() - 1.0).abs() < f64::EPSILON);
+}
+
+#[test]
+fn from_json_bad_types() {
+    assert_eq!(
+        JsonNumber::from_json("\"\"").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("null").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("true").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("[]").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("{}").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
 }

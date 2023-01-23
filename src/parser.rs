@@ -1,8 +1,9 @@
+use core::convert::Infallible;
 use core::iter::Peekable;
 use core::marker::PhantomData;
 use core::slice;
 
-use crate::cow::CowStr;
+use crate::anystr::AnyStr;
 use crate::string::{
     merge_surrogate_pair, StringContents, HEX_OFFSET_TABLE, HIGH_SURROGATE_MAX, HIGH_SURROGATE_MIN,
     LOW_SURROGATE_MAX, LOW_SURROGATE_MIN, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
@@ -50,6 +51,21 @@ impl<'a> Parser<'a, false> {
     {
         Self::parse_bytes(value, config, delegate)
     }
+
+    /// Validates that `json` contains valid JSON and returns the kind of data
+    /// the payload contained.
+    pub fn validate_json_bytes(json: &'a [u8]) -> Result<JsonKind, Error> {
+        Self::validate_json_bytes_with_config(json, ParseConfig::default())
+    }
+
+    /// Validates that `json` contains valid JSON, using the settings from
+    /// `config`, and returns the kind of data the payload contained.
+    pub fn validate_json_bytes_with_config(
+        json: &'a [u8],
+        config: ParseConfig,
+    ) -> Result<JsonKind, Error> {
+        Self::parse_bytes(json, config, ())
+    }
 }
 
 impl<'a> Parser<'a, true> {
@@ -79,6 +95,21 @@ impl<'a> Parser<'a, true> {
         D: ParseDelegate<'a>,
     {
         Self::parse_bytes(value.as_bytes(), config, delegate)
+    }
+
+    /// Validates that `json` contains valid JSON and returns the kind of data
+    /// the payload contained.
+    pub fn validate_json(json: &'a str) -> Result<JsonKind, Error> {
+        Self::validate_json_with_config(json, ParseConfig::default())
+    }
+
+    /// Validates that `json` contains valid JSON, using the settings from
+    /// `config`, and returns the kind of data the payload contained.
+    pub fn validate_json_with_config(
+        json: &'a str,
+        config: ParseConfig,
+    ) -> Result<JsonKind, Error> {
+        Self::parse_json_with_config(json, config, ())
     }
 }
 
@@ -420,7 +451,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     b'"' => {
                         break Ok(JsonString {
                             source: StringContents::Json {
-                                source: CowStr::Borrowed(unsafe {
+                                source: AnyStr::Borrowed(unsafe {
                                     core::str::from_utf8_unchecked(
                                         &self.source.bytes[start + 1..offset],
                                     )
@@ -632,7 +663,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
 
         Ok(JsonNumber {
-            source: CowStr::Borrowed(unsafe {
+            source: AnyStr::Borrowed(unsafe {
                 core::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
             }),
         })
@@ -967,4 +998,95 @@ pub enum JsonKind {
     Object,
     /// A list of values.
     Array,
+}
+
+impl<'a> ParseDelegate<'a> for () {
+    type Array = usize;
+    type Error = Infallible;
+    type Key = ();
+    type Object = usize;
+    type Value = JsonKind;
+
+    fn null(&mut self) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Null)
+    }
+
+    fn boolean(&mut self, _value: bool) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Boolean)
+    }
+
+    fn number(&mut self, _value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Number)
+    }
+
+    fn string(&mut self, _value: JsonString<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::String)
+    }
+
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
+        Ok(0)
+    }
+
+    fn object_key(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error> {
+        Ok(())
+    }
+
+    fn object_value(
+        &mut self,
+        object: &mut Self::Object,
+        _key: Self::Key,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        *object += 1;
+        Ok(())
+    }
+
+    fn object_is_empty(&self, object: &Self::Object) -> bool {
+        *object == 0
+    }
+
+    fn end_object(&mut self, _object: Self::Object) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Object)
+    }
+
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
+        Ok(0)
+    }
+
+    fn array_value(
+        &mut self,
+        array: &mut Self::Array,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        *array += 1;
+        Ok(())
+    }
+
+    fn array_is_empty(&self, array: &Self::Array) -> bool {
+        *array == 0
+    }
+
+    fn end_array(&mut self, _array: Self::Array) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Array)
+    }
+
+    fn kind_of(&self, value: &Self::Value) -> JsonKind {
+        *value
+    }
+}
+
+#[test]
+fn validates() {
+    assert_eq!(
+        Parser::validate_json(r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#),
+        Ok(JsonKind::Object)
+    );
+    assert_eq!(
+        Parser::validate_json_bytes(br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#),
+        Ok(JsonKind::Object)
+    );
 }

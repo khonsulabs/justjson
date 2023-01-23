@@ -3,7 +3,7 @@ use alloc::string::String;
 use core::fmt::{self, Debug, Display, Formatter, Write};
 use core::str::{CharIndices, Chars};
 
-use crate::cow::CowStr;
+use crate::anystr::AnyStr;
 use crate::error::{Error, ErrorKind};
 use crate::parser::{ParseDelegate, Parser};
 
@@ -36,11 +36,11 @@ impl<'a> JsonString<'a> {
     /// escape sequences.
     #[must_use]
     #[cfg(feature = "alloc")]
-    pub fn decode_if_needed(&self) -> CowStr<'_> {
+    pub fn decode_if_needed(&self) -> AnyStr<'_> {
         match &self.source {
             StringContents::Json { source, info } => {
                 if info.has_escapes() {
-                    CowStr::Owned(self.decoded().collect())
+                    AnyStr::Owned(self.decoded().collect())
                 } else {
                     source.clone()
                 }
@@ -65,7 +65,7 @@ impl<'a> JsonString<'a> {
 impl<'a> From<&'a str> for JsonString<'a> {
     fn from(value: &'a str) -> Self {
         Self {
-            source: StringContents::Raw(CowStr::Borrowed(value)),
+            source: StringContents::Raw(AnyStr::Borrowed(value)),
         }
     }
 }
@@ -74,7 +74,7 @@ impl<'a> From<&'a str> for JsonString<'a> {
 impl<'a> From<String> for JsonString<'a> {
     fn from(value: String) -> Self {
         Self {
-            source: StringContents::Raw(CowStr::Owned(value)),
+            source: StringContents::Raw(AnyStr::Owned(value)),
         }
     }
 }
@@ -149,7 +149,7 @@ fn json_string_from_json() {
         JsonString::from_json(r#""Hello, World!""#).unwrap(),
         JsonString {
             source: StringContents::Json {
-                source: CowStr::Borrowed(r#"Hello, World!"#),
+                source: AnyStr::Borrowed(r#"Hello, World!"#),
                 info: JsonStringInfo::new(false, 13),
             }
         }
@@ -224,23 +224,25 @@ fn json_string_cmp() {
 #[cfg(feature = "alloc")]
 fn decode_if_needed() {
     let empty = JsonString::from_json(r#""""#).unwrap();
-    let CowStr::Borrowed(string) = empty.decode_if_needed() else { unreachable!() };
+    let AnyStr::Borrowed(string) = empty.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "");
     let has_escapes = JsonString::from_json(r#""\r""#).unwrap();
-    let CowStr::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
+    let AnyStr::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "\r");
     let decoded_via_display = alloc::format!("{}", has_escapes.decoded());
     assert_eq!(decoded_via_display, "\r");
 
     let raw_string = JsonString::from(r#"raw string"#);
-    let CowStr::Borrowed(string) = raw_string.decode_if_needed() else { unreachable!() };
+    let AnyStr::Borrowed(string) = raw_string.decode_if_needed() else { unreachable!() };
     assert_eq!(string, "raw string");
 
     let decoded_via_display = alloc::format!("{}", raw_string.decoded());
     assert_eq!(decoded_via_display, "raw string");
 }
 
-/// Information about a [`JsonString`]:
+/// Information about a parsed [`JsonString`].
+///
+/// This type stores:
 ///
 /// - Whether any escape sequences are in the source
 /// - The length of the String if the escape sequences are decoded.
@@ -637,10 +639,10 @@ fn escape() {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum StringContents<'a> {
     Json {
-        source: CowStr<'a>,
+        source: AnyStr<'a>,
         info: JsonStringInfo,
     },
-    Raw(CowStr<'a>),
+    Raw(AnyStr<'a>),
 }
 
 pub(crate) const HIGH_SURROGATE_MIN: u32 = 0xD800;
@@ -730,4 +732,28 @@ impl<'a> ParseDelegate<'a> for StringParser {
     fn kind_of(&self, _value: &Self::Value) -> crate::parser::JsonKind {
         unreachable!()
     }
+}
+
+#[test]
+fn from_json_bad_types() {
+    assert_eq!(
+        JsonString::from_json("1").unwrap_err().kind,
+        ErrorKind::ExpectedString
+    );
+    assert_eq!(
+        JsonString::from_json("null").unwrap_err().kind,
+        ErrorKind::ExpectedString
+    );
+    assert_eq!(
+        JsonString::from_json("true").unwrap_err().kind,
+        ErrorKind::ExpectedString
+    );
+    assert_eq!(
+        JsonString::from_json("[]").unwrap_err().kind,
+        ErrorKind::ExpectedString
+    );
+    assert_eq!(
+        JsonString::from_json("{}").unwrap_err().kind,
+        ErrorKind::ExpectedString
+    );
 }

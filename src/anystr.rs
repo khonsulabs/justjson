@@ -1,9 +1,11 @@
 use core::ops::Deref;
 
-/// A Cow-like type that only offers an `Owned` variant with `#[cfg(feature =
-/// "alloc")]`.
+/// A string that can be either Owned or Borrowed.
+///
+/// This type is similar to the standard library's Cow, but the `Owned` variant
+/// is only available when the `alloc` or `std` features are enabled.
 #[derive(Debug, Clone)]
-pub enum CowStr<'a> {
+pub enum AnyStr<'a> {
     /// An owned String.
     #[cfg(feature = "alloc")]
     Owned(alloc::string::String),
@@ -11,7 +13,7 @@ pub enum CowStr<'a> {
     Borrowed(&'a str),
 }
 
-impl<'a> AsRef<str> for CowStr<'a> {
+impl<'a> AsRef<str> for AnyStr<'a> {
     fn as_ref(&self) -> &str {
         match self {
             #[cfg(feature = "alloc")]
@@ -21,27 +23,27 @@ impl<'a> AsRef<str> for CowStr<'a> {
     }
 }
 
-impl<'a> Eq for CowStr<'a> {}
+impl<'a> Eq for AnyStr<'a> {}
 
-impl<'a, 'b> PartialEq<CowStr<'b>> for CowStr<'a> {
-    fn eq(&self, other: &CowStr<'b>) -> bool {
+impl<'a, 'b> PartialEq<AnyStr<'b>> for AnyStr<'a> {
+    fn eq(&self, other: &AnyStr<'b>) -> bool {
         self.as_ref() == other.as_ref()
     }
 }
 
-impl<'a, 'b> PartialEq<&'b str> for CowStr<'a> {
+impl<'a, 'b> PartialEq<&'b str> for AnyStr<'a> {
     fn eq(&self, other: &&'b str) -> bool {
         self == *other
     }
 }
 
-impl<'a> PartialEq<str> for CowStr<'a> {
+impl<'a> PartialEq<str> for AnyStr<'a> {
     fn eq(&self, other: &str) -> bool {
         self.as_ref() == other
     }
 }
 
-impl<'a> Deref for CowStr<'a> {
+impl<'a> Deref for AnyStr<'a> {
     type Target = str;
 
     fn deref(&self) -> &Self::Target {

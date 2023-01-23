@@ -21,14 +21,14 @@ extern crate std;
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-pub use crate::cow::CowStr;
+pub use crate::anystr::AnyStr;
 pub use crate::error::{Error, ErrorKind};
 pub use crate::number::JsonNumber;
 pub use crate::string::{JsonString, JsonStringInfo};
 #[cfg(feature = "alloc")]
 pub use crate::value::{Object, Value};
 
-mod cow;
+mod anystr;
 /// A JSON DOM representation with minimal processing.
 #[cfg(feature = "alloc")]
 pub mod doc;
