@@ -443,15 +443,50 @@
 <a href="#443" id="443">443</a>
 <a href="#444" id="444">444</a>
 <a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::convert::Infallible;
 <span class="kw">use </span>core::iter::Cloned;
+<span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>core::slice;
 
 <span class="kw">use </span><span class="kw">crate</span>::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
-<span class="kw">use </span><span class="kw">crate</span>::value::Entry;
-<span class="kw">use crate</span>::{Error, JsonNumber, JsonString, Object, Value};
+<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">use crate</span>::{value::Entry, Object, Value};
+<span class="kw">use crate</span>::{Error, ErrorKind, JsonNumber, JsonString};
 
 <span class="doccomment">/// A parsed JSON payload.
 ///
@@ -485,18 +520,24 @@
 /// - [`next_value()`](DocumentIter::next_value): Returns a [`Value`] from the
 ///   iterator.
 </span><span class="attr">#[derive(Debug, Eq, PartialEq)]
-</span><span class="kw">pub struct </span>Document&lt;<span class="lifetime">&#39;a</span>&gt; {
-    nodes: Nodes&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt; {
+    nodes: Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Document&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Backing&gt; GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">where
+    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+{
     <span class="doccomment">/// Parses a JSON payload from `source`.
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>from_json_bytes(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json_bytes(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    <span class="kw">where
+        </span>Backing: Default,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = Nodes::default();
-        Parser::parse_json_bytes(source, <span class="kw-2">&amp;mut </span>nodes)<span class="question-mark">?</span>;
+        Parser::parse_json_bytes(source, <span class="kw-2">&amp;mut </span>nodes).map_err(Error::into_infallable)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ nodes })
     }
 
@@ -504,12 +545,13 @@
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>from_json_bytes_with_config(
-        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-        config: ParseConfig,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json_bytes_with_config(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    <span class="kw">where
+        </span>Backing: Default,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = Nodes::default();
-        Parser::parse_json_bytes_with_config(source, config, <span class="kw-2">&amp;mut </span>nodes)<span class="question-mark">?</span>;
+        Parser::parse_json_bytes_with_config(source, config, <span class="kw-2">&amp;mut </span>nodes)
+            .map_err(Error::into_infallable)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ nodes })
     }
 
@@ -517,9 +559,12 @@
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>from_json(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    <span class="kw">where
+        </span>Backing: Default,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = Nodes::default();
-        Parser::parse_json(source, <span class="kw-2">&amp;mut </span>nodes)<span class="question-mark">?</span>;
+        Parser::parse_json(source, <span class="kw-2">&amp;mut </span>nodes).map_err(Error::into_infallable)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ nodes })
     }
 
@@ -527,12 +572,13 @@
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>from_json_with_config(
-        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        config: ParseConfig,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json_with_config(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    <span class="kw">where
+        </span>Backing: Default,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = Nodes::default();
-        Parser::parse_json_with_config(source, config, <span class="kw-2">&amp;mut </span>nodes)<span class="question-mark">?</span>;
+        Parser::parse_json_with_config(source, config, <span class="kw-2">&amp;mut </span>nodes)
+            .map_err(Error::into_infallable)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ nodes })
     }
 
@@ -543,15 +589,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Document&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(doc: Document&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>nodes = doc.nodes.<span class="number">0</span>.into_iter();
+<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Backing&gt; From&lt;GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt;
+<span class="kw">where
+    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+{
+    <span class="kw">fn </span>from(doc: GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>nodes = doc.nodes.collection.into_iter();
         <span class="kw">let </span>root = nodes.next().expect(<span class="string">&quot;empty document is invalid&quot;</span>);
         hydrate_value_from_node(root, <span class="kw-2">&amp;mut </span>nodes)
     }
 }
 
-<span class="kw">fn </span>hydrate_value_from_node&lt;<span class="lifetime">&#39;a</span>, I&gt;(node: Node&lt;<span class="lifetime">&#39;a</span>&gt;, remaining_nodes: <span class="kw-2">&amp;mut </span>I) -&gt; Value&lt;<span class="lifetime">&#39;a</span>&gt;
+<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">fn </span>hydrate_value_from_node&lt;<span class="lifetime">&#39;a</span>, I&gt;(node: Node&lt;<span class="lifetime">&#39;a</span>&gt;, remaining_nodes: <span class="kw-2">&amp;mut </span>I) -&gt; Value&lt;<span class="lifetime">&#39;a</span>&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 {
@@ -584,13 +635,16 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;doc </span>Document&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>, Backing&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;doc </span>GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">where
+    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+{
     <span class="kw">type </span>IntoIter = DocumentIter&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt;;
     <span class="kw">type </span>Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         DocumentIter {
-            nodes: <span class="self">self</span>.nodes.<span class="number">0</span>.iter().cloned(),
+            nodes: <span class="self">self</span>.nodes.collection.as_ref().iter().cloned(),
         }
     }
 }
@@ -619,80 +673,89 @@
 }
 
 <span class="attr">#[derive(Default, Debug, Eq, PartialEq)]
-</span><span class="kw">struct </span>Nodes&lt;<span class="lifetime">&#39;a</span>&gt;(Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+</span><span class="kw">struct </span>Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt; {
+    collection: Backing,
+    _phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
+}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Nodes&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>push_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; usize {
-        <span class="kw">let </span>index = <span class="self">self</span>.<span class="number">0</span>.len();
-        <span class="self">self</span>.<span class="number">0</span>.push(node);
-        index
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Backing&gt; Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">where
+    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+{
+    <span class="kw">fn </span>push_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
+        <span class="kw">let </span>index = <span class="self">self</span>.collection.as_ref().len();
+        <span class="self">self</span>.collection.push(node)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(index)
     }
 
-    <span class="kw">pub fn </span>push_null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; usize {
+    <span class="kw">pub fn </span>push_null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::Null)
     }
 
-    <span class="kw">pub fn </span>push_bool(<span class="kw-2">&amp;mut </span><span class="self">self</span>, boolean: bool) -&gt; usize {
+    <span class="kw">pub fn </span>push_bool(<span class="kw-2">&amp;mut </span><span class="self">self</span>, boolean: bool) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::Boolean(boolean))
     }
 
-    <span class="kw">pub fn </span>push_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; usize {
+    <span class="kw">pub fn </span>push_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::String(string))
     }
 
-    <span class="kw">pub fn </span>push_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, number: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; usize {
+    <span class="kw">pub fn </span>push_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, number: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::Number(number))
     }
 
-    <span class="kw">pub fn </span>push_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; usize {
+    <span class="kw">pub fn </span>push_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::Object { length: <span class="number">0 </span>})
     }
 
-    <span class="kw">pub fn </span>push_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; usize {
+    <span class="kw">pub fn </span>push_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::Array { length: <span class="number">0 </span>})
     }
 
     <span class="kw">pub fn </span>extend_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
-        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;extended wrong type&quot;</span>) };
+        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.collection.as_mut()[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;extended wrong type&quot;</span>) };
         <span class="kw-2">*</span>len += <span class="number">1</span>;
     }
 
     <span class="kw">pub fn </span>extend_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
-        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;extended wrong type&quot;</span>) };
+        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.collection.as_mut()[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;extended wrong type&quot;</span>) };
         <span class="kw-2">*</span>len += <span class="number">1</span>;
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Nodes&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, Backing&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">where
+    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+{
     <span class="kw">type </span>Array = usize;
-    <span class="kw">type </span>Error = Infallible;
+    <span class="kw">type </span>Error = ErrorKind;
     <span class="kw">type </span>Key = ();
     <span class="kw">type </span>Object = usize;
     <span class="kw">type </span>Value = usize;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.push_null())
+        <span class="self">self</span>.push_null()
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>boolean(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.push_bool(value))
+        <span class="self">self</span>.push_bool(value)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.push_number(value))
+        <span class="self">self</span>.push_number(value)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.push_string(value))
+        <span class="self">self</span>.push_string(value)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>begin_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Object, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.push_object())
+        <span class="self">self</span>.push_object()
     }
 
     <span class="attr">#[inline]
@@ -702,7 +765,7 @@
         key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.extend_object(<span class="kw-2">*</span>object);
-        <span class="self">self</span>.push_string(key);
+        <span class="self">self</span>.push_string(key)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -718,7 +781,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>object_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, object: <span class="kw-2">&amp;</span><span class="self">Self</span>::Object) -&gt; bool {
-        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="kw-2">*</span>object] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;invalid object&quot;</span>) };
+        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.collection.as_ref()[<span class="kw-2">*</span>object] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;invalid object&quot;</span>) };
         <span class="kw-2">*</span>len == <span class="number">0
     </span>}
 
@@ -729,7 +792,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>begin_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Array, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.push_array())
+        <span class="self">self</span>.push_array()
     }
 
     <span class="attr">#[inline]
@@ -744,7 +807,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>array_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, array: <span class="kw-2">&amp;</span><span class="self">Self</span>::Array) -&gt; bool {
-        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="kw-2">*</span>array] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;invalid array&quot;</span>) };
+        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.collection.as_ref()[<span class="kw-2">*</span>array] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;invalid array&quot;</span>) };
         <span class="kw-2">*</span>len == <span class="number">0
     </span>}
 
@@ -755,7 +818,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>kind_of(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span><span class="self">Self</span>::Value) -&gt; JsonKind {
-        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="kw-2">*</span>value] {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.collection.as_ref()[<span class="kw-2">*</span>value] {
             Node::Null =&gt; JsonKind::Null,
             Node::Boolean(<span class="kw">_</span>) =&gt; JsonKind::Boolean,
             Node::String(<span class="kw">_</span>) =&gt; JsonKind::String,
@@ -795,6 +858,7 @@
     /// assert_eq!(array.len(), 4);
     /// assert!(nodes.next().is_none());
     /// ```
+    </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
     </span><span class="kw">pub fn </span>next_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="kw">let </span>node = <span class="self">self</span>.nodes.next()<span class="question-mark">?</span>;
 
@@ -802,33 +866,6 @@
     }
 
     <span class="doccomment">/// Skips a [`Value`], including any nested values.
-    ///
-    /// ```rust
-    /// use justjson::doc::{Document, Node};
-    /// use justjson::Value;
-    ///
-    /// let doc = Document::from_json(
-    ///     r#&quot;{
-    ///         &quot;a&quot;: [1, 2, 3, 4],
-    ///         &quot;b&quot;: {&quot;a&quot;: 1, &quot;b&quot;: 2},
-    ///         &quot;c&quot;: true
-    ///     }&quot;#,
-    /// )
-    /// .unwrap();
-    ///
-    /// let mut nodes = doc.iter();
-    /// assert_eq!(nodes.next(), Some(Node::Object { length: 3 }));
-    /// let Node::String(key) = nodes.next().unwrap() else { unreachable!() };
-    /// assert_eq!(key, &quot;a&quot;);
-    /// nodes.skip_next_value();
-    /// let Node::String(key) = nodes.next().unwrap() else { unreachable!() };
-    /// assert_eq!(key, &quot;b&quot;);
-    /// nodes.skip_next_value();
-    /// let Node::String(key) = nodes.next().unwrap() else { unreachable!() };
-    /// assert_eq!(key, &quot;c&quot;);
-    /// assert_eq!(nodes.next_value(), Some(Value::Boolean(true)));
-    /// assert!(nodes.next().is_none());
-    /// ```
     </span><span class="kw">pub fn </span>skip_next_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(node) = <span class="self">self</span>.nodes.next() {
             <span class="kw">match </span>node {
@@ -861,6 +898,7 @@
 }
 
 <span class="attr">#[test]
+#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">fn </span>document_iteration() {
     <span class="kw">let </span>source = <span class="string">r#&quot;{&quot;a&quot;:1,&quot;b&quot;:true,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[],&quot;e&quot;:{}}&quot;#</span>;
     <span class="kw">let </span>doc = Document::from_json(source).unwrap();
@@ -888,5 +926,35 @@
     iter.skip_next_value();
     <span class="macro">assert!</span>(iter.next().is_none());
 }
+
+<span class="doccomment">/// A collection for use with [`GenericDocument`].
+</span><span class="kw">pub trait </span>NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;:
+    AsRef&lt;[Node&lt;<span class="lifetime">&#39;a</span>&gt;]&gt; + AsMut&lt;[Node&lt;<span class="lifetime">&#39;a</span>&gt;]&gt; + IntoIterator&lt;Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;
+{
+    <span class="doccomment">/// Push `node` to the end of the collection.
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt;;
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
+        <span class="self">self</span>.push(node);
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>N: usize&gt; NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>heapless::Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;, N&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
+        <span class="self">self</span>.push(node).map_err(|<span class="kw">_</span>| ErrorKind::PaylodTooLarge)
+    }
+}
+
+<span class="doccomment">/// A convenience alias for a [`GenericDocument`] that uses a `Vec` from
+/// `std`/`alloc`.
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">pub type </span>Document&lt;<span class="lifetime">&#39;a</span>&gt; = GenericDocument&lt;<span class="lifetime">&#39;a</span>, Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;;
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (5e37043d6 2023-01-22)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

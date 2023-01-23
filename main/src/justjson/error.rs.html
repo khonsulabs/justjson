@@ -397,6 +397,18 @@
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
 </pre><pre class="rust"><code><span class="kw">use </span>core::convert::Infallible;
 <span class="kw">use </span>core::fmt::Display;
 
@@ -518,6 +530,9 @@
     /// This error is only returned when the `allow_all_types_at_root`
     /// configuration is set to `false`.
     </span>PayloadsShouldBeObjectOrArray,
+    <span class="doccomment">/// A [`GenericDocument`](crate::doc::GenericDocument) being parsed was too
+    /// large to fit in the collection provided.
+    </span>PaylodTooLarge,
     <span class="doccomment">/// An error was returned from a
     /// [`ParseDelegate`](crate::parser::ParseDelegate).
     </span>ErrorFromDelegate(DelegateError),
@@ -549,6 +564,7 @@
             ErrorKind::ExpectedNumber =&gt; ErrorKind::ExpectedNumber,
             ErrorKind::RecursionLimitReached =&gt; ErrorKind::RecursionLimitReached,
             ErrorKind::PayloadsShouldBeObjectOrArray =&gt; ErrorKind::PayloadsShouldBeObjectOrArray,
+            ErrorKind::PaylodTooLarge =&gt; ErrorKind::PaylodTooLarge,
             ErrorKind::ErrorFromDelegate(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;infallible&quot;</span>),
         }
     }
@@ -580,6 +596,7 @@
             ErrorKind::ExpectedNumber =&gt; ErrorKind::ExpectedNumber,
             ErrorKind::RecursionLimitReached =&gt; ErrorKind::RecursionLimitReached,
             ErrorKind::PayloadsShouldBeObjectOrArray =&gt; ErrorKind::PayloadsShouldBeObjectOrArray,
+            ErrorKind::PaylodTooLarge =&gt; ErrorKind::PaylodTooLarge,
             ErrorKind::ErrorFromDelegate(kind) =&gt; kind,
         }
     }
@@ -611,6 +628,7 @@
         ErrorKind::ExpectedNumber,
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::PaylodTooLarge,
     ] {
         <span class="kw">match </span>(kind.clone(), kind.into_fallable::&lt;u8&gt;()) {
             (ErrorKind::Utf8, ErrorKind::Utf8)
@@ -634,6 +652,7 @@
             | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)
             | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)
             | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)
+            | (ErrorKind::PaylodTooLarge, ErrorKind::PaylodTooLarge)
             | (
                 ErrorKind::PayloadsShouldBeObjectOrArray,
                 ErrorKind::PayloadsShouldBeObjectOrArray,
@@ -672,6 +691,7 @@
         ErrorKind::ExpectedNumber,
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::PaylodTooLarge,
         ErrorKind::ErrorFromDelegate(ErrorKind::ExpectedColon),
     ] {
         <span class="kw">match </span>(kind.clone(), kind.into_infallable()) {
@@ -696,6 +716,7 @@
             | (ErrorKind::ExpectedString, ErrorKind::ExpectedString)
             | (ErrorKind::ExpectedNumber, ErrorKind::ExpectedNumber)
             | (ErrorKind::RecursionLimitReached, ErrorKind::RecursionLimitReached)
+            | (ErrorKind::PaylodTooLarge, ErrorKind::PaylodTooLarge)
             | (
                 ErrorKind::PayloadsShouldBeObjectOrArray,
                 ErrorKind::PayloadsShouldBeObjectOrArray,
@@ -755,6 +776,9 @@
             ErrorKind::RecursionLimitReached =&gt; f.write_str(<span class="string">&quot;the recursion limit has been reached&quot;</span>),
             ErrorKind::PayloadsShouldBeObjectOrArray =&gt; {
                 f.write_str(<span class="string">&quot;JSON only allows objects or arrays at the root&quot;</span>)
+            }
+            ErrorKind::PaylodTooLarge =&gt; {
+                f.write_str(<span class="string">&quot;the payload is too large to be parsed into the destination structure&quot;</span>)
             }
             ErrorKind::ErrorFromDelegate(err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;error from delegate: {err}&quot;</span>),
         }
