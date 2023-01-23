@@ -64,14 +64,14 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">extern crate </span>alloc;
 
-<span class="kw">pub use </span><span class="kw">crate</span>::cow::CowStr;
+<span class="kw">pub use </span><span class="kw">crate</span>::anystr::AnyStr;
 <span class="kw">pub use </span><span class="kw">crate</span>::error::{Error, ErrorKind};
 <span class="kw">pub use </span><span class="kw">crate</span>::number::JsonNumber;
 <span class="kw">pub use </span><span class="kw">crate</span>::string::{JsonString, JsonStringInfo};
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::value::{Object, Value};
 
-<span class="kw">mod </span>cow;
+<span class="kw">mod </span>anystr;
 <span class="doccomment">/// A JSON DOM representation with minimal processing.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">pub mod </span>doc;
