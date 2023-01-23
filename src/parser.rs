@@ -491,7 +491,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                         })
                     }
                     b' '..=127 => {
-                        unreachable!()
+                        unreachable!("safe_strings filters these values")
                     }
                 }
             }

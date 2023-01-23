@@ -689,7 +689,7 @@ impl<'a> ParseDelegate<'a> for StringParser {
         _object: &mut Self::Object,
         _key: crate::JsonString<'a>,
     ) -> Result<Self::Key, Self::Error> {
-        unreachable!()
+        unreachable!("error returned from begin_object")
     }
 
     fn object_value(
@@ -698,15 +698,15 @@ impl<'a> ParseDelegate<'a> for StringParser {
         _key: Self::Key,
         _value: Self::Value,
     ) -> Result<(), Self::Error> {
-        unreachable!()
+        unreachable!("error returned from begin_object")
     }
 
     fn object_is_empty(&self, _object: &Self::Object) -> bool {
-        unreachable!()
+        unreachable!("error returned from begin_object")
     }
 
     fn end_object(&mut self, _object: Self::Object) -> Result<Self::Value, Self::Error> {
-        unreachable!()
+        unreachable!("error returned from begin_object")
     }
 
     fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
@@ -718,19 +718,19 @@ impl<'a> ParseDelegate<'a> for StringParser {
         _array: &mut Self::Array,
         _value: Self::Value,
     ) -> Result<(), Self::Error> {
-        unreachable!()
+        unreachable!("error returned from array_value")
     }
 
     fn array_is_empty(&self, _array: &Self::Array) -> bool {
-        unreachable!()
+        unreachable!("error returned from array_value")
     }
 
     fn end_array(&mut self, _array: Self::Array) -> Result<Self::Value, Self::Error> {
-        unreachable!()
+        unreachable!("error returned from array_value")
     }
 
     fn kind_of(&self, _value: &Self::Value) -> crate::parser::JsonKind {
-        unreachable!()
+        unreachable!("allow_all_types_at_root is always true")
     }
 }
 
