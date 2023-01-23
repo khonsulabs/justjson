@@ -1090,6 +1090,11 @@
 <a href="#1090" id="1090">1090</a>
 <a href="#1091" id="1091">1091</a>
 <a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
 </pre><pre class="rust"><code><span class="kw">use </span>core::convert::Infallible;
 <span class="kw">use </span>core::iter::Peekable;
 <span class="kw">use </span>core::marker::PhantomData;
@@ -1543,14 +1548,15 @@
                     <span class="string">b&#39;&quot;&#39; </span>=&gt; {
                         <span class="kw">break </span><span class="prelude-val">Ok</span>(JsonString {
                             source: StringContents::Json {
-                                source: AnyStr::Borrowed(<span class="kw">unsafe </span>{
+                                <span class="comment">// SAFETY: the UTF8 has been manually verified by the parser.
+                                </span>source: AnyStr::Borrowed(<span class="kw">unsafe </span>{
                                     core::str::from_utf8_unchecked(
                                         <span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start + <span class="number">1</span>..offset],
                                     )
                                 }),
                                 info: string_info,
                             },
-                        })
+                        });
                     }
                     <span class="string">b&#39;\\&#39; </span>=&gt; <span class="self">self</span>.read_string_escape(<span class="kw-2">&amp;mut </span>string_info)<span class="question-mark">?</span>,
                     <span class="number">128</span>..=<span class="number">255 </span>=&gt; {
@@ -1642,7 +1648,9 @@
                     }
 
                     <span class="kw">if </span>decoded_is_surrogate_pair {
-                        <span class="kw">unsafe </span>{ char::from_u32_unchecked(decoded) }
+                        <span class="comment">// SAFETY: we have manually marged the surrogate pair
+                        // into a single valid codepoint, and this cannot fail.
+                        </span><span class="kw">unsafe </span>{ char::from_u32_unchecked(decoded) }
                     } <span class="kw">else </span>{
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
                             offset,
@@ -1755,7 +1763,9 @@
         }
 
         <span class="prelude-val">Ok</span>(JsonNumber {
-            source: AnyStr::Borrowed(<span class="kw">unsafe </span>{
+            <span class="comment">// SAFETY: To reach this point, we can only have read ascii
+            // characters.
+            </span>source: AnyStr::Borrowed(<span class="kw">unsafe </span>{
                 core::str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.source.bytes[start..<span class="self">self</span>.source.offset])
             }),
         })
