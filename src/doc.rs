@@ -422,7 +422,7 @@ impl<'doc, 'a> Iterator for DocumentIter<'doc, 'a> {
 #[test]
 #[cfg(feature = "alloc")]
 fn document_iteration() {
-    let source = r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#;
+    let source = r#"{"a":1,"b":true,"c":"hello","d":[null],"e":{}}"#;
     let doc = Document::from_json(source).unwrap();
     assert_eq!(
         doc.iter().collect::<Vec<_>>(),
@@ -435,7 +435,8 @@ fn document_iteration() {
             Node::String(JsonString::from_json("\"c\"").unwrap()),
             Node::String(JsonString::from_json("\"hello\"").unwrap()),
             Node::String(JsonString::from_json("\"d\"").unwrap()),
-            Node::Array { length: 0 },
+            Node::Array { length: 1 },
+            Node::Null,
             Node::String(JsonString::from_json("\"e\"").unwrap()),
             Node::Object { length: 0 },
         ]
@@ -447,6 +448,35 @@ fn document_iteration() {
     let mut iter = doc.iter();
     iter.skip_next_value();
     assert!(iter.next().is_none());
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+fn bad_documents() {
+    assert_eq!(
+        Document::from_json_with_config("null", ParseConfig::strict())
+            .unwrap_err()
+            .kind,
+        ErrorKind::PayloadsShouldBeObjectOrArray
+    );
+    assert_eq!(
+        Document::from_json_with_config("true", ParseConfig::strict())
+            .unwrap_err()
+            .kind,
+        ErrorKind::PayloadsShouldBeObjectOrArray
+    );
+    assert_eq!(
+        Document::from_json_with_config("1", ParseConfig::strict())
+            .unwrap_err()
+            .kind,
+        ErrorKind::PayloadsShouldBeObjectOrArray
+    );
+    assert_eq!(
+        Document::from_json_with_config("\"\"", ParseConfig::strict())
+            .unwrap_err()
+            .kind,
+        ErrorKind::PayloadsShouldBeObjectOrArray
+    );
 }
 
 /// A collection for use with [`GenericDocument`].
