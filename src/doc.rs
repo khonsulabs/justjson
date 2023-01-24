@@ -351,6 +351,7 @@ where
 }
 
 /// An iterator over the [`Node`]s in a [`Document`].
+#[derive(Debug, Clone)]
 pub struct DocumentIter<'doc, 'a> {
     nodes: Cloned<slice::Iter<'doc, Node<'a>>>,
 }

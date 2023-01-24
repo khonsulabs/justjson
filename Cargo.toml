@@ -45,3 +45,4 @@ required-features = ["heapless"]
 
 [package.metadata.docs.rs]
 rustc-args = ["--cfg", "docsrs"]
+features = ["heapless"]

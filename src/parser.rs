@@ -450,15 +450,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 match byte {
                     b'"' => {
                         break Ok(JsonString {
-                            source: StringContents::Json {
+                            source: StringContents::Json(
                                 // SAFETY: the UTF8 has been manually verified by the parser.
-                                source: AnyStr::Borrowed(unsafe {
+                                AnyStr::Borrowed(unsafe {
                                     core::str::from_utf8_unchecked(
                                         &self.source.bytes[start + 1..offset],
                                     )
                                 }),
-                                info: string_info,
-                            },
+                            ),
+                            info: string_info,
                         });
                     }
                     b'\\' => self.read_string_escape(&mut string_info)?,

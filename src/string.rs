@@ -35,6 +35,7 @@ use crate::parser::{ParseDelegate, Parser};
 pub struct JsonString<'a> {
     /// The JSON-source for the string.
     pub(crate) source: StringContents<'a>,
+    pub(crate) info: JsonStringInfo,
 }
 
 impl<'a> JsonString<'a> {
@@ -57,10 +58,10 @@ impl<'a> JsonString<'a> {
     /// escape sequences.
     #[must_use]
     #[cfg(feature = "alloc")]
-    pub fn decode_if_needed(&self) -> AnyStr<'_> {
+    pub fn decode_if_needed(&self) -> AnyStr<'a> {
         match &self.source {
-            StringContents::Json { source, info } => {
-                if info.has_escapes() {
+            StringContents::Json(source) => {
+                if self.info.has_escapes() {
                     AnyStr::Owned(self.decoded().collect())
                 } else {
                     source.clone()
@@ -70,23 +71,94 @@ impl<'a> JsonString<'a> {
         }
     }
 
+    /// Returns the contained string after escaping any characters, if needed.
+    /// If the string is already internally represented as a JSON string, this
+    /// function returns its source via borrowing and no additional processing.
+    #[must_use]
+    #[cfg(feature = "alloc")]
+    pub fn escape_if_needed(&self) -> AnyStr<'a> {
+        match &self.source {
+            StringContents::Json(source) => source.clone(),
+            StringContents::Raw(_) => {
+                // We promote raw strings with no escapes to Json strings, which
+                // means we will always need to escape this raw string.
+                let mut json = String::with_capacity(self.info.expected_length());
+                json.extend(AsJson::new(&self.source, self.info));
+                AnyStr::Owned(json)
+            }
+        }
+    }
+
     /// Returns the string after decoding any JSON escape sequences.
     #[must_use]
     pub fn decoded(&self) -> Decoded<'_> {
-        Decoded::new(&self.source)
+        Decoded::new(&self.source, self.info)
     }
 
     /// Returns the string after decoding any JSON escape sequences.
     #[must_use]
     pub fn as_json(&self) -> AsJson<'_> {
-        AsJson::from(&self.source)
+        AsJson::new(&self.source, self.info)
+    }
+
+    /// Returns a reference to the underlying storage of this string, if it's
+    /// already encoded for use in a JSON string. This does not include the
+    /// surrounding quotation marks.
+    ///
+    /// If None is returned, the string must be decoded using
+    /// [`as_json()`](Self::as_json).
+    #[must_use]
+    pub fn as_json_str(&self) -> Option<&'_ AnyStr<'a>> {
+        if let StringContents::Json(source) = &self.source {
+            Some(source)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the length of this string when encoded as JSON.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        match &self.source {
+            StringContents::Json(json) => json.len(),
+            StringContents::Raw(_) => self.info.expected_length(),
+        }
+    }
+
+    /// Returns true if this string is empty.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Returns the length of this string when decoded.
+    #[must_use]
+    pub fn decoded_len(&self) -> usize {
+        match &self.source {
+            StringContents::Json(_) => self.info.expected_length(),
+            StringContents::Raw(raw) => raw.len(),
+        }
     }
 }
 
 impl<'a> From<&'a str> for JsonString<'a> {
     fn from(value: &'a str) -> Self {
-        Self {
-            source: StringContents::Raw(AnyStr::Borrowed(value)),
+        // Analyze the string for characters that need to be escaped.
+        let source = StringContents::Raw(AnyStr::Borrowed(value));
+        let mut escaped = AsJson::new(&source, JsonStringInfo::NONE);
+        for _ in &mut escaped {}
+
+        if escaped.info.has_escapes() {
+            Self {
+                info: escaped.info,
+                source,
+            }
+        } else {
+            // No escapes, we can promote to a JSON string.
+            Self {
+                source: StringContents::Json(AnyStr::Borrowed(value)),
+                info: escaped.info,
+            }
         }
     }
 }
@@ -94,8 +166,22 @@ impl<'a> From<&'a str> for JsonString<'a> {
 #[cfg(feature = "alloc")]
 impl<'a> From<String> for JsonString<'a> {
     fn from(value: String) -> Self {
-        Self {
-            source: StringContents::Raw(AnyStr::Owned(value)),
+        // Analyze the string for characters that need to be escaped.
+        let borrowed_contents = StringContents::Raw(AnyStr::Borrowed(&value));
+        let mut escaped = AsJson::new(&borrowed_contents, JsonStringInfo::NONE);
+        for _ in &mut escaped {}
+
+        if escaped.info.has_escapes() {
+            Self {
+                info: escaped.info,
+                source: StringContents::Raw(AnyStr::Owned(value)),
+            }
+        } else {
+            // No escapes, we can promote to a JSON string.
+            Self {
+                info: escaped.info,
+                source: StringContents::Json(AnyStr::Owned(value)),
+            }
         }
     }
 }
@@ -109,15 +195,14 @@ impl<'a, 'b> PartialEq<&'a str> for &'b JsonString<'b> {
 impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
     fn eq(&self, other: &&'a str) -> bool {
         match &self.source {
-            StringContents::Json { source, info } => {
-                let unescaped_length = info.unescaped_length();
-                if info.has_escapes() {
+            StringContents::Json(source) => {
+                if self.info.has_escapes() {
                     // Quick check, if the decoded length differs, the strings can't be equal
-                    if unescaped_length != other.len() {
+                    if self.info.expected_length() != other.len() {
                         return false;
                     }
 
-                    Decoded::new(&self.source)
+                    Decoded::new(&self.source, self.info)
                         .zip(other.chars())
                         .all(|(a, b)| a == b)
                 } else {
@@ -133,32 +218,37 @@ impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
 impl<'a, 'b> PartialEq<JsonString<'a>> for JsonString<'b> {
     fn eq(&self, other: &JsonString<'a>) -> bool {
         match (&self.source, &other.source) {
-            (
-                StringContents::Json {
-                    source: a,
-                    info: a_info,
-                },
-                StringContents::Json {
-                    source: b,
-                    info: b_info,
-                },
-            ) => match (a_info.has_escapes(), b_info.has_escapes()) {
-                (true, true) => {
-                    if a_info.unescaped_length() == b_info.unescaped_length() {
-                        Decoded::new(&self.source)
-                            .zip(Decoded::new(&other.source))
-                            .all(|(a, b)| a == b)
-                    } else {
-                        false
+            (StringContents::Json(a), StringContents::Json(b)) => {
+                match (self.info.has_escapes(), other.info.has_escapes()) {
+                    (true, true) => {
+                        if self.info.expected_length() == other.info.expected_length() {
+                            Decoded::new(&self.source, self.info)
+                                .zip(Decoded::new(&other.source, self.info))
+                                .all(|(a, b)| a == b)
+                        } else {
+                            false
+                        }
                     }
+                    (true, false) => self == b.as_ref(),
+                    (false, true) => other == a.as_ref(),
+                    (false, false) => a.as_ref() == b.as_ref(),
                 }
-                (true, false) => self == b.as_ref(),
-                (false, true) => other == a.as_ref(),
-                (false, false) => a.as_ref() == b.as_ref(),
-            },
+            }
             (StringContents::Raw(a), StringContents::Raw(b)) => a.as_ref() == b.as_ref(),
-            (StringContents::Json { .. }, StringContents::Raw(b)) => self == b.as_ref(),
-            (StringContents::Raw(a), _) => other == a.as_ref(),
+            (StringContents::Json(_), StringContents::Raw(b)) => {
+                if other.info.expected_length() == self.len() {
+                    self == b.as_ref()
+                } else {
+                    false
+                }
+            }
+            (StringContents::Raw(a), _) => {
+                if self.info.expected_length() == other.len() {
+                    other == a.as_ref()
+                } else {
+                    false
+                }
+            }
         }
     }
 }
@@ -169,10 +259,8 @@ fn json_string_from_json() {
     assert_eq!(
         JsonString::from_json(r#""Hello, World!""#).unwrap(),
         JsonString {
-            source: StringContents::Json {
-                source: AnyStr::Borrowed(r#"Hello, World!"#),
-                info: JsonStringInfo::new(false, 13),
-            }
+            source: StringContents::Json(AnyStr::Borrowed(r#"Hello, World!"#)),
+            info: JsonStringInfo::new(false, 13),
         }
     );
 
@@ -304,7 +392,7 @@ impl JsonStringInfo {
 
     /// Returns the length of the string after decoding any escape sequences.
     #[must_use]
-    pub const fn unescaped_length(self) -> usize {
+    pub const fn expected_length(self) -> usize {
         self.0 & Self::UNESCAPED_BYTES_MASK
     }
 
@@ -323,7 +411,7 @@ impl fmt::Debug for JsonStringInfo {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("EscapeInfo")
             .field("has_escapes", &self.has_escapes())
-            .field("unescaped_length", &self.unescaped_length())
+            .field("unescaped_length", &self.expected_length())
             .finish()
     }
 }
@@ -339,26 +427,17 @@ fn test_string_info_debug() {
     );
 }
 
+#[derive(Clone)]
 pub struct Decoded<'a> {
     needs_decoding: bool,
     source: &'a str,
     chars: CharIndices<'a>,
 }
 
-impl<'a> Clone for Decoded<'a> {
-    fn clone(&self) -> Self {
-        Self {
-            needs_decoding: self.needs_decoding,
-            source: self.source,
-            chars: self.chars.clone(),
-        }
-    }
-}
-
 impl<'a> Decoded<'a> {
-    fn new(source: &'a StringContents<'a>) -> Self {
+    fn new(source: &'a StringContents<'a>, info: JsonStringInfo) -> Self {
         match source {
-            StringContents::Json { source, info } => Self {
+            StringContents::Json(source) => Self {
                 needs_decoding: info.has_escapes(),
                 source,
                 chars: source.char_indices(),
@@ -457,18 +536,18 @@ enum EscapeState {
     },
 }
 
-impl<'b, 'a> From<&'b StringContents<'a>> for AsJson<'b> {
-    fn from(value: &'b StringContents<'a>) -> Self {
+impl<'b, 'a> AsJson<'b> {
+    fn new(value: &'b StringContents<'a>, info: JsonStringInfo) -> Self {
         match value {
-            StringContents::Json { source, info } => Self {
+            StringContents::Json(source) => Self {
                 chars: source.chars(),
                 state: EscapeState::AlreadyEscaped,
-                info: *info,
+                info,
             },
             StringContents::Raw(source) => Self {
                 chars: source.chars(),
                 state: EscapeState::None,
-                info: JsonStringInfo::NONE,
+                info,
             },
         }
     }
@@ -490,32 +569,32 @@ impl<'a> Iterator for AsJson<'a> {
                     }
                     Ok(b'"' | b'\\' | b'/') => {
                         self.state = EscapeState::Single(ch as u8);
-                        self.info.add_bytes_from_escape(1);
+                        self.info.add_bytes_from_escape(2);
                         Some('\\')
                     }
                     Ok(b'\x07') => {
                         self.state = EscapeState::Single(b'b');
-                        self.info.add_bytes_from_escape(1);
+                        self.info.add_bytes_from_escape(2);
                         Some('\\')
                     }
                     Ok(b'\n') => {
                         self.state = EscapeState::Single(b'n');
-                        self.info.add_bytes_from_escape(1);
+                        self.info.add_bytes_from_escape(2);
                         Some('\\')
                     }
                     Ok(b'\r') => {
                         self.state = EscapeState::Single(b'r');
-                        self.info.add_bytes_from_escape(1);
+                        self.info.add_bytes_from_escape(2);
                         Some('\\')
                     }
                     Ok(b'\t') => {
                         self.state = EscapeState::Single(b't');
-                        self.info.add_bytes_from_escape(1);
+                        self.info.add_bytes_from_escape(2);
                         Some('\\')
                     }
                     Ok(b'\x0c') => {
                         self.state = EscapeState::Single(b'f');
-                        self.info.add_bytes_from_escape(1);
+                        self.info.add_bytes_from_escape(2);
                         Some('\\')
                     }
                     Ok(b) if (0..=31).contains(&b) => {
@@ -525,7 +604,7 @@ impl<'a> Iterator for AsJson<'a> {
                             current_nibble: None,
                             codepoint: u16::from(b),
                         };
-                        self.info.add_bytes_from_escape(1);
+                        self.info.add_bytes_from_escape(6);
                         Some('\\')
                     }
                     Err(_) => {
@@ -650,19 +729,37 @@ pub(crate) static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
 #[cfg(feature = "alloc")]
 fn escape() {
     let original = "\"\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}";
+    let escaped = "\\\"\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}";
     let raw = JsonString::from(original);
+    assert_eq!(raw.len(), escaped.len());
+    assert_eq!(raw.decoded_len(), original.len());
     let decoded = raw.decoded().collect::<String>();
     assert_eq!(decoded, original);
+    let decoded = raw.decode_if_needed();
+    assert_eq!(decoded, original);
     let json = raw.as_json().collect::<String>();
-    assert_eq!(json, "\\\"\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}");
+    assert_eq!(json, escaped);
+    let json = raw.escape_if_needed();
+    assert_eq!(json, escaped);
+    assert!(raw.as_json_str().is_none());
+
+    // Test with a raw string that doesn't need encoding
+    let original = "hello";
+    let raw = JsonString::from("hello");
+    let decoded = raw.decoded().collect::<String>();
+    assert_eq!(decoded, original);
+    let decoded = raw.decode_if_needed();
+    assert_eq!(decoded, original);
+    let json = raw.as_json().collect::<String>();
+    assert_eq!(json, original);
+    let json = raw.escape_if_needed();
+    assert_eq!(json, original);
+    assert_eq!(raw.as_json_str().map(AnyStr::as_ref), Some("hello"));
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum StringContents<'a> {
-    Json {
-        source: AnyStr<'a>,
-        info: JsonStringInfo,
-    },
+    Json(AnyStr<'a>),
     Raw(AnyStr<'a>),
 }
 

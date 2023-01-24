@@ -67,19 +67,15 @@ fn basic_string() {
     test_json_parse(
         br#""hello""#,
         &Value::String(JsonString {
-            source: StringContents::Json {
-                source: AnyStr::Borrowed("hello"),
-                info: JsonStringInfo::new(false, 5),
-            },
+            source: StringContents::Json(AnyStr::Borrowed("hello")),
+            info: JsonStringInfo::new(false, 5),
         }),
     );
     test_json_parse(
         br#""""#,
         &Value::String(JsonString {
-            source: StringContents::Json {
-                source: AnyStr::Borrowed(""),
-                info: JsonStringInfo::new(false, 0),
-            },
+            source: StringContents::Json(AnyStr::Borrowed("")),
+            info: JsonStringInfo::new(false, 0),
         }),
     );
 }
@@ -89,10 +85,8 @@ fn escapey_string() {
     test_json_parse(
         br#""\"\\\/\b\f\n\r\t\u25eF""#,
         &Value::String(JsonString {
-            source: StringContents::Json {
-                source: AnyStr::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#),
-                info: JsonStringInfo::new(true, 11),
-            },
+            source: StringContents::Json(AnyStr::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#)),
+            info: JsonStringInfo::new(true, 11),
         }),
     );
 }
@@ -120,10 +114,8 @@ fn one_mapping() {
         br#"{"hello":true}"#,
         &Value::Object(Object::from_iter([(
             JsonString {
-                source: StringContents::Json {
-                    source: AnyStr::Borrowed("hello"),
-                    info: JsonStringInfo::new(false, 5),
-                },
+                source: StringContents::Json(AnyStr::Borrowed("hello")),
+                info: JsonStringInfo::new(false, 5),
             },
             Value::Boolean(true),
         )])),
@@ -137,19 +129,15 @@ fn two_mappings() {
         &Value::Object(Object::from_iter([
             (
                 JsonString {
-                    source: StringContents::Json {
-                        source: AnyStr::Borrowed("hello"),
-                        info: JsonStringInfo::new(false, 5),
-                    },
+                    source: StringContents::Json(AnyStr::Borrowed("hello")),
+                    info: JsonStringInfo::new(false, 5),
                 },
                 Value::Boolean(true),
             ),
             (
                 JsonString {
-                    source: StringContents::Json {
-                        source: AnyStr::Borrowed("world"),
-                        info: JsonStringInfo::new(false, 5),
-                    },
+                    source: StringContents::Json(AnyStr::Borrowed("world")),
+                    info: JsonStringInfo::new(false, 5),
                 },
                 Value::Null,
             ),
