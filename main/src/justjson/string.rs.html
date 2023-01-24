@@ -875,6 +875,48 @@
 <a href="#875" id="875">875</a>
 <a href="#876" id="876">876</a>
 <a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug, Display, Formatter, Write};
@@ -1203,6 +1245,27 @@
     <span class="macro">assert_eq!</span>(
         JsonString::from(<span class="string">&quot;a&quot;</span>),
         JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap()
+    );
+
+    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;\0&quot;</span>), <span class="string">&quot;\0&quot;</span>);
+    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;\0&quot;</span>), JsonString::from(<span class="string">&quot;\0&quot;</span>));
+
+    <span class="macro">assert_eq!</span>(
+        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
+        JsonString::from(<span class="string">&quot;\0&quot;</span>),
+    );
+    <span class="macro">assert_eq!</span>(
+        JsonString::from(<span class="string">&quot;\0&quot;</span>),
+        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
+    );
+
+    <span class="macro">assert_ne!</span>(
+        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
+        JsonString::from(<span class="string">&quot;\0 &quot;</span>),
+    );
+    <span class="macro">assert_ne!</span>(
+        JsonString::from(<span class="string">&quot;\0 &quot;</span>),
+        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
     );
 }
 
@@ -1610,6 +1673,24 @@
     <span class="kw">let </span>raw = JsonString::from(original);
     <span class="macro">assert_eq!</span>(raw.len(), escaped.len());
     <span class="macro">assert_eq!</span>(raw.decoded_len(), original.len());
+    <span class="macro">assert_eq!</span>(raw, original);
+    <span class="kw">let </span>decoded = raw.decoded().collect::&lt;String&gt;();
+    <span class="macro">assert_eq!</span>(decoded, original);
+    <span class="kw">let </span>decoded = raw.decode_if_needed();
+    <span class="macro">assert_eq!</span>(decoded, original);
+    <span class="kw">let </span>json = raw.as_json().collect::&lt;String&gt;();
+    <span class="macro">assert_eq!</span>(json, escaped);
+    <span class="kw">let </span>json = raw.escape_if_needed();
+    <span class="macro">assert_eq!</span>(json, escaped);
+    <span class="macro">assert!</span>(raw.as_json_str().is_none());
+
+    <span class="comment">// Test converting a String that needs encoding.
+    </span><span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}&quot;</span>;
+    <span class="kw">let </span>escaped = <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}&quot;</span>;
+    <span class="kw">let </span>raw: JsonString&lt;<span class="lifetime">&#39;static</span>&gt; = JsonString::from(String::from(original));
+    <span class="macro">assert_eq!</span>(raw.len(), escaped.len());
+    <span class="macro">assert_eq!</span>(raw.decoded_len(), original.len());
+    <span class="macro">assert_eq!</span>(raw, original);
     <span class="kw">let </span>decoded = raw.decoded().collect::&lt;String&gt;();
     <span class="macro">assert_eq!</span>(decoded, original);
     <span class="kw">let </span>decoded = raw.decode_if_needed();
@@ -1623,6 +1704,9 @@
     <span class="comment">// Test with a raw string that doesn&#39;t need encoding
     </span><span class="kw">let </span>original = <span class="string">&quot;hello&quot;</span>;
     <span class="kw">let </span>raw = JsonString::from(<span class="string">&quot;hello&quot;</span>);
+    <span class="macro">assert_eq!</span>(raw.len(), original.len());
+    <span class="macro">assert_eq!</span>(raw.decoded_len(), original.len());
+    <span class="macro">assert_eq!</span>(raw, original);
     <span class="kw">let </span>decoded = raw.decoded().collect::&lt;String&gt;();
     <span class="macro">assert_eq!</span>(decoded, original);
     <span class="kw">let </span>decoded = raw.decode_if_needed();
