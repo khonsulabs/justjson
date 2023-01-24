@@ -408,12 +408,12 @@ impl ErroringDelegate {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 enum ErrorOn {
     None,
     Null,
-    Boolean,
-    Number,
+    Boolean(bool),
+    Number(&'static str),
     String,
     BeginObject,
     ObjectKey,
@@ -443,7 +443,7 @@ impl<'a> ParseDelegate<'a> for ErroringDelegate {
     }
 
     fn boolean(&mut self, value: bool) -> Result<Self::Value, Self::Error> {
-        if matches!(self.error_on, ErrorOn::Boolean) {
+        if self.error_on == ErrorOn::Boolean(value) {
             Err(MyError)
         } else {
             Ok(self.parser.boolean(value).unwrap())
@@ -451,10 +451,9 @@ impl<'a> ParseDelegate<'a> for ErroringDelegate {
     }
 
     fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
-        if matches!(self.error_on, ErrorOn::Number) {
-            Err(MyError)
-        } else {
-            Ok(self.parser.number(value).unwrap())
+        match &self.error_on {
+            ErrorOn::Number(number) if value.source() == *number => Err(MyError),
+            _ => Ok(self.parser.number(value).unwrap()),
         }
     }
 
@@ -552,13 +551,16 @@ impl<'a> ParseDelegate<'a> for ErroringDelegate {
 
 #[test]
 fn parse_delegate_error() {
-    let payload = br#"{"a":1,"b":true,"c":"hello","d":[null],"e":{},"f":"error"}"#;
+    let payload = br#"{"a":1,"b":true,"c":"hello","d":[null, -1, 0, false],"e":{},"f":"error"}"#;
     Parser::parse_json_bytes(payload, ErroringDelegate::new(ErrorOn::None)).expect("no errors");
 
     for error_on in [
         ErrorOn::Null,
-        ErrorOn::Boolean,
-        ErrorOn::Number,
+        ErrorOn::Boolean(false),
+        ErrorOn::Boolean(false),
+        ErrorOn::Number("1"),
+        ErrorOn::Number("-1"),
+        ErrorOn::Number("0"),
         ErrorOn::String,
         ErrorOn::BeginObject,
         ErrorOn::ObjectKey,
