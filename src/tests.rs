@@ -8,7 +8,7 @@ use std::println;
 
 use crate::anystr::AnyStr;
 use crate::doc::Document;
-use crate::parser::{ParseDelegate, Parser};
+use crate::parser::{ParseConfig, ParseDelegate, Parser};
 use crate::string::StringContents;
 use crate::value::ValueParser;
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo, Object, Value};
@@ -551,8 +551,14 @@ impl<'a> ParseDelegate<'a> for ErroringDelegate {
 
 #[test]
 fn parse_delegate_error() {
-    let payload = br#"{"a":1,"b":true,"c":"hello","d":[null, -1, 0, false],"e":{},"f":"error"}"#;
-    Parser::parse_json_bytes(payload, ErroringDelegate::new(ErrorOn::None)).expect("no errors");
+    let payload =
+        br#"{"a":1,"b":true,"c":"hello","d":[null, -1, 0, false, []],"e":{},"f":"error"}"#;
+    Parser::parse_json_bytes_with_config(
+        payload,
+        ParseConfig::strict(),
+        ErroringDelegate::new(ErrorOn::None),
+    )
+    .expect("no errors");
 
     for error_on in [
         ErrorOn::Null,
@@ -576,4 +582,27 @@ fn parse_delegate_error() {
 
         assert_eq!(err.kind(), &ErrorKind::ErrorFromDelegate(MyError));
     }
+}
+
+#[test]
+fn illegal_types_at_root() {
+    fn test_payload(json: &str) {
+        assert_eq!(
+            Document::from_json_with_config(json, ParseConfig::strict())
+                .unwrap_err()
+                .kind,
+            ErrorKind::PayloadsShouldBeObjectOrArray
+        );
+        assert_eq!(
+            Value::from_json_with_config(json, ParseConfig::strict())
+                .unwrap_err()
+                .kind,
+            ErrorKind::PayloadsShouldBeObjectOrArray
+        );
+    }
+
+    test_payload("null");
+    test_payload("true");
+    test_payload("1");
+    test_payload("\"\"");
 }

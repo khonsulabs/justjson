@@ -450,35 +450,6 @@ fn document_iteration() {
     assert!(iter.next().is_none());
 }
 
-#[test]
-#[cfg(feature = "alloc")]
-fn bad_documents() {
-    assert_eq!(
-        Document::from_json_with_config("null", ParseConfig::strict())
-            .unwrap_err()
-            .kind,
-        ErrorKind::PayloadsShouldBeObjectOrArray
-    );
-    assert_eq!(
-        Document::from_json_with_config("true", ParseConfig::strict())
-            .unwrap_err()
-            .kind,
-        ErrorKind::PayloadsShouldBeObjectOrArray
-    );
-    assert_eq!(
-        Document::from_json_with_config("1", ParseConfig::strict())
-            .unwrap_err()
-            .kind,
-        ErrorKind::PayloadsShouldBeObjectOrArray
-    );
-    assert_eq!(
-        Document::from_json_with_config("\"\"", ParseConfig::strict())
-            .unwrap_err()
-            .kind,
-        ErrorKind::PayloadsShouldBeObjectOrArray
-    );
-}
-
 /// A collection for use with [`GenericDocument`].
 pub trait NodeCollection<'a>:
     AsRef<[Node<'a>]> + AsMut<[Node<'a>]> + IntoIterator<Item = Node<'a>>
