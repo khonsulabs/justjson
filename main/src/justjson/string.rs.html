@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/string.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>string.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-a6e10e60fb712b0f.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-5f7299aa2b503fb1.css"><link rel="stylesheet" disabled href="../../static.files/dark-dfb18ef8114bb428.css"><link rel="stylesheet" disabled href="../../static.files/ayu-4047a6aaddd3789d.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/string.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>string.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6d262342be62306e.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-5f7299aa2b503fb1.css"><link rel="stylesheet" disabled href="../../static.files/dark-dfb18ef8114bb428.css"><link rel="stylesheet" disabled href="../../static.files/ayu-4047a6aaddd3789d.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -778,6 +778,103 @@
 <a href="#778" id="778">778</a>
 <a href="#779" id="779">779</a>
 <a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug, Display, Formatter, Write};
@@ -815,6 +912,7 @@
 </span><span class="kw">pub struct </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The JSON-source for the string.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) source: StringContents&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) info: JsonStringInfo,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -837,10 +935,10 @@
     /// escape sequences.
     </span><span class="attr">#[must_use]
     #[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-    </span><span class="kw">pub fn </span>decode_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyStr&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>decode_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyStr&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
-            StringContents::Json { source, info } =&gt; {
-                <span class="kw">if </span>info.has_escapes() {
+            StringContents::Json(source) =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
                     AnyStr::Owned(<span class="self">self</span>.decoded().collect())
                 } <span class="kw">else </span>{
                     source.clone()
@@ -850,23 +948,94 @@
         }
     }
 
+    <span class="doccomment">/// Returns the contained string after escaping any characters, if needed.
+    /// If the string is already internally represented as a JSON string, this
+    /// function returns its source via borrowing and no additional processing.
+    </span><span class="attr">#[must_use]
+    #[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+    </span><span class="kw">pub fn </span>escape_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyStr&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
+            StringContents::Json(source) =&gt; source.clone(),
+            StringContents::Raw(<span class="kw">_</span>) =&gt; {
+                <span class="comment">// We promote raw strings with no escapes to Json strings, which
+                // means we will always need to escape this raw string.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>json = String::with_capacity(<span class="self">self</span>.info.expected_length());
+                json.extend(AsJson::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="self">self</span>.info));
+                AnyStr::Owned(json)
+            }
+        }
+    }
+
     <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>decoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoded&lt;<span class="lifetime">&#39;_</span>&gt; {
-        Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
+        Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="self">self</span>.info)
     }
 
     <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>as_json(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AsJson&lt;<span class="lifetime">&#39;_</span>&gt; {
-        AsJson::from(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
+        AsJson::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="self">self</span>.info)
+    }
+
+    <span class="doccomment">/// Returns a reference to the underlying storage of this string, if it&#39;s
+    /// already encoded for use in a JSON string. This does not include the
+    /// surrounding quotation marks.
+    ///
+    /// If None is returned, the string must be decoded using
+    /// [`as_json()`](Self::as_json).
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>as_json_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">if let </span>StringContents::Json(source) = <span class="kw-2">&amp;</span><span class="self">self</span>.source {
+            <span class="prelude-val">Some</span>(source)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+
+    <span class="doccomment">/// Returns the length of this string when encoded as JSON.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
+            StringContents::Json(json) =&gt; json.len(),
+            StringContents::Raw(<span class="kw">_</span>) =&gt; <span class="self">self</span>.info.expected_length(),
+        }
+    }
+
+    <span class="doccomment">/// Returns true if this string is empty.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Returns the length of this string when decoded.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>decoded_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
+            StringContents::Json(<span class="kw">_</span>) =&gt; <span class="self">self</span>.info.expected_length(),
+            StringContents::Raw(raw) =&gt; raw.len(),
+        }
     }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            source: StringContents::Raw(AnyStr::Borrowed(value)),
+        <span class="comment">// Analyze the string for characters that need to be escaped.
+        </span><span class="kw">let </span>source = StringContents::Raw(AnyStr::Borrowed(value));
+        <span class="kw">let </span><span class="kw-2">mut </span>escaped = AsJson::new(<span class="kw-2">&amp;</span>source, JsonStringInfo::NONE);
+        <span class="kw">for _ in </span><span class="kw-2">&amp;mut </span>escaped {}
+
+        <span class="kw">if </span>escaped.info.has_escapes() {
+            <span class="self">Self </span>{
+                info: escaped.info,
+                source,
+            }
+        } <span class="kw">else </span>{
+            <span class="comment">// No escapes, we can promote to a JSON string.
+            </span><span class="self">Self </span>{
+                source: StringContents::Json(AnyStr::Borrowed(value)),
+                info: escaped.info,
+            }
         }
     }
 }
@@ -874,8 +1043,22 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;String&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>from(value: String) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            source: StringContents::Raw(AnyStr::Owned(value)),
+        <span class="comment">// Analyze the string for characters that need to be escaped.
+        </span><span class="kw">let </span>borrowed_contents = StringContents::Raw(AnyStr::Borrowed(<span class="kw-2">&amp;</span>value));
+        <span class="kw">let </span><span class="kw-2">mut </span>escaped = AsJson::new(<span class="kw-2">&amp;</span>borrowed_contents, JsonStringInfo::NONE);
+        <span class="kw">for _ in </span><span class="kw-2">&amp;mut </span>escaped {}
+
+        <span class="kw">if </span>escaped.info.has_escapes() {
+            <span class="self">Self </span>{
+                info: escaped.info,
+                source: StringContents::Raw(AnyStr::Owned(value)),
+            }
+        } <span class="kw">else </span>{
+            <span class="comment">// No escapes, we can promote to a JSON string.
+            </span><span class="self">Self </span>{
+                info: escaped.info,
+                source: StringContents::Json(AnyStr::Owned(value)),
+            }
         }
     }
 }
@@ -889,15 +1072,14 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; bool {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
-            StringContents::Json { source, info } =&gt; {
-                <span class="kw">let </span>unescaped_length = info.unescaped_length();
-                <span class="kw">if </span>info.has_escapes() {
+            StringContents::Json(source) =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
                     <span class="comment">// Quick check, if the decoded length differs, the strings can&#39;t be equal
-                    </span><span class="kw">if </span>unescaped_length != other.len() {
+                    </span><span class="kw">if </span><span class="self">self</span>.info.expected_length() != other.len() {
                         <span class="kw">return </span><span class="bool-val">false</span>;
                     }
 
-                    Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
+                    Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="self">self</span>.info)
                         .zip(other.chars())
                         .all(|(a, b)| a == b)
                 } <span class="kw">else </span>{
@@ -913,32 +1095,37 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; bool {
         <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="kw-2">&amp;</span>other.source) {
-            (
-                StringContents::Json {
-                    source: a,
-                    info: a_info,
-                },
-                StringContents::Json {
-                    source: b,
-                    info: b_info,
-                },
-            ) =&gt; <span class="kw">match </span>(a_info.has_escapes(), b_info.has_escapes()) {
-                (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; {
-                    <span class="kw">if </span>a_info.unescaped_length() == b_info.unescaped_length() {
-                        Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source)
-                            .zip(Decoded::new(<span class="kw-2">&amp;</span>other.source))
-                            .all(|(a, b)| a == b)
-                    } <span class="kw">else </span>{
-                        <span class="bool-val">false
-                    </span>}
+            (StringContents::Json(a), StringContents::Json(b)) =&gt; {
+                <span class="kw">match </span>(<span class="self">self</span>.info.has_escapes(), other.info.has_escapes()) {
+                    (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; {
+                        <span class="kw">if </span><span class="self">self</span>.info.expected_length() == other.info.expected_length() {
+                            Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="self">self</span>.info)
+                                .zip(Decoded::new(<span class="kw-2">&amp;</span>other.source, <span class="self">self</span>.info))
+                                .all(|(a, b)| a == b)
+                        } <span class="kw">else </span>{
+                            <span class="bool-val">false
+                        </span>}
+                    }
+                    (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="self">self </span>== b.as_ref(),
+                    (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; other == a.as_ref(),
+                    (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; a.as_ref() == b.as_ref(),
                 }
-                (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="self">self </span>== b.as_ref(),
-                (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; other == a.as_ref(),
-                (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; a.as_ref() == b.as_ref(),
-            },
+            }
             (StringContents::Raw(a), StringContents::Raw(b)) =&gt; a.as_ref() == b.as_ref(),
-            (StringContents::Json { .. }, StringContents::Raw(b)) =&gt; <span class="self">self </span>== b.as_ref(),
-            (StringContents::Raw(a), <span class="kw">_</span>) =&gt; other == a.as_ref(),
+            (StringContents::Json(<span class="kw">_</span>), StringContents::Raw(b)) =&gt; {
+                <span class="kw">if </span>other.info.expected_length() == <span class="self">self</span>.len() {
+                    <span class="self">self </span>== b.as_ref()
+                } <span class="kw">else </span>{
+                    <span class="bool-val">false
+                </span>}
+            }
+            (StringContents::Raw(a), <span class="kw">_</span>) =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.info.expected_length() == other.len() {
+                    other == a.as_ref()
+                } <span class="kw">else </span>{
+                    <span class="bool-val">false
+                </span>}
+            }
         }
     }
 }
@@ -949,10 +1136,8 @@
     <span class="macro">assert_eq!</span>(
         JsonString::from_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>).unwrap(),
         JsonString {
-            source: StringContents::Json {
-                source: AnyStr::Borrowed(<span class="string">r#&quot;Hello, World!&quot;#</span>),
-                info: JsonStringInfo::new(<span class="bool-val">false</span>, <span class="number">13</span>),
-            }
+            source: StringContents::Json(AnyStr::Borrowed(<span class="string">r#&quot;Hello, World!&quot;#</span>)),
+            info: JsonStringInfo::new(<span class="bool-val">false</span>, <span class="number">13</span>),
         }
     );
 
@@ -1084,7 +1269,7 @@
 
     <span class="doccomment">/// Returns the length of the string after decoding any escape sequences.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>unescaped_length(<span class="self">self</span>) -&gt; usize {
+    </span><span class="kw">pub const fn </span>expected_length(<span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.<span class="number">0 </span>&amp; <span class="self">Self</span>::UNESCAPED_BYTES_MASK
     }
 
@@ -1103,7 +1288,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">&quot;EscapeInfo&quot;</span>)
             .field(<span class="string">&quot;has_escapes&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.has_escapes())
-            .field(<span class="string">&quot;unescaped_length&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.unescaped_length())
+            .field(<span class="string">&quot;unescaped_length&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.expected_length())
             .finish()
     }
 }
@@ -1119,26 +1304,17 @@
     </span>);
 }
 
-<span class="kw">pub struct </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
     needs_decoding: bool,
     source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
     chars: CharIndices&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            needs_decoding: <span class="self">self</span>.needs_decoding,
-            source: <span class="self">self</span>.source,
-            chars: <span class="self">self</span>.chars.clone(),
-        }
-    }
-}
-
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;, info: JsonStringInfo) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>source {
-            StringContents::Json { source, info } =&gt; <span class="self">Self </span>{
+            StringContents::Json(source) =&gt; <span class="self">Self </span>{
                 needs_decoding: info.has_escapes(),
                 source,
                 chars: source.char_indices(),
@@ -1237,18 +1413,18 @@
     },
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>AsJson&lt;<span class="lifetime">&#39;b</span>&gt; {
-    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>&gt; AsJson&lt;<span class="lifetime">&#39;b</span>&gt; {
+    <span class="kw">fn </span>new(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;, info: JsonStringInfo) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>value {
-            StringContents::Json { source, info } =&gt; <span class="self">Self </span>{
+            StringContents::Json(source) =&gt; <span class="self">Self </span>{
                 chars: source.chars(),
                 state: EscapeState::AlreadyEscaped,
-                info: <span class="kw-2">*</span>info,
+                info,
             },
             StringContents::Raw(source) =&gt; <span class="self">Self </span>{
                 chars: source.chars(),
                 state: EscapeState::None,
-                info: JsonStringInfo::NONE,
+                info,
             },
         }
     }
@@ -1270,32 +1446,32 @@
                     }
                     <span class="prelude-val">Ok</span>(<span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;\\&#39; </span>| <span class="string">b&#39;/&#39;</span>) =&gt; {
                         <span class="self">self</span>.state = EscapeState::Single(ch <span class="kw">as </span>u8);
-                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
                         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
                     }
                     <span class="prelude-val">Ok</span>(<span class="string">b&#39;\x07&#39;</span>) =&gt; {
                         <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;b&#39;</span>);
-                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
                         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
                     }
                     <span class="prelude-val">Ok</span>(<span class="string">b&#39;\n&#39;</span>) =&gt; {
                         <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;n&#39;</span>);
-                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
                         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
                     }
                     <span class="prelude-val">Ok</span>(<span class="string">b&#39;\r&#39;</span>) =&gt; {
                         <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;r&#39;</span>);
-                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
                         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
                     }
                     <span class="prelude-val">Ok</span>(<span class="string">b&#39;\t&#39;</span>) =&gt; {
                         <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;t&#39;</span>);
-                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
                         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
                     }
                     <span class="prelude-val">Ok</span>(<span class="string">b&#39;\x0c&#39;</span>) =&gt; {
                         <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;f&#39;</span>);
-                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
                         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
                     }
                     <span class="prelude-val">Ok</span>(b) <span class="kw">if </span>(<span class="number">0</span>..=<span class="number">31</span>).contains(<span class="kw-2">&amp;</span>b) =&gt; {
@@ -1305,7 +1481,7 @@
                             current_nibble: <span class="prelude-val">None</span>,
                             codepoint: u16::from(b),
                         };
-                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">1</span>);
+                        <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">6</span>);
                         <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
                     }
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
@@ -1430,19 +1606,37 @@
 #[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">fn </span>escape() {
     <span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}&quot;</span>;
+    <span class="kw">let </span>escaped = <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}&quot;</span>;
     <span class="kw">let </span>raw = JsonString::from(original);
+    <span class="macro">assert_eq!</span>(raw.len(), escaped.len());
+    <span class="macro">assert_eq!</span>(raw.decoded_len(), original.len());
     <span class="kw">let </span>decoded = raw.decoded().collect::&lt;String&gt;();
     <span class="macro">assert_eq!</span>(decoded, original);
+    <span class="kw">let </span>decoded = raw.decode_if_needed();
+    <span class="macro">assert_eq!</span>(decoded, original);
     <span class="kw">let </span>json = raw.as_json().collect::&lt;String&gt;();
-    <span class="macro">assert_eq!</span>(json, <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}&quot;</span>);
+    <span class="macro">assert_eq!</span>(json, escaped);
+    <span class="kw">let </span>json = raw.escape_if_needed();
+    <span class="macro">assert_eq!</span>(json, escaped);
+    <span class="macro">assert!</span>(raw.as_json_str().is_none());
+
+    <span class="comment">// Test with a raw string that doesn&#39;t need encoding
+    </span><span class="kw">let </span>original = <span class="string">&quot;hello&quot;</span>;
+    <span class="kw">let </span>raw = JsonString::from(<span class="string">&quot;hello&quot;</span>);
+    <span class="kw">let </span>decoded = raw.decoded().collect::&lt;String&gt;();
+    <span class="macro">assert_eq!</span>(decoded, original);
+    <span class="kw">let </span>decoded = raw.decode_if_needed();
+    <span class="macro">assert_eq!</span>(decoded, original);
+    <span class="kw">let </span>json = raw.as_json().collect::&lt;String&gt;();
+    <span class="macro">assert_eq!</span>(json, original);
+    <span class="kw">let </span>json = raw.escape_if_needed();
+    <span class="macro">assert_eq!</span>(json, original);
+    <span class="macro">assert_eq!</span>(raw.as_json_str().map(AnyStr::as_ref), <span class="prelude-val">Some</span>(<span class="string">&quot;hello&quot;</span>));
 }
 
 <span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt; {
-    Json {
-        source: AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;,
-        info: JsonStringInfo,
-    },
+    Json(AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;),
     Raw(AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;),
 }
 
@@ -1559,4 +1753,4 @@
     );
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (5e37043d6 2023-01-22)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (c8e6a9e8b 2023-01-23)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
