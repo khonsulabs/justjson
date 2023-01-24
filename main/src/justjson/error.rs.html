@@ -409,6 +409,7 @@
 <a href="#409" id="409">409</a>
 <a href="#410" id="410">410</a>
 <a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
 </pre><pre class="rust"><code><span class="kw">use </span>core::convert::Infallible;
 <span class="kw">use </span>core::fmt::Display;
 
@@ -815,6 +816,7 @@
         ErrorKind::ExpectedNumber,
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::PaylodTooLarge,
         ErrorKind::ErrorFromDelegate(<span class="string">&quot;oops&quot;</span>),
     ] {
         Error { kind, offset: <span class="number">0 </span>}.to_string();
