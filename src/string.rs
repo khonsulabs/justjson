@@ -747,6 +747,14 @@ pub(crate) static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
 };
 
 #[test]
+fn is_empty() {
+    assert!(JsonString::from("").is_empty());
+    assert!(JsonString::from_json("\"\"").unwrap().is_empty());
+    assert!(!JsonString::from(" ").is_empty());
+    assert!(!JsonString::from_json("\" \"").unwrap().is_empty());
+}
+
+#[test]
 #[cfg(feature = "alloc")]
 fn escape() {
     let original = "\"\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}";

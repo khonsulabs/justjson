@@ -7,26 +7,43 @@ macro_rules! json_org_test {
         #[test]
         fn $name() {
             let src = include_bytes!(concat!("./jsonorg/", stringify!($name), ".json"));
+            let src_str = std::str::from_utf8(src).unwrap();
             let config = ParseConfig::strict().with_recursion_limit(19);
 
             if stringify!($name).starts_with("pass") {
                 Parser::validate_json_bytes_with_config(src, config)
                     .expect("failed to parse success case");
-                #[cfg(feature = "alloc")]
-                Value::from_json_bytes_with_config(src, config)
+                Parser::validate_json_with_config(src_str, config)
                     .expect("failed to parse success case");
                 #[cfg(feature = "alloc")]
-                Document::from_json_bytes_with_config(src, config)
-                    .expect("failed to parse success case");
+                {
+                    Value::from_json_bytes_with_config(src, config)
+                        .expect("failed to parse success case");
+                    Value::from_json_with_config(src_str, config)
+                        .expect("failed to parse success case");
+
+                    Document::from_json_bytes_with_config(src, config)
+                        .expect("failed to parse success case");
+                    Document::from_json_with_config(src_str, config)
+                        .expect("failed to parse success case");
+                }
             } else {
                 Parser::validate_json_bytes_with_config(src, config)
                     .expect_err("success on failure case");
-                #[cfg(feature = "alloc")]
-                Value::from_json_bytes_with_config(src, config)
+                Parser::validate_json_with_config(src_str, config)
                     .expect_err("success on failure case");
                 #[cfg(feature = "alloc")]
-                Document::from_json_bytes_with_config(src, config)
-                    .expect_err("success on failure case");
+                {
+                    Value::from_json_bytes_with_config(src, config)
+                        .expect_err("success on failure case");
+                    Value::from_json_with_config(src_str, config)
+                        .expect_err("success on failure case");
+
+                    Document::from_json_bytes_with_config(src, config)
+                        .expect_err("success on failure case");
+                    Document::from_json_with_config(src_str, config)
+                        .expect_err("success on failure case");
+                }
             }
         }
     };
