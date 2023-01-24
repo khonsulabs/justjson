@@ -327,6 +327,27 @@ fn json_string_cmp() {
         JsonString::from("a"),
         JsonString::from_json("\"a\"").unwrap()
     );
+
+    assert_eq!(JsonString::from("\0"), "\0");
+    assert_eq!(JsonString::from("\0"), JsonString::from("\0"));
+
+    assert_eq!(
+        JsonString::from_json(r#""\u0000""#).unwrap(),
+        JsonString::from("\0"),
+    );
+    assert_eq!(
+        JsonString::from("\0"),
+        JsonString::from_json(r#""\u0000""#).unwrap(),
+    );
+
+    assert_ne!(
+        JsonString::from_json(r#""\u0000""#).unwrap(),
+        JsonString::from("\0 "),
+    );
+    assert_ne!(
+        JsonString::from("\0 "),
+        JsonString::from_json(r#""\u0000""#).unwrap(),
+    );
 }
 
 #[test]
@@ -733,6 +754,24 @@ fn escape() {
     let raw = JsonString::from(original);
     assert_eq!(raw.len(), escaped.len());
     assert_eq!(raw.decoded_len(), original.len());
+    assert_eq!(raw, original);
+    let decoded = raw.decoded().collect::<String>();
+    assert_eq!(decoded, original);
+    let decoded = raw.decode_if_needed();
+    assert_eq!(decoded, original);
+    let json = raw.as_json().collect::<String>();
+    assert_eq!(json, escaped);
+    let json = raw.escape_if_needed();
+    assert_eq!(json, escaped);
+    assert!(raw.as_json_str().is_none());
+
+    // Test converting a String that needs encoding.
+    let original = "\"\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}";
+    let escaped = "\\\"\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}";
+    let raw: JsonString<'static> = JsonString::from(String::from(original));
+    assert_eq!(raw.len(), escaped.len());
+    assert_eq!(raw.decoded_len(), original.len());
+    assert_eq!(raw, original);
     let decoded = raw.decoded().collect::<String>();
     assert_eq!(decoded, original);
     let decoded = raw.decode_if_needed();
@@ -746,6 +785,9 @@ fn escape() {
     // Test with a raw string that doesn't need encoding
     let original = "hello";
     let raw = JsonString::from("hello");
+    assert_eq!(raw.len(), original.len());
+    assert_eq!(raw.decoded_len(), original.len());
+    assert_eq!(raw, original);
     let decoded = raw.decoded().collect::<String>();
     assert_eq!(decoded, original);
     let decoded = raw.decode_if_needed();
