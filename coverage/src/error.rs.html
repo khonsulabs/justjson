@@ -15,7 +15,7 @@
         <div>
             <p class="heading">Lines</p>
             <p class="title has-text-success">
-                <abbr title="203 / 207">98.07 %</abbr></p>
+                <abbr title="205 / 208">98.56 %</abbr></p>
         </div>
     </div>
 
@@ -499,7 +499,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    fn fmt(&amp;self, f: &amp;mut core::fmt::Formatter&lt;&#x27;_&gt;) -&gt; core::fmt::Result {</pre>
@@ -512,7 +512,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">        write!(f, &quot;error at {}: {}&quot;, self.offset, self.kind)</pre>
@@ -525,7 +525,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
@@ -4373,7 +4373,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    fn fmt(&amp;self, f: &amp;mut core::fmt::Formatter&lt;&#x27;_&gt;) -&gt; core::fmt::Result {</pre>
@@ -4386,7 +4386,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">        match self {</pre>
@@ -4840,11 +4840,11 @@
                 <a href="#370">370</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-danger-light has-background-danger">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-danger-light p-0">
-                <pre class="has-background-danger-light py-0 px-2">                f.write_str(&quot;the payload is too large to be parsed into the destination structure&quot;)</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">                f.write_str(&quot;the payload is too large to be parsed into the destination structure&quot;)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4893,7 +4893,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
@@ -5010,7 +5010,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    for kind in [</pre>
@@ -5325,7 +5325,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ErrorFromDelegate(&quot;oops&quot;),</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::PaylodTooLarge,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -5335,10 +5335,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    ] {</pre>
+                <pre class="has-background-success-light py-0 px-2">        ErrorKind::ErrorFromDelegate(&quot;oops&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -5348,10 +5348,10 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Error { kind, offset: 0 }.to_string();</pre>
+                <pre class="has-background-success-light py-0 px-2">    ] {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -5361,7 +5361,20 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                25
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        Error { kind, offset: 0 }.to_string();</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="411">
+                <a href="#411">411</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                25
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
@@ -5369,8 +5382,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="411">
-                <a href="#411">411</a>
+                id="412">
+                <a href="#412">412</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -5382,7 +5395,7 @@
         </div></div>
         <footer class="footer">
             <div class="content has-text-centered">
-                <p class="heading">Date: 2023-01-24 18:17</p>
+                <p class="heading">Date: 2023-01-24 18:24</p>
             </div>
         </footer>
     </body>
