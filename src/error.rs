@@ -404,6 +404,7 @@ fn display_tests() {
         ErrorKind::ExpectedNumber,
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
+        ErrorKind::PaylodTooLarge,
         ErrorKind::ErrorFromDelegate("oops"),
     ] {
         Error { kind, offset: 0 }.to_string();
