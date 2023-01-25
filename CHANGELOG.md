@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v0.2.0
 
 ## Breaking Changes
 
@@ -46,14 +46,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `JsonString::from(&str)` has been added to convert from a Rust string to its
   JSON-encoded form.
-- This crate now is `no_std` without the newly added `std` feature. The `std`
-  feature is included in default-features.
+- This crate now is `no_std` compatible. The `no_std` support is controlled by
+  three feature flags:
+
+  - `std`: Enabled by default, enables `alloc` automatically.
+  - `alloc`: Uses the `alloc` crate for the `Document` and `Value` types.
+  - `heapless`: Exports a new `HeaplessDocument` type that can be used in
+    environments without `alloc`.
+
+  Without any features enabled, only `Parser`, `GenericDocument`, `JsonString`,
+  and `JsonNumber` are available to parse JSON.
+
+  To enable `GenericDocument` to work with types other than `Vec` and
+  `heapless::Vec`, `NodeCollection` can be implemented for other Vec-like types.
 
 ## Changed
 
 - `thiserror` has been removed from the dependencies in favor of manually
-  implementing `std::error::Error`. This makes `justjson` dependency free (for
-  now).
+  implementing `std::error::Error`. This makes `justjson` dependency free
+  without enabling extra feature flags.
 
 ## v0.1.1
 
