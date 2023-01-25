@@ -1,6 +1,13 @@
+use core::convert::Infallible;
+use core::iter::Peekable;
+use core::marker::PhantomData;
 use core::slice;
-use std::{iter::Peekable, marker::PhantomData};
 
+use crate::anystr::AnyStr;
+use crate::string::{
+    merge_surrogate_pair, StringContents, HEX_OFFSET_TABLE, HIGH_SURROGATE_MAX, HIGH_SURROGATE_MIN,
+    LOW_SURROGATE_MAX, LOW_SURROGATE_MIN, SAFE_STRING_BYTES, SAFE_STRING_BYTES_VERIFY_UTF8,
+};
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
 /// Parses JSON, driven by a [`ParseDelegate`].
@@ -22,7 +29,7 @@ impl<'a> Parser<'a, false> {
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    pub fn parse_json_bytes<D>(value: &'a [u8], delegate: D) -> Result<D::Value, Error>
+    pub fn parse_json_bytes<D>(value: &'a [u8], delegate: D) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -38,11 +45,26 @@ impl<'a> Parser<'a, false> {
         value: &'a [u8],
         config: ParseConfig,
         delegate: D,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
         Self::parse_bytes(value, config, delegate)
+    }
+
+    /// Validates that `json` contains valid JSON and returns the kind of data
+    /// the payload contained.
+    pub fn validate_json_bytes(json: &'a [u8]) -> Result<JsonKind, Error> {
+        Self::validate_json_bytes_with_config(json, ParseConfig::default())
+    }
+
+    /// Validates that `json` contains valid JSON, using the settings from
+    /// `config`, and returns the kind of data the payload contained.
+    pub fn validate_json_bytes_with_config(
+        json: &'a [u8],
+        config: ParseConfig,
+    ) -> Result<JsonKind, Error> {
+        Self::parse_bytes(json, config, ())
     }
 }
 
@@ -52,7 +74,7 @@ impl<'a> Parser<'a, true> {
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    pub fn parse_json<D>(value: &'a str, delegate: D) -> Result<D::Value, Error>
+    pub fn parse_json<D>(value: &'a str, delegate: D) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -68,16 +90,35 @@ impl<'a> Parser<'a, true> {
         value: &'a str,
         config: ParseConfig,
         delegate: D,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
         Self::parse_bytes(value.as_bytes(), config, delegate)
     }
+
+    /// Validates that `json` contains valid JSON and returns the kind of data
+    /// the payload contained.
+    pub fn validate_json(json: &'a str) -> Result<JsonKind, Error> {
+        Self::validate_json_with_config(json, ParseConfig::default())
+    }
+
+    /// Validates that `json` contains valid JSON, using the settings from
+    /// `config`, and returns the kind of data the payload contained.
+    pub fn validate_json_with_config(
+        json: &'a str,
+        config: ParseConfig,
+    ) -> Result<JsonKind, Error> {
+        Self::parse_json_with_config(json, config, ())
+    }
 }
 
 impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
-    fn parse_bytes<D>(source: &'a [u8], config: ParseConfig, delegate: D) -> Result<D::Value, Error>
+    fn parse_bytes<D>(
+        source: &'a [u8],
+        config: ParseConfig,
+        delegate: D,
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
@@ -112,11 +153,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
             }),
         }
     }
-    fn read_from_source<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error>
+
+    fn read_from_source<D>(
+        &mut self,
+        state: &mut ParseState<'a, D>,
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
-        let (offset, byte) = self.source.next_non_ws()?;
+        let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
         self.read_from_first_byte(offset, byte, state)
     }
 
@@ -125,36 +170,86 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         offset: usize,
         first: &'a u8,
         state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
         let value = match (offset, first) {
-            (offset, b'"') => state.delegate.string(self.read_string_from_source(offset)?),
+            (offset, b'"') => state
+                .delegate
+                .string(
+                    self.read_string_from_source(offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
             (offset, b'{') => {
                 state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                self.read_object_from_source(state)?
+                self.read_object_from_source(offset, state)?
             }
             (offset, b'[') => {
                 state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                self.read_array_from_source(state)?
+                self.read_array_from_source(offset, state)?
             }
-            (offset, ch) if ch == &b'-' || ch == &b'+' => state
+            (offset, ch) if ch == &b'-' => state
                 .delegate
-                .number(self.read_number_from_source(InitialNumberState::Sign, offset)?),
+                .number(
+                    self.read_number_from_source(InitialNumberState::Sign, offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
             (offset, b'0') => state
                 .delegate
-                .number(self.read_number_from_source(InitialNumberState::Zero, offset)?),
+                .number(
+                    self.read_number_from_source(InitialNumberState::Zero, offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
             (offset, ch) if (b'1'..=b'9').contains(ch) => state
                 .delegate
-                .number(self.read_number_from_source(InitialNumberState::Digit, offset)?),
-            (_, b't') => {
-                self.read_literal_from_source::<D>(b"rue", state.delegate.boolean(true))?
-            }
-            (_, b'f') => {
-                self.read_literal_from_source::<D>(b"alse", state.delegate.boolean(false))?
-            }
-            (_, b'n') => self.read_literal_from_source::<D>(b"ull", state.delegate.null())?,
+                .number(
+                    self.read_number_from_source(InitialNumberState::Digit, offset)
+                        .map_err(Error::into_fallable)?,
+                )
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?,
+            (_, b't') => self
+                .read_literal_from_source::<D>(
+                    b"rue",
+                    state.delegate.boolean(true).map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?,
+                )
+                .map_err(Error::into_fallable)?,
+            (_, b'f') => self
+                .read_literal_from_source::<D>(
+                    b"alse",
+                    state.delegate.boolean(false).map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?,
+                )
+                .map_err(Error::into_fallable)?,
+            (_, b'n') => self
+                .read_literal_from_source::<D>(
+                    b"ull",
+                    state.delegate.null().map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?,
+                )
+                .map_err(Error::into_fallable)?,
             (offset, other) => {
                 return Err(Error {
                     offset,
@@ -168,18 +263,25 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
     fn read_object_from_source<D>(
         &mut self,
+        start: usize,
         state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
-        let mut inner = || {
-            let mut obj = state.delegate.begin_object();
+        let mut inner = || -> Result<D::Value, Error<D::Error>> {
+            let mut obj = state.delegate.begin_object().map_err(|kind| Error {
+                offset: start,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })?;
+            let mut last_offset;
             loop {
-                let (offset, byte) = self.source.next_non_ws()?;
+                let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
+                last_offset = offset;
 
                 let key = if byte == &b'"' {
-                    self.read_string_from_source(offset)?
+                    self.read_string_from_source(offset)
+                        .map_err(Error::into_fallable)?
                 } else if byte == &b'}' {
                     if state.delegate.object_is_empty(&obj) || state.config.allow_trailing_commas {
                         break;
@@ -203,9 +305,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     });
                 };
 
-                let key = state.delegate.object_key(&mut obj, key);
+                let key = state
+                    .delegate
+                    .object_key(&mut obj, key)
+                    .map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?;
 
-                match self.source.next_non_ws() {
+                match self.source.next_non_ws().map_err(Error::into_fallable) {
                     Ok((_, b':')) => {}
                     Ok((offset, _)) => {
                         return Err(Error {
@@ -220,9 +328,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
 
                 let value = self.read_from_source(state)?;
-                state.delegate.object_value(&mut obj, key, value);
+                state
+                    .delegate
+                    .object_value(&mut obj, key, value)
+                    .map_err(|kind| Error {
+                        offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?;
 
-                match self.source.next_non_ws()? {
+                match self.source.next_non_ws().map_err(Error::into_fallable)? {
                     (_, b',') => {}
                     (_, b'}') => break,
                     (offset, _) => {
@@ -234,7 +348,10 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
             }
 
-            Ok(state.delegate.end_object(obj))
+            state.delegate.end_object(obj).map_err(|kind| Error {
+                offset: last_offset,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })
         };
         let result = inner().map_err(|mut err| {
             if matches!(err.kind, ErrorKind::UnexpectedEof) {
@@ -248,15 +365,21 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
     fn read_array_from_source<D>(
         &mut self,
+        start: usize,
         state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error>
+    ) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
     {
-        let mut inner = || {
-            let mut array = state.delegate.begin_array();
+        let mut inner = || -> Result<D::Value, Error<D::Error>> {
+            let mut array = state.delegate.begin_array().map_err(|kind| Error {
+                offset: start,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })?;
+            let mut last_offset;
             loop {
-                let (offset, byte) = self.source.next_non_ws()?;
+                let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
+                last_offset = offset;
 
                 let value = if byte == &b']' {
                     if state.delegate.array_is_empty(&array) || state.config.allow_trailing_commas {
@@ -271,9 +394,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     self.read_from_first_byte(offset, byte, state)?
                 };
 
-                state.delegate.array_value(&mut array, value);
+                state
+                    .delegate
+                    .array_value(&mut array, value)
+                    .map_err(|kind| Error {
+                        offset: last_offset,
+                        kind: ErrorKind::ErrorFromDelegate(kind),
+                    })?;
 
-                match self.source.next_non_ws()? {
+                match self.source.next_non_ws().map_err(Error::into_fallable)? {
                     (_, b',') => {}
                     (_, b']') => break,
                     (offset, _) => {
@@ -285,7 +414,10 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
             }
 
-            Ok(state.delegate.end_array(array))
+            state.delegate.end_array(array).map_err(|kind| Error {
+                offset: last_offset,
+                kind: ErrorKind::ErrorFromDelegate(kind),
+            })
         };
 
         let result = inner().map_err(|mut err| {
@@ -299,7 +431,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     }
 
     #[allow(unsafe_code)]
-    fn read_string_from_source(&mut self, start: usize) -> Result<JsonString<&'a str>, Error> {
+    fn read_string_from_source(&mut self, start: usize) -> Result<JsonString<'a>, Error> {
         let safe_strings = if GUARANTEED_UTF8 {
             SAFE_STRING_BYTES
         } else {
@@ -318,52 +450,18 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 match byte {
                     b'"' => {
                         break Ok(JsonString {
-                            source: unsafe {
-                                std::str::from_utf8_unchecked(&self.source.bytes[start..=offset])
-                            },
+                            source: StringContents::Json(
+                                // SAFETY: the UTF8 has been manually verified by the parser.
+                                AnyStr::Borrowed(unsafe {
+                                    core::str::from_utf8_unchecked(
+                                        &self.source.bytes[start + 1..offset],
+                                    )
+                                }),
+                            ),
                             info: string_info,
-                        })
+                        });
                     }
-                    b'\\' => match self.source.read()? {
-                        (_, ch)
-                            if matches!(
-                                ch,
-                                b'"' | b'\\' | b'/' | b'b' | b'f' | b'r' | b'n' | b't'
-                            ) =>
-                        {
-                            string_info.add_bytes_from_escape(1);
-                        }
-                        (offset, b'u') => {
-                            // 4 hexadecimal digits.
-                            let mut decoded = 0_u16;
-                            for _ in 0..4 {
-                                let (offset, digit) = self.source.read()?;
-                                let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
-                                if nibble == u8::MAX {
-                                    return Err(Error {
-                                        offset,
-                                        kind: ErrorKind::InvalidHexadecimal,
-                                    });
-                                }
-                                decoded = decoded << 4 | u16::from(nibble);
-                            }
-                            if let Some(ch) = char::from_u32(u32::from(decoded)) {
-                                string_info.add_bytes_from_escape(ch.len_utf8());
-                            } else {
-                                // Produce a Utf8 error.
-                                return Err(Error {
-                                    offset,
-                                    kind: ErrorKind::Utf8,
-                                });
-                            }
-                        }
-                        (offset, _) => {
-                            return Err(Error {
-                                offset,
-                                kind: ErrorKind::InvalidEscape,
-                            })
-                        }
-                    },
+                    b'\\' => self.read_string_escape(&mut string_info)?,
                     128..=255 => {
                         // Manual UTF-8 validation
                         let utf8_start = offset;
@@ -377,7 +475,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
                         let unicode_end = self.source.offset;
                         string_info.add_bytes(unicode_end - utf8_start);
-                        if std::str::from_utf8(&self.source.bytes[utf8_start..unicode_end]).is_err()
+                        if core::str::from_utf8(&self.source.bytes[utf8_start..unicode_end])
+                            .is_err()
                         {
                             // The offset on this is incorrect.
                             return Err(Error {
@@ -393,7 +492,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                         })
                     }
                     b' '..=127 => {
-                        unreachable!()
+                        unreachable!("safe_strings filters these values")
                     }
                 }
             }
@@ -401,11 +500,86 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     }
 
     #[allow(unsafe_code)]
+    #[inline]
+    fn read_string_escape(&mut self, string_info: &mut JsonStringInfo) -> Result<(), Error> {
+        match self.source.read()? {
+            (_, ch) if matches!(ch, b'"' | b'\\' | b'/' | b'b' | b'f' | b'r' | b'n' | b't') => {
+                string_info.add_bytes_from_escape(1);
+            }
+            (offset, b'u') => {
+                // 4 hexadecimal digits.
+                let mut decoded = 0_u32;
+                for _ in 0..4 {
+                    let (offset, digit) = self.source.read()?;
+                    let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
+                    if nibble == u8::MAX {
+                        return Err(Error {
+                            offset,
+                            kind: ErrorKind::InvalidHexadecimal,
+                        });
+                    }
+                    decoded = decoded << 4 | u32::from(nibble);
+                }
+
+                let ch = if let Some(ch) = char::from_u32(decoded) {
+                    ch
+                } else {
+                    // We either have an invalid codepoint or a partial
+                    // surrogate.
+                    let mut decoded_is_surrogate_pair = false;
+                    if (HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(&decoded) {
+                        // We have a potential surrogate pair. Try to read another \u escape code
+                        if self.source.read()?.1 == &b'\\' && self.source.read()?.1 == &b'u' {
+                            let mut second_codepoint = 0;
+                            for _ in 0..4 {
+                                let (offset, digit) = self.source.read()?;
+                                let nibble = HEX_OFFSET_TABLE[usize::from(*digit)];
+                                if nibble == u8::MAX {
+                                    return Err(Error {
+                                        offset,
+                                        kind: ErrorKind::InvalidHexadecimal,
+                                    });
+                                }
+                                second_codepoint = second_codepoint << 4 | u32::from(nibble);
+                            }
+                            if (LOW_SURROGATE_MIN..=LOW_SURROGATE_MAX).contains(&second_codepoint) {
+                                // We have a valid surrogate pair
+                                decoded = merge_surrogate_pair(decoded, second_codepoint);
+                                decoded_is_surrogate_pair = true;
+                            }
+                        }
+                    }
+
+                    if decoded_is_surrogate_pair {
+                        // SAFETY: we have manually marged the surrogate pair
+                        // into a single valid codepoint, and this cannot fail.
+                        unsafe { char::from_u32_unchecked(decoded) }
+                    } else {
+                        return Err(Error {
+                            offset,
+                            kind: ErrorKind::Utf8,
+                        });
+                    }
+                };
+
+                string_info.add_bytes_from_escape(ch.len_utf8());
+            }
+            (offset, _) => {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::InvalidEscape,
+                })
+            }
+        }
+        Ok(())
+    }
+
+    #[allow(unsafe_code)]
     fn read_number_from_source(
         &mut self,
         initial_state: InitialNumberState,
         start: usize,
-    ) -> Result<JsonNumber<&'a str>, Error> {
+    ) -> Result<JsonNumber<'a>, Error> {
         // Numbers are the "hardest" in that we have to peek the digits since
         // there is no terminal character. Every other type in JSON has a way to
         // know when the type ends.
@@ -416,11 +590,19 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         if initial_state != InitialNumberState::Zero {
             let mut read_integer_digit = initial_state == InitialNumberState::Digit;
             while let Some(byte) = self.source.peek() {
-                if byte.is_ascii_digit() {
-                    self.source.read()?;
-                    read_integer_digit = true;
-                } else {
-                    break;
+                match byte {
+                    b'0' if !read_integer_digit => {
+                        // 0 after a sign still counts as the complete Integer
+                        // part.
+                        self.source.read()?;
+                        read_integer_digit = true;
+                        break;
+                    }
+                    b'0'..=b'9' => {
+                        self.source.read()?;
+                        read_integer_digit = true;
+                    }
+                    _ => break,
                 }
             }
 
@@ -484,9 +666,11 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
 
         Ok(JsonNumber {
-            source: unsafe {
-                std::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
-            },
+            // SAFETY: To reach this point, we can only have read ascii
+            // characters.
+            source: AnyStr::Borrowed(unsafe {
+                core::str::from_utf8_unchecked(&self.source.bytes[start..self.source.offset])
+            }),
         })
     }
 
@@ -526,36 +710,51 @@ pub trait ParseDelegate<'a> {
     type Array;
     /// The type that is used to represent the key of a field in a JSON object.
     type Key;
+    /// The error type for this delegate.
+    type Error;
 
     /// Returns the value representation of `null`.
-    fn null(&mut self) -> Self::Value;
+    fn null(&mut self) -> Result<Self::Value, Self::Error>;
     /// Returns the value representation of a boolean.
-    fn boolean(&mut self, value: bool) -> Self::Value;
+    fn boolean(&mut self, value: bool) -> Result<Self::Value, Self::Error>;
     /// Returns the value representation of a [`JsonNumber`].
-    fn number(&mut self, value: JsonNumber<&'a str>) -> Self::Value;
+    fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error>;
     /// Returns the value representation of a [`JsonString`].
-    fn string(&mut self, value: JsonString<&'a str>) -> Self::Value;
+    fn string(&mut self, value: JsonString<'a>) -> Result<Self::Value, Self::Error>;
 
     /// Returns an empty object.
-    fn begin_object(&mut self) -> Self::Object;
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error>;
     /// Processes the key for a new value in an object. Returns the key
     /// representation of the [`JsonString`].
-    fn object_key(&mut self, object: &mut Self::Object, key: JsonString<&'a str>) -> Self::Key;
+    fn object_key(
+        &mut self,
+        object: &mut Self::Object,
+        key: JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error>;
     /// Adds a new key-value pair to an object.
-    fn object_value(&mut self, object: &mut Self::Object, key: Self::Key, value: Self::Value);
+    fn object_value(
+        &mut self,
+        object: &mut Self::Object,
+        key: Self::Key,
+        value: Self::Value,
+    ) -> Result<(), Self::Error>;
     /// Returns true if the object passed is empty.
     fn object_is_empty(&self, object: &Self::Object) -> bool;
     /// Returns the value representation of the object passed.
-    fn end_object(&mut self, object: Self::Object) -> Self::Value;
+    fn end_object(&mut self, object: Self::Object) -> Result<Self::Value, Self::Error>;
 
     /// Returns an empty array.
-    fn begin_array(&mut self) -> Self::Array;
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error>;
     /// Adds a new value to an array.
-    fn array_value(&mut self, array: &mut Self::Array, value: Self::Value);
+    fn array_value(
+        &mut self,
+        array: &mut Self::Array,
+        value: Self::Value,
+    ) -> Result<(), Self::Error>;
     /// Returns true if the array passed is empty.
     fn array_is_empty(&self, array: &Self::Array) -> bool;
     /// Returns the value representation of the array passed.
-    fn end_array(&mut self, array: Self::Array) -> Self::Value;
+    fn end_array(&mut self, array: Self::Array) -> Result<Self::Value, Self::Error>;
 
     /// Returns the [`JsonKind`] of `value`.
     fn kind_of(&self, value: &Self::Value) -> JsonKind;
@@ -706,12 +905,16 @@ impl ParseConfig {
     /// Allows trailing commas when parsing objects and arrays.
     ///
     /// ```rust
-    /// use justjson::{parser::ParseConfig, Value};
+    /// # #[cfg(feature = "alloc")]
+    /// # fn wrapper() {
+    /// use justjson::parser::ParseConfig;
+    /// use justjson::Value;
     ///
     /// let source = r#"{"a":[true,],}"#;
     /// Value::from_json(source).expect_err("not enabled by default");
     /// let config = ParseConfig::new().allowing_trailing_commas();
     /// Value::from_json_with_config(source, config).expect("now parses");
+    /// # }
     /// ```
     pub const fn allowing_trailing_commas(mut self) -> Self {
         self.allow_trailing_commas = true;
@@ -751,7 +954,7 @@ where
     D: ParseDelegate<'a>,
 {
     #[inline]
-    pub fn begin_nest(&mut self) -> Result<(), ErrorKind> {
+    pub fn begin_nest(&mut self) -> Result<(), ErrorKind<D::Error>> {
         if self.config.recursion_limit.is_some() {
             if self.remaining_depth > 0 {
                 self.remaining_depth -= 1;
@@ -785,83 +988,6 @@ where
     }
 }
 
-#[allow(clippy::inconsistent_digit_grouping)]
-static HEX_OFFSET_TABLE: [u8; 256] = {
-    const ERR: u8 = u8::MAX;
-    [
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 0
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 1
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 2
-        0__, 1__, 2__, 3__, 4__, 5__, 6__, 7__, 8__, 9__, ERR, ERR, ERR, ERR, ERR, ERR, // 3
-        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 4
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 5
-        ERR, 10_, 11_, 12_, 13_, 14_, 15_, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 6
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 7
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 8
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // 9
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // A
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // B
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // C
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // D
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // E
-        ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, // F
-    ]
-};
-
-static SAFE_STRING_BYTES: &[bool; 256] = {
-    const ER: bool = false;
-    const UC: bool = true;
-    const BS: bool = false;
-    const QU: bool = false;
-    const __: bool = true;
-    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    &[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
-        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
-        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
-    ]
-};
-
-static SAFE_STRING_BYTES_VERIFY_UTF8: &[bool; 256] = {
-    const ER: bool = false;
-    const UC: bool = false;
-    const BS: bool = false;
-    const QU: bool = false;
-    const __: bool = true;
-    //  0   1   2   3   4   5   6   7   8   9   A   B   C    D   E   F
-    &[
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 0
-        ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, ER, // 1
-        __, __, QU, __, __, __, __, __, __, __, __, __, __, __, __, __, // 2
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 3
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 4
-        __, __, __, __, __, __, __, __, __, __, __, __, BS, __, __, __, // 5
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 6
-        __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, // 7
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 8
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // 9
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // A
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // B
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // C
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // D
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // E
-        UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, // F
-    ]
-};
-
 /// Every type supported by JSON.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum JsonKind {
@@ -877,4 +1003,95 @@ pub enum JsonKind {
     Object,
     /// A list of values.
     Array,
+}
+
+impl<'a> ParseDelegate<'a> for () {
+    type Array = usize;
+    type Error = Infallible;
+    type Key = ();
+    type Object = usize;
+    type Value = JsonKind;
+
+    fn null(&mut self) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Null)
+    }
+
+    fn boolean(&mut self, _value: bool) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Boolean)
+    }
+
+    fn number(&mut self, _value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Number)
+    }
+
+    fn string(&mut self, _value: JsonString<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::String)
+    }
+
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
+        Ok(0)
+    }
+
+    fn object_key(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error> {
+        Ok(())
+    }
+
+    fn object_value(
+        &mut self,
+        object: &mut Self::Object,
+        _key: Self::Key,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        *object += 1;
+        Ok(())
+    }
+
+    fn object_is_empty(&self, object: &Self::Object) -> bool {
+        *object == 0
+    }
+
+    fn end_object(&mut self, _object: Self::Object) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Object)
+    }
+
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
+        Ok(0)
+    }
+
+    fn array_value(
+        &mut self,
+        array: &mut Self::Array,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        *array += 1;
+        Ok(())
+    }
+
+    fn array_is_empty(&self, array: &Self::Array) -> bool {
+        *array == 0
+    }
+
+    fn end_array(&mut self, _array: Self::Array) -> Result<Self::Value, Self::Error> {
+        Ok(JsonKind::Array)
+    }
+
+    fn kind_of(&self, value: &Self::Value) -> JsonKind {
+        *value
+    }
+}
+
+#[test]
+fn validates() {
+    assert_eq!(
+        Parser::validate_json(r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#),
+        Ok(JsonKind::Object)
+    );
+    assert_eq!(
+        Parser::validate_json_bytes(br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#),
+        Ok(JsonKind::Object)
+    );
 }

@@ -95,12 +95,36 @@ This crate uses unsafe code only when converting from raw incoming data to UTF-8
 data. The parser fully verifies that the data is valid UTF-8 before these
 functions are used.
 
+## `no_std` support
+
+By default, this crate enables the `std` feature, which adds support for Rust's
+standard library types. By disabling default features, this crate can be used in
+`no_std` projects. For example, in your Cargo.toml:
+
+```toml
+[dependencies]
+justjson = { version = "*", default-features = false }
+```
+
+The [`Value`][value] type requires the `alloc` feature to be enabled.
+
+The [`Document`][document] type alias requires the `alloc` feature, but the
+[`GenericDocument`][generic-doc] type allows providing your own collection type.
+
+With the `heapless` feature enabled, the [`HeaplessDocument`][heapless-doc] type
+can be used to parse documents using the [heapless][heapless] crate's `Vec` type
+for storage. This enables parsing JSON in environments where the `alloc` crate
+isn't supported.
+
 [value]: $value$
 [string]: $string$
 [number]: $number$
 [document]: $document$
+[generic-doc]: $generic-document$
+[heapless-doc]: $heapless-document$
 [json-ld]: https://www.w3.org/TR/json-ld11/#compacted-document-form
 [fediverse]: https://en.wikipedia.org/wiki/Fediverse
 [activitypub]: https://www.w3.org/TR/activitypub/
 [simd-json]: https://github.com/simd-lite/simd-json
 [serde-json]: https://github.com/serde-rs/json
+[heapless]: https://github.com/japaric/heapless

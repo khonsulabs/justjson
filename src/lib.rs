@@ -12,14 +12,23 @@
     clippy::missing_errors_doc
 )]
 #![deny(unsafe_code)]
+#![no_std]
+#![cfg_attr(any(docsrs, feature = "nightly"), feature(doc_auto_cfg))]
 
-pub use crate::{
-    error::{Error, ErrorKind},
-    number::JsonNumber,
-    string::{JsonString, JsonStringInfo},
-    value::{Object, Value},
-};
+#[cfg(any(feature = "std", test))]
+extern crate std;
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+pub use crate::anystr::AnyStr;
+pub use crate::error::{Error, ErrorKind};
+pub use crate::number::JsonNumber;
+pub use crate::string::{JsonString, JsonStringInfo};
+#[cfg(feature = "alloc")]
+pub use crate::value::{Object, Value};
+
+mod anystr;
 /// A JSON DOM representation with minimal processing.
 pub mod doc;
 mod error;
@@ -27,6 +36,7 @@ mod number;
 /// A low-level event-driven JSON parser.
 pub mod parser;
 mod string;
-#[cfg(test)]
+#[cfg(all(test, feature = "alloc"))]
 mod tests;
+#[cfg(feature = "alloc")]
 mod value;

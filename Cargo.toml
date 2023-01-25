@@ -1,6 +1,6 @@
 [package]
 name = "justjson"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 description = "An efficient JSON Value crate that allows borrowing data."
 license = "MIT OR Apache-2.0"
@@ -10,8 +10,15 @@ categories = ["parser-implementations"]
 readme = "./README.md"
 rust-version = "1.58"
 
+[features]
+default = ["std"]
+std = ["alloc"]
+alloc = []
+nightly = []      # Enables unstable documentation features outside of docs.rs
+
 [dependencies]
-thiserror = "1.0.38"
+heapless = { version = "0.7.16", optional = true }
+
 
 [workspace]
 members = ["benchmarks", "xtask"]
@@ -23,3 +30,19 @@ debug = true
 [profile.release]
 lto = true
 debug = true
+
+[[test]]
+name = "roundtrip"
+required-features = ["alloc"]
+
+[[example]]
+name = "borrowed-value"
+required-features = ["alloc"]
+
+[[example]]
+name = "heapless"
+required-features = ["heapless"]
+
+[package.metadata.docs.rs]
+rustc-args = ["--cfg", "docsrs"]
+features = ["heapless"]

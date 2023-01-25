@@ -1,13 +1,15 @@
-use crate::{Error, ErrorKind, Value};
+use crate::anystr::AnyStr;
+use crate::parser::{ParseDelegate, Parser};
+use crate::{Error, ErrorKind};
 
 /// A JSON-encoded number.
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct JsonNumber<Backing> {
+pub struct JsonNumber<'a> {
     /// The JSON source for this number.
-    pub source: Backing,
+    pub(crate) source: AnyStr<'a>,
 }
 
-impl<'a> JsonNumber<&'a str> {
+impl<'a> JsonNumber<'a> {
     /// Parses `json`, expecting a single number value.
     ///
     /// # Errors
@@ -15,75 +17,130 @@ impl<'a> JsonNumber<&'a str> {
     /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
     pub fn from_json(json: &'a str) -> Result<Self, Error> {
-        if let Value::Number(str) = Value::from_json(json)? {
-            Ok(str)
-        } else {
-            Err(Error {
-                offset: 0,
-                kind: ErrorKind::ExpectedNumber,
-            })
-        }
+        Parser::parse_json(json, NumberParser).map_err(Error::into_infallable)
     }
-}
 
-impl<Backing> JsonNumber<Backing>
-where
-    Backing: AsRef<str>,
-{
+    /// Returns the JSON-encoded representation of this number.
+    #[must_use]
+    pub fn source(&self) -> &str {
+        self.source.as_ref()
+    }
+
     /// Parses the contained value as an [`f64`], if possible.
     ///
     /// The JSON parser only validates that the number takes a correct form. If
     /// a number cannot be parsed by the underlying routine due to having too
     /// many digits, it this function can return None.
+    #[must_use]
     pub fn as_f64(&self) -> Option<f64> {
-        self.source.as_ref().parse().ok()
+        self.source().parse().ok()
     }
 
     /// Parses the contained value as an [`i64`], if possible.
     ///
     /// If the source number is a floating point number, this will always return None.
+    #[must_use]
     pub fn as_i64(&self) -> Option<i64> {
-        self.source.as_ref().parse().ok()
+        self.source().parse().ok()
     }
 
     /// Parses the contained value as an [`u64`], if possible.
     ///
     /// If the source number is a floating point number or has a negative sign,
     /// this will always return None.
+    #[must_use]
     pub fn as_u64(&self) -> Option<u64> {
-        self.source.as_ref().parse().ok()
+        self.source().parse().ok()
     }
-
-    // pub fn into_owned(self) -> JsonNumber<'static> {
-    //     JsonNumber {
-    //         source: Cow::Owned(match self.source {
-    //             Cow::Borrowed(value) => value.to_string(),
-    //             Cow::Owned(value) => value,
-    //         }),
-    //     }
-    // }
-
-    // pub fn to_owned(&self) -> JsonNumber<'static> {
-    //     JsonNumber {
-    //         source: Cow::Owned(match &self.source {
-    //             Cow::Borrowed(value) => value.to_string(),
-    //             Cow::Owned(value) => value.clone(),
-    //         }),
-    //     }
-    // }
 }
 
-// impl<'a> PartialEq<JsonNumber<&'a str>> for JsonNumber<String> {
-//     fn eq(&self, other: &JsonNumber<&'a str>) -> bool {
-//         self.source == other.source
-//     }
-// }
+struct NumberParser;
+
+impl<'a> ParseDelegate<'a> for NumberParser {
+    type Array = ();
+    type Error = ErrorKind;
+    type Key = ();
+    type Object = ();
+    type Value = JsonNumber<'a>;
+
+    fn null(&mut self) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn boolean(&mut self, _value: bool) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn number(&mut self, value: JsonNumber<'a>) -> Result<Self::Value, Self::Error> {
+        Ok(value)
+    }
+
+    fn string(&mut self, _value: crate::JsonString<'a>) -> Result<Self::Value, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn begin_object(&mut self) -> Result<Self::Object, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn object_key(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: crate::JsonString<'a>,
+    ) -> Result<Self::Key, Self::Error> {
+        unreachable!("error returned from begin_object")
+    }
+
+    fn object_value(
+        &mut self,
+        _object: &mut Self::Object,
+        _key: Self::Key,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        unreachable!("error returned from begin_object")
+    }
+
+    fn object_is_empty(&self, _object: &Self::Object) -> bool {
+        unreachable!("error returned from begin_object")
+    }
+
+    fn end_object(&mut self, _object: Self::Object) -> Result<Self::Value, Self::Error> {
+        unreachable!("error returned from begin_object")
+    }
+
+    fn begin_array(&mut self) -> Result<Self::Array, Self::Error> {
+        Err(ErrorKind::ExpectedNumber)
+    }
+
+    fn array_value(
+        &mut self,
+        _array: &mut Self::Array,
+        _value: Self::Value,
+    ) -> Result<(), Self::Error> {
+        unreachable!("error returned from array_value")
+    }
+
+    fn array_is_empty(&self, _array: &Self::Array) -> bool {
+        unreachable!("error returned from array_value")
+    }
+
+    fn end_array(&mut self, _array: Self::Array) -> Result<Self::Value, Self::Error> {
+        unreachable!("error returned from array_value")
+    }
+
+    fn kind_of(&self, _value: &Self::Value) -> crate::parser::JsonKind {
+        unreachable!("allow_all_types_at_root is always true")
+    }
+}
 
 #[test]
+#[cfg(feature = "alloc")]
 fn json_number_from_json() {
     assert_eq!(
         JsonNumber::from_json("1").unwrap(),
-        JsonNumber { source: "1" }
+        JsonNumber {
+            source: AnyStr::Borrowed("1")
+        }
     );
 
     let expected_number = JsonNumber::from_json(r#"true"#)
@@ -93,9 +150,34 @@ fn json_number_from_json() {
 }
 
 #[test]
+#[cfg(feature = "alloc")]
 fn json_number_conversions() {
     let one = JsonNumber::from_json("1").unwrap();
     assert_eq!(one.as_i64().unwrap(), 1);
     assert_eq!(one.as_u64().unwrap(), 1);
     assert!((one.as_f64().unwrap() - 1.0).abs() < f64::EPSILON);
+}
+
+#[test]
+fn from_json_bad_types() {
+    assert_eq!(
+        JsonNumber::from_json("\"\"").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("null").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("true").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("[]").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
+    assert_eq!(
+        JsonNumber::from_json("{}").unwrap_err().kind,
+        ErrorKind::ExpectedNumber
+    );
 }

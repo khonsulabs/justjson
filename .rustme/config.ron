@@ -51,10 +51,20 @@ Configuration(
                 for_docs: "crate::JsonNumber",
             ),
             "document": (
-                default: "https://khonsulabs.github.io/justjson/main/justjson/doc/struct.Document.html",
-                release: "https://docs.rs/justjson/*/justjson/doc/struct.Document.html",
+                default: "https://khonsulabs.github.io/justjson/main/justjson/doc/type.Document.html",
+                release: "https://docs.rs/justjson/*/justjson/doc/type.Document.html",
                 for_docs: "crate::doc::Document",
             ),
+            "heapless-document": (
+                default: "https://khonsulabs.github.io/justjson/main/justjson/doc/type.HeaplessDocument.html",
+                release: "https://docs.rs/justjson/*/justjson/doc/type.HeaplessDocument.html",
+                for_docs: "crate::doc::HeaplessDocument",
+            ),
+            "generic-document": (
+                default: "https://khonsulabs.github.io/justjson/main/justjson/doc/struct.GenericDocument.html",
+                release: "https://docs.rs/justjson/*/justjson/doc/struct.GenericDocument.html",
+                for_docs: "crate::doc::GenericDocument",
+            )
         }
     ],
 )
