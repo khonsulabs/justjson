@@ -26,7 +26,7 @@ pub use crate::error::{Error, ErrorKind};
 pub use crate::number::JsonNumber;
 pub use crate::string::{JsonString, JsonStringInfo};
 #[cfg(feature = "alloc")]
-pub use crate::value::{Object, Value};
+pub use crate::value::{Entry, Object, Value};
 
 mod anystr;
 /// A JSON DOM representation with minimal processing.

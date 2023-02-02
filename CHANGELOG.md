@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `JsonString` now implements `Ord`, `PartialOrd`, and `PartialOrd<str>`, and
   `Hash`.
+- `Entry`, the type which `Object` is a collection of, is now exported. This was
+  an oversight. Thanks to @PolScript for reporting this in #6.
 
 ## v0.2.1
 

@@ -538,9 +538,12 @@ impl<'a> FromIterator<Entry<'a>> for Object<'a> {
     }
 }
 
+/// An key-value pair in an [`Object`].
 #[derive(Debug, Eq, PartialEq)]
 pub struct Entry<'a> {
+    /// The key of this entry.
     pub key: JsonString<'a>,
+    /// The value associated with the key.
     pub value: Value<'a>,
 }
 
