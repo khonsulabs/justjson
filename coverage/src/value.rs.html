@@ -15,7 +15,7 @@
         <div>
             <p class="heading">Lines</p>
             <p class="title has-text-success">
-                <abbr title="438 / 441">99.32 %</abbr></p>
+                <abbr title="442 / 442">100 %</abbr></p>
         </div>
     </div>
 
@@ -23,7 +23,7 @@
         <div>
             <p class="heading">Functions</p>
             <p class="title has-text-danger">
-                <abbr title="183 / 273">67.03 %</abbr></p>
+                <abbr title="184 / 273">67.4 %</abbr></p>
         </div>
     </div>
 
@@ -213,7 +213,7 @@
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                181
+                182
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">#[derive(Debug, Eq, PartialEq)]</pre>
@@ -8831,11 +8831,11 @@
                 <a href="#677">677</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-danger-light has-background-danger">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-danger-light p-0">
-                <pre class="has-background-danger-light py-0 px-2">    fn from(value: Vec&lt;Value&lt;&#x27;a&gt;&gt;) -&gt; Self {</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    fn from(value: Vec&lt;Value&lt;&#x27;a&gt;&gt;) -&gt; Self {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -8844,11 +8844,11 @@
                 <a href="#678">678</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-danger-light has-background-danger">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-danger-light p-0">
-                <pre class="has-background-danger-light py-0 px-2">        Self::Array(value)</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        Self::Array(value)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -8857,11 +8857,11 @@
                 <a href="#679">679</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-danger-light has-background-danger">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-danger-light p-0">
-                <pre class="has-background-danger-light py-0 px-2">    }</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9407,7 +9407,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; use justjson::{Entry, JsonString, Object, Value};</pre>
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; use justjson::{Entry, Object, Value};</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9446,7 +9446,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; obj.push(Entry::new(</pre>
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; obj.push(Entry::new(&quot;hello&quot;, &quot;world&quot;));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9459,7 +9459,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F;     &quot;hello&quot;,</pre>
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9472,7 +9472,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F;     Value::String(JsonString::from(&quot;world&quot;)),</pre>
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; assert_eq!(Value::Object(obj).to_json(), r#&quot;{&quot;hello&quot;:&quot;world&quot;}&quot;#)</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9485,7 +9485,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; ));</pre>
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; ```</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9511,7 +9511,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; assert_eq!(Value::Object(obj).to_json(), r#&quot;{&quot;hello&quot;:&quot;world&quot;}&quot;#)</pre>
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; [issue]: https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;justjson&#x2F;issues&#x2F;7</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9520,11 +9520,11 @@
                 <a href="#730">730</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                24
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; ```</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">#[derive(Debug, Eq, PartialEq)]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9537,7 +9537,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F;</pre>
+                <pre class="has-background-white py-0 px-2">pub struct Object&lt;&#x27;a&gt;(Vec&lt;Entry&lt;&#x27;a&gt;&gt;);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9550,7 +9550,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; [issue]: https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;justjson&#x2F;issues&#x2F;7</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9559,11 +9559,11 @@
                 <a href="#733">733</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                24
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[derive(Debug, Eq, PartialEq)]</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Default for Object&lt;&#x27;a&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9576,52 +9576,13 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">pub struct Object&lt;&#x27;a&gt;(Vec&lt;Entry&lt;&#x27;a&gt;&gt;);</pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="735">
                 <a href="#735">735</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="736">
-                <a href="#736">736</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Default for Object&lt;&#x27;a&gt; {</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="737">
-                <a href="#737">737</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="738">
-                <a href="#738">738</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9633,8 +9594,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="739">
-                <a href="#739">739</a>
+                id="736">
+                <a href="#736">736</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9646,8 +9607,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="740">
-                <a href="#740">740</a>
+                id="737">
+                <a href="#737">737</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9655,6 +9616,45 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="738">
+                <a href="#738">738</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">}</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="739">
+                <a href="#739">739</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="740">
+                <a href="#740">740</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Object&lt;&#x27;a&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9667,7 +9667,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns an empty object.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9680,7 +9680,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9693,52 +9693,13 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Object&lt;&#x27;a&gt; {</pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="744">
                 <a href="#744">744</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns an empty object.</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="745">
-                <a href="#745">745</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="746">
-                <a href="#746">746</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="747">
-                <a href="#747">747</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9750,8 +9711,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="748">
-                <a href="#748">748</a>
+                id="745">
+                <a href="#745">745</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9763,8 +9724,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="749">
-                <a href="#749">749</a>
+                id="746">
+                <a href="#746">746</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9772,6 +9733,45 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="747">
+                <a href="#747">747</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="748">
+                <a href="#748">748</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns an empty object that can store up to `capacity` elements without</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="749">
+                <a href="#749">749</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; reallocating.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9784,7 +9784,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9797,52 +9797,13 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns an empty object that can store up to `capacity` elements without</pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="752">
                 <a href="#752">752</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; reallocating.</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="753">
-                <a href="#753">753</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="754">
-                <a href="#754">754</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="755">
-                <a href="#755">755</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9854,8 +9815,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="756">
-                <a href="#756">756</a>
+                id="753">
+                <a href="#753">753</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9867,8 +9828,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="757">
-                <a href="#757">757</a>
+                id="754">
+                <a href="#754">754</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -9876,6 +9837,45 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="755">
+                <a href="#755">755</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="756">
+                <a href="#756">756</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns the value associated with `key`, if found.</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="757">
+                <a href="#757">757</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9888,7 +9888,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9897,11 +9897,11 @@
                 <a href="#759">759</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                2
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns the value associated with `key`, if found.</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    pub fn get(&amp;self, key: &amp;str) -&gt; Option&lt;&amp;Value&lt;&#x27;a&gt;&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9910,11 +9910,11 @@
                 <a href="#760">760</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                2
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        self.iter()</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9923,11 +9923,11 @@
                 <a href="#761">761</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                3
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">            .find_map(|entry| (entry.key == key).then_some(&amp;entry.value))</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9940,7 +9940,7 @@
                 2
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    pub fn get(&amp;self, key: &amp;str) -&gt; Option&lt;&amp;Value&lt;&#x27;a&gt;&gt; {</pre>
+                <pre class="has-background-success-light py-0 px-2">    }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9949,11 +9949,11 @@
                 <a href="#763">763</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                2
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        self.iter()</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9962,11 +9962,11 @@
                 <a href="#764">764</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                3
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            .find_map(|entry| (entry.key == key).then_some(&amp;entry.value))</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns a mutable reference to the value associated with `key`, if</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9975,11 +9975,11 @@
                 <a href="#765">765</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                2
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    }</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; found.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -9992,7 +9992,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10005,52 +10005,13 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns a mutable reference to the value associated with `key`, if</pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="768">
                 <a href="#768">768</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; found.</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="769">
-                <a href="#769">769</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="770">
-                <a href="#770">770</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="771">
-                <a href="#771">771</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10062,8 +10023,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="772">
-                <a href="#772">772</a>
+                id="769">
+                <a href="#769">769</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10075,8 +10036,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="773">
-                <a href="#773">773</a>
+                id="770">
+                <a href="#770">770</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10084,6 +10045,45 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="771">
+                <a href="#771">771</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="772">
+                <a href="#772">772</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns a mutable reference to the entry associated with `key`, if</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="773">
+                <a href="#773">773</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; found.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10096,7 +10096,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10109,52 +10109,13 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns a mutable reference to the entry associated with `key`, if</pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="776">
                 <a href="#776">776</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; found.</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="777">
-                <a href="#777">777</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[must_use]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="778">
-                <a href="#778">778</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="779">
-                <a href="#779">779</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10166,8 +10127,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="780">
-                <a href="#780">780</a>
+                id="777">
+                <a href="#777">777</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10179,8 +10140,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="781">
-                <a href="#781">781</a>
+                id="778">
+                <a href="#778">778</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10188,6 +10149,45 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="779">
+                <a href="#779">779</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">}</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="780">
+                <a href="#780">780</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="781">
+                <a href="#781">781</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Deref for Object&lt;&#x27;a&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10200,7 +10200,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">    type Target = Vec&lt;Entry&lt;&#x27;a&gt;&gt;;</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10226,52 +10226,13 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Deref for Object&lt;&#x27;a&gt; {</pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="785">
                 <a href="#785">785</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    type Target = Vec&lt;Entry&lt;&#x27;a&gt;&gt;;</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="786">
-                <a href="#786">786</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="787">
-                <a href="#787">787</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="788">
-                <a href="#788">788</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10283,8 +10244,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="789">
-                <a href="#789">789</a>
+                id="786">
+                <a href="#786">786</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10296,8 +10257,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="790">
-                <a href="#790">790</a>
+                id="787">
+                <a href="#787">787</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10305,6 +10266,45 @@
             </div>
             <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">    }</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="788">
+                <a href="#788">788</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">}</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="789">
+                <a href="#789">789</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="790">
+                <a href="#790">790</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; DerefMut for Object&lt;&#x27;a&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10317,52 +10317,13 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="792">
                 <a href="#792">792</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="793">
-                <a href="#793">793</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; DerefMut for Object&lt;&#x27;a&gt; {</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="794">
-                <a href="#794">794</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
-            </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="795">
-                <a href="#795">795</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10374,8 +10335,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="796">
-                <a href="#796">796</a>
+                id="793">
+                <a href="#793">793</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10387,8 +10348,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="797">
-                <a href="#797">797</a>
+                id="794">
+                <a href="#794">794</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10400,8 +10361,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="798">
-                <a href="#798">798</a>
+                id="795">
+                <a href="#795">795</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10413,8 +10374,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="799">
-                <a href="#799">799</a>
+                id="796">
+                <a href="#796">796</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10426,8 +10387,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="800">
-                <a href="#800">800</a>
+                id="797">
+                <a href="#797">797</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10435,6 +10396,45 @@
             </div>
             <div class="column has-background-white p-0">
                 <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; FromIterator&lt;(JsonString&lt;&#x27;a&gt;, Value&lt;&#x27;a&gt;)&gt; for Object&lt;&#x27;a&gt; {</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="798">
+                <a href="#798">798</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                5
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    fn from_iter&lt;T: IntoIterator&lt;Item = (JsonString&lt;&#x27;a&gt;, Value&lt;&#x27;a&gt;)&gt;&gt;(iter: T) -&gt; Self {</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="799">
+                <a href="#799">799</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                5
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        iter.into_iter()</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="800">
+                <a href="#800">800</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                11
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">            .map(|(key, value)| Entry { key, value })</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10447,7 +10447,7 @@
                 5
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    fn from_iter&lt;T: IntoIterator&lt;Item = (JsonString&lt;&#x27;a&gt;, Value&lt;&#x27;a&gt;)&gt;&gt;(iter: T) -&gt; Self {</pre>
+                <pre class="has-background-success-light py-0 px-2">            .collect()</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10460,52 +10460,13 @@
                 5
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        iter.into_iter()</pre>
+                <pre class="has-background-success-light py-0 px-2">    }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="803">
                 <a href="#803">803</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                11
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            .map(|(key, value)| Entry { key, value })</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="804">
-                <a href="#804">804</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                5
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            .collect()</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="805">
-                <a href="#805">805</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                5
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    }</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="806">
-                <a href="#806">806</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10517,8 +10478,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="807">
-                <a href="#807">807</a>
+                id="804">
+                <a href="#804">804</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10530,8 +10491,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="808">
-                <a href="#808">808</a>
+                id="805">
+                <a href="#805">805</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10543,8 +10504,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="809">
-                <a href="#809">809</a>
+                id="806">
+                <a href="#806">806</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10556,8 +10517,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="810">
-                <a href="#810">810</a>
+                id="807">
+                <a href="#807">807</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10569,8 +10530,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="811">
-                <a href="#811">811</a>
+                id="808">
+                <a href="#808">808</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
@@ -10582,8 +10543,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="812">
-                <a href="#812">812</a>
+                id="809">
+                <a href="#809">809</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10591,6 +10552,45 @@
             </div>
             <div class="column has-background-white p-0">
                 <pre class="has-background-white py-0 px-2">}</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="810">
+                <a href="#810">810</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="811">
+                <a href="#811">811</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
+            </div>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; An key-value pair in an [`Object`].</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="812">
+                <a href="#812">812</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                31
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">#[derive(Debug, Eq, PartialEq)]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10603,7 +10603,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">pub struct Entry&lt;&#x27;a&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10616,7 +10616,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">&#x2F;&#x2F;&#x2F; An key-value pair in an [`Object`].</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The key of this entry.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10625,11 +10625,11 @@
                 <a href="#815">815</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                31
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[derive(Debug, Eq, PartialEq)]</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2">    pub key: JsonString&lt;&#x27;a&gt;,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10642,7 +10642,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">pub struct Entry&lt;&#x27;a&gt; {</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The value associated with the key.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10655,7 +10655,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The key of this entry.</pre>
+                <pre class="has-background-white py-0 px-2">    pub value: Value&lt;&#x27;a&gt;,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10668,7 +10668,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    pub key: JsonString&lt;&#x27;a&gt;,</pre>
+                <pre class="has-background-white py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10681,7 +10681,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; The value associated with the key.</pre>
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10694,7 +10694,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    pub value: Value&lt;&#x27;a&gt;,</pre>
+                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Entry&lt;&#x27;a&gt; {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10707,7 +10707,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">}</pre>
+                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns a new entry for the given key and value.</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10720,7 +10720,7 @@
                 
             </div>
             <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10729,11 +10729,11 @@
                 <a href="#823">823</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                2
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">impl&lt;&#x27;a&gt; Entry&lt;&#x27;a&gt; {</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    pub fn new(key: impl Into&lt;JsonString&lt;&#x27;a&gt;&gt;, value: impl Into&lt;Value&lt;&#x27;a&gt;&gt;) -&gt; Self {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10742,11 +10742,11 @@
                 <a href="#824">824</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                2
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    &#x2F;&#x2F;&#x2F; Returns a new entry for the given key and value.</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">        Self {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10755,11 +10755,11 @@
                 <a href="#825">825</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                2
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2">    #[inline]</pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">            key: key.into(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10772,7 +10772,7 @@
                 2
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    pub fn new(key: impl Into&lt;JsonString&lt;&#x27;a&gt;&gt;, value: impl Into&lt;Value&lt;&#x27;a&gt;&gt;) -&gt; Self {</pre>
+                <pre class="has-background-success-light py-0 px-2">            value: value.into(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10785,7 +10785,7 @@
                 2
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Self {</pre>
+                <pre class="has-background-success-light py-0 px-2">        }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10798,52 +10798,13 @@
                 2
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            key: key.into(),</pre>
+                <pre class="has-background-success-light py-0 px-2">    }</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
                 id="829">
                 <a href="#829">829</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                2
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            value: value.into(),</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="830">
-                <a href="#830">830</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                2
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        }</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="831">
-                <a href="#831">831</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                2
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    }</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="832">
-                <a href="#832">832</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10855,8 +10816,8 @@
         </div><div class="columns p-0 m-0">
             <div
                 class="column is-1 is-narrow p-0 has-text-centered"
-                id="833">
-                <a href="#833">833</a>
+                id="830">
+                <a href="#830">830</a>
             </div>
             <div
                 class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
@@ -10864,6 +10825,45 @@
             </div>
             <div class="column has-background-white p-0">
                 <pre class="has-background-white py-0 px-2"></pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="831">
+                <a href="#831">831</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="832">
+                <a href="#832">832</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">fn primitive_values() {</pre>
+            </div>
+        </div><div class="columns p-0 m-0">
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered"
+                id="833">
+                <a href="#833">833</a>
+            </div>
+            <div
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
+            </div>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from_json(&quot;true&quot;).unwrap(), Value::from(true));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10876,7 +10876,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from_json(&quot;false&quot;).unwrap(), Value::from(false));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10889,7 +10889,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">fn primitive_values() {</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from_json(&quot;null&quot;).unwrap(), Value::Null);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10902,7 +10902,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from_json(&quot;true&quot;).unwrap(), Value::from(true));</pre>
+                <pre class="has-background-success-light py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10911,11 +10911,11 @@
                 <a href="#837">837</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from_json(&quot;false&quot;).unwrap(), Value::from(false));</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10928,7 +10928,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from_json(&quot;null&quot;).unwrap(), Value::Null);</pre>
+                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10941,7 +10941,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">}</pre>
+                <pre class="has-background-success-light py-0 px-2">fn objects() {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10950,11 +10950,11 @@
                 <a href="#840">840</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10967,7 +10967,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::from_json(&quot;{}&quot;).unwrap(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10980,7 +10980,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">fn objects() {</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::Object(Object::default())</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -10993,7 +10993,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
+                <pre class="has-background-success-light py-0 px-2">    );</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11006,7 +11006,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::from_json(&quot;{}&quot;).unwrap(),</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11019,7 +11019,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::Object(Object::default())</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::from_json(r#&quot;{&quot;hello&quot;:&quot;world&quot;}&quot;#).unwrap(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11032,7 +11032,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    );</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::Object(Object::from_iter([(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11045,7 +11045,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
+                <pre class="has-background-success-light py-0 px-2">            JsonString::from_json(r#&quot;&quot;hello&quot;&quot;#).unwrap(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11058,7 +11058,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::from_json(r#&quot;{&quot;hello&quot;:&quot;world&quot;}&quot;#).unwrap(),</pre>
+                <pre class="has-background-success-light py-0 px-2">            Value::String(JsonString::from_json(r#&quot;&quot;world&quot;&quot;#).unwrap())</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11071,7 +11071,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::Object(Object::from_iter([(</pre>
+                <pre class="has-background-success-light py-0 px-2">        )]))</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11084,7 +11084,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            JsonString::from_json(r#&quot;&quot;hello&quot;&quot;#).unwrap(),</pre>
+                <pre class="has-background-success-light py-0 px-2">    );</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11097,7 +11097,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            Value::String(JsonString::from_json(r#&quot;&quot;world&quot;&quot;#).unwrap())</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11110,7 +11110,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        )]))</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::from_json(r#&quot; { &quot;hello&quot; : &quot;world&quot; , &quot;another&quot; : &quot;value&quot; }&quot;#).unwrap(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11123,7 +11123,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    );</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::Object(Object::from_iter([</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11136,7 +11136,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
+                <pre class="has-background-success-light py-0 px-2">            Entry::new(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11149,7 +11149,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::from_json(r#&quot; { &quot;hello&quot; : &quot;world&quot; , &quot;another&quot; : &quot;value&quot; }&quot;#).unwrap(),</pre>
+                <pre class="has-background-success-light py-0 px-2">                JsonString::from_json(r#&quot;&quot;hello&quot;&quot;#).unwrap(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11162,7 +11162,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::Object(Object::from_iter([</pre>
+                <pre class="has-background-success-light py-0 px-2">                Value::String(JsonString::from_json(r#&quot;&quot;world&quot;&quot;#).unwrap())</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11175,7 +11175,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            Entry::new(</pre>
+                <pre class="has-background-success-light py-0 px-2">            ),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11188,7 +11188,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                JsonString::from_json(r#&quot;&quot;hello&quot;&quot;#).unwrap(),</pre>
+                <pre class="has-background-success-light py-0 px-2">            Entry::new(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11201,7 +11201,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                Value::String(JsonString::from_json(r#&quot;&quot;world&quot;&quot;#).unwrap())</pre>
+                <pre class="has-background-success-light py-0 px-2">                JsonString::from_json(r#&quot;&quot;another&quot;&quot;#).unwrap(),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11214,7 +11214,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            ),</pre>
+                <pre class="has-background-success-light py-0 px-2">                Value::String(JsonString::from_json(r#&quot;&quot;value&quot;&quot;#).unwrap())</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11227,7 +11227,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            Entry::new(</pre>
+                <pre class="has-background-success-light py-0 px-2">            )</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11240,7 +11240,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                JsonString::from_json(r#&quot;&quot;another&quot;&quot;#).unwrap(),</pre>
+                <pre class="has-background-success-light py-0 px-2">        ]))</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11253,7 +11253,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                Value::String(JsonString::from_json(r#&quot;&quot;value&quot;&quot;#).unwrap())</pre>
+                <pre class="has-background-success-light py-0 px-2">    );</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11266,7 +11266,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            )</pre>
+                <pre class="has-background-success-light py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11275,11 +11275,11 @@
                 <a href="#865">865</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        ]))</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11292,7 +11292,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    );</pre>
+                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11305,7 +11305,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">}</pre>
+                <pre class="has-background-success-light py-0 px-2">fn cow() {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11314,11 +11314,11 @@
                 <a href="#868">868</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    let mut value =</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11331,7 +11331,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::from_json_bytes(br#&quot;{&quot;a&quot;:1,&quot;b&quot;:true,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[],&quot;e&quot;:{}}&quot;#).unwrap();</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11344,7 +11344,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">fn cow() {</pre>
+                <pre class="has-background-success-light py-0 px-2">    value[&quot;b&quot;] = Value::from(false);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11357,7 +11357,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    let mut value =</pre>
+                <pre class="has-background-success-light py-0 px-2">    let root = value.as_object_mut().unwrap();</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11370,7 +11370,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::from_json_bytes(br#&quot;{&quot;a&quot;:1,&quot;b&quot;:true,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[],&quot;e&quot;:{}}&quot;#).unwrap();</pre>
+                <pre class="has-background-success-light py-0 px-2">    root[0].key = JsonString::from(&quot;newa&quot;);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11383,7 +11383,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    value[&quot;b&quot;] = Value::from(false);</pre>
+                <pre class="has-background-success-light py-0 px-2">    root[0].value = JsonString::from(&quot;a&quot;).into();</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11396,7 +11396,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    let root = value.as_object_mut().unwrap();</pre>
+                <pre class="has-background-success-light py-0 px-2">    let Value::Array(d_array) = &amp;mut root[3].value else { unreachable!() };</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11409,7 +11409,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    root[0].key = JsonString::from(&quot;newa&quot;);</pre>
+                <pre class="has-background-success-light py-0 px-2">    d_array.push(Value::Null);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11422,7 +11422,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    root[0].value = JsonString::from(&quot;a&quot;).into();</pre>
+                <pre class="has-background-success-light py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11435,7 +11435,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    let Value::Array(d_array) = &amp;mut root[3].value else { unreachable!() };</pre>
+                <pre class="has-background-success-light py-0 px-2">    &#x2F;&#x2F; Replace the newly inserted null (uses IndexMut on the array).</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11448,7 +11448,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    d_array.push(Value::Null);</pre>
+                <pre class="has-background-success-light py-0 px-2">    value[&quot;d&quot;][0] = Value::from(false);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11474,7 +11474,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    &#x2F;&#x2F; Replace the newly inserted null (uses IndexMut on the array).</pre>
+                <pre class="has-background-success-light py-0 px-2">    let generated = value.to_json();</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11487,7 +11487,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    value[&quot;d&quot;][0] = Value::from(false);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11500,7 +11500,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2"></pre>
+                <pre class="has-background-success-light py-0 px-2">        generated,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11513,7 +11513,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    let generated = value.to_json();</pre>
+                <pre class="has-background-success-light py-0 px-2">        r#&quot;{&quot;newa&quot;:&quot;a&quot;,&quot;b&quot;:false,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[false],&quot;e&quot;:{}}&quot;#</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11526,7 +11526,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
+                <pre class="has-background-success-light py-0 px-2">    );</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11539,7 +11539,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        generated,</pre>
+                <pre class="has-background-success-light py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11548,11 +11548,11 @@
                 <a href="#886">886</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        r#&quot;{&quot;newa&quot;:&quot;a&quot;,&quot;b&quot;:false,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[false],&quot;e&quot;:{}}&quot;#</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11565,7 +11565,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    );</pre>
+                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11578,7 +11578,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">}</pre>
+                <pre class="has-background-success-light py-0 px-2">fn index() {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11587,11 +11587,11 @@
                 <a href="#889">889</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    let mut value = Value::from_json_bytes(br#&quot;{&quot;b&quot;:true,&quot;a&quot;:[false]}&quot;#).unwrap();</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11604,7 +11604,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value[&quot;b&quot;], Value::from(true));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11617,7 +11617,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">fn index() {</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value.get_index_mut(0), None);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11630,7 +11630,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    let mut value = Value::from_json_bytes(br#&quot;{&quot;b&quot;:true,&quot;a&quot;:[false]}&quot;#).unwrap();</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value[&quot;a&quot;][0], Value::from(false));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11643,7 +11643,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value[&quot;b&quot;], Value::from(true));</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value[&quot;a&quot;].get_mut(&quot;a&quot;), None);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11656,7 +11656,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value.get_index_mut(0), None);</pre>
+                <pre class="has-background-success-light py-0 px-2">}</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11665,11 +11665,11 @@
                 <a href="#895">895</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
+                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
+                
             </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value[&quot;a&quot;][0], Value::from(false));</pre>
+            <div class="column has-background-white p-0">
+                <pre class="has-background-white py-0 px-2"></pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11682,7 +11682,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(value[&quot;a&quot;].get_mut(&quot;a&quot;), None);</pre>
+                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11695,7 +11695,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">}</pre>
+                <pre class="has-background-success-light py-0 px-2">fn froms() {</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11704,11 +11704,11 @@
                 <a href="#898">898</a>
             </div>
             <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-white has-background-white">
-                
+                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
+                1
             </div>
-            <div class="column has-background-white p-0">
-                <pre class="has-background-white py-0 px-2"></pre>
+            <div class="column has-background-success-light p-0">
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from(true), Value::Boolean(true));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11721,7 +11721,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">#[test]</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from(Object::new()), Value::Object(Object::new()));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11734,7 +11734,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">fn froms() {</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from(Vec::new()), Value::Array(Vec::new()));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11747,7 +11747,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from(true), Value::Boolean(true));</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11760,7 +11760,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from(Object::new()), Value::Object(Object::new()));</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::from(String::from(&quot;a&quot;)),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11773,7 +11773,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::String(JsonString::from(&quot;a&quot;))</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11786,7 +11786,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::from(String::from(&quot;a&quot;)),</pre>
+                <pre class="has-background-success-light py-0 px-2">    );</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11799,7 +11799,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::String(JsonString::from(&quot;a&quot;))</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from(&quot;a&quot;), Value::String(JsonString::from(&quot;a&quot;)));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11812,7 +11812,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    );</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11825,7 +11825,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(Value::from(&quot;a&quot;), Value::String(JsonString::from(&quot;a&quot;)));</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::from(JsonString::from(&quot;a&quot;)),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11838,7 +11838,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_eq!(</pre>
+                <pre class="has-background-success-light py-0 px-2">        Value::String(JsonString::from(&quot;a&quot;))</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11851,7 +11851,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::from(JsonString::from(&quot;a&quot;)),</pre>
+                <pre class="has-background-success-light py-0 px-2">    );</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -11864,38 +11864,12 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        Value::String(JsonString::from(&quot;a&quot;))</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="911">
-                <a href="#911">911</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
-            </div>
-            <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    );</pre>
-            </div>
-        </div><div class="columns p-0 m-0">
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered"
-                id="912">
-                <a href="#912">912</a>
-            </div>
-            <div
-                class="column is-1 is-narrow p-0 has-text-centered has-text-success-light has-background-success">
-                1
-            </div>
-            <div class="column has-background-success-light p-0">
                 <pre class="has-background-success-light py-0 px-2">}</pre>
             </div>
         </div></div>
         <footer class="footer">
             <div class="content has-text-centered">
-                <p class="heading">Date: 2023-02-02 17:36</p>
+                <p class="heading">Date: 2023-02-02 17:42</p>
             </div>
         </footer>
     </body>
