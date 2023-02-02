@@ -718,13 +718,10 @@ impl<'a> From<JsonString<'a>> for Value<'a> {
 /// methods are available to change the contents of an object.
 ///
 /// ```rust
-/// use justjson::{Entry, JsonString, Object, Value};
+/// use justjson::{Entry, Object, Value};
 ///
 /// let mut obj = Object::new();
-/// obj.push(Entry::new(
-///     "hello",
-///     Value::String(JsonString::from("world")),
-/// ));
+/// obj.push(Entry::new("hello", "world"));
 ///
 /// assert_eq!(Value::Object(obj).to_json(), r#"{"hello":"world"}"#)
 /// ```
@@ -900,6 +897,7 @@ fn index() {
 fn froms() {
     assert_eq!(Value::from(true), Value::Boolean(true));
     assert_eq!(Value::from(Object::new()), Value::Object(Object::new()));
+    assert_eq!(Value::from(Vec::new()), Value::Array(Vec::new()));
     assert_eq!(
         Value::from(String::from("a")),
         Value::String(JsonString::from("a"))
