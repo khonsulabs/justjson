@@ -908,8 +908,6 @@
 <a href="#908" id="908">908</a>
 <a href="#909" id="909">909</a>
 <a href="#910" id="910">910</a>
-<a href="#911" id="911">911</a>
-<a href="#912" id="912">912</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::{string::String, vec::Vec};
 <span class="kw">use </span>core::convert::Infallible;
@@ -1630,13 +1628,10 @@
 /// methods are available to change the contents of an object.
 ///
 /// ```rust
-/// use justjson::{Entry, JsonString, Object, Value};
+/// use justjson::{Entry, Object, Value};
 ///
 /// let mut obj = Object::new();
-/// obj.push(Entry::new(
-///     &quot;hello&quot;,
-///     Value::String(JsonString::from(&quot;world&quot;)),
-/// ));
+/// obj.push(Entry::new(&quot;hello&quot;, &quot;world&quot;));
 ///
 /// assert_eq!(Value::Object(obj).to_json(), r#&quot;{&quot;hello&quot;:&quot;world&quot;}&quot;#)
 /// ```
@@ -1812,6 +1807,7 @@
 </span><span class="kw">fn </span>froms() {
     <span class="macro">assert_eq!</span>(Value::from(<span class="bool-val">true</span>), Value::Boolean(<span class="bool-val">true</span>));
     <span class="macro">assert_eq!</span>(Value::from(Object::new()), Value::Object(Object::new()));
+    <span class="macro">assert_eq!</span>(Value::from(Vec::new()), Value::Array(Vec::new()));
     <span class="macro">assert_eq!</span>(
         Value::from(String::from(<span class="string">&quot;a&quot;</span>)),
         Value::String(JsonString::from(<span class="string">&quot;a&quot;</span>))
