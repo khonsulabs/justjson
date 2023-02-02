@@ -346,7 +346,7 @@ impl<'a> Value<'a> {
 
 #[test]
 fn value_ases() {
-    assert!(Value::Boolean(true).as_bool().unwrap());
+    assert!(Value::from(true).as_bool().unwrap());
     assert_eq!(
         Value::String(JsonString::from_json("\"\"").unwrap())
             .as_string()
@@ -368,7 +368,7 @@ fn value_ases() {
     assert_eq!(Value::Array(Vec::new()).as_array().unwrap(), &[]);
 
     assert!(Value::Null.is_null());
-    assert!(!Value::Boolean(true).is_null());
+    assert!(!Value::from(true).is_null());
     assert_eq!(Value::Null.as_bool(), None);
     assert_eq!(Value::Null.as_number(), None);
     assert_eq!(Value::Null.as_string(), None);
@@ -580,6 +580,12 @@ where
 impl<'a> Index<usize> for Value<'a> {
     type Output = Value<'a>;
 
+    /// Returns the contained value at `index`, if this is a [`Value::Array`].
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the value is not a [`Value::Array`] or if the
+    /// index is out of bounds of the array.
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         self.get_index(index).expect("index not found")
@@ -587,6 +593,13 @@ impl<'a> Index<usize> for Value<'a> {
 }
 
 impl<'a> IndexMut<usize> for Value<'a> {
+    /// Returns a mutable reference to the contained value at `index`, if this
+    /// is a [`Value::Array`].
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the value is not a [`Value::Array`] or if the
+    /// index is out of bounds of the array.
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         self.get_index_mut(index).expect("index not found")
@@ -596,6 +609,24 @@ impl<'a> IndexMut<usize> for Value<'a> {
 impl<'b, 'a> Index<&'b str> for Value<'a> {
     type Output = Value<'a>;
 
+    /// Returns the contained value associated with `key`, if this is a
+    /// [`Value::Object`].
+    ///
+    /// # Panics
+    ///
+    /// This function panics if this value is not a [`Value::Object`] or if the
+    /// `key` is not found.
+    ///
+    /// # Performance
+    ///
+    /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
+    /// operation being performed can be done with a single iteration over the
+    /// value's contents instead of multiple random accesses, the iteration
+    /// should be preferred. Additional options to make random access faster in
+    /// environments that can support it [are being considered][issue] for
+    /// future releases.
+    ///
+    /// [issue]: https://github.com/khonsulabs/justjson/issues/7
     #[inline]
     fn index(&self, index: &'b str) -> &Self::Output {
         self.get(index).expect("key not found")
@@ -603,9 +634,69 @@ impl<'b, 'a> Index<&'b str> for Value<'a> {
 }
 
 impl<'b, 'a> IndexMut<&'b str> for Value<'a> {
+    /// Returns a mutable reference to the contained value associated with
+    /// `key`, if this is a [`Value::Object`].
+    ///
+    /// # Panics
+    ///
+    /// This function panics if this value is not a [`Value::Object`] or if the
+    /// `key` is not found.
+    ///
+    /// # Performance
+    ///
+    /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
+    /// operation being performed can be done with a single iteration over the
+    /// value's contents instead of multiple random accesses, the iteration
+    /// should be preferred. Additional options to make random access faster in
+    /// environments that can support it [are being considered][issue] for
+    /// future releases.
+    ///
+    /// [issue]: https://github.com/khonsulabs/justjson/issues/7
     #[inline]
     fn index_mut(&mut self, index: &'b str) -> &mut Self::Output {
         self.get_mut(index).expect("key not found")
+    }
+}
+
+impl<'a> From<bool> for Value<'a> {
+    #[inline]
+    fn from(value: bool) -> Self {
+        Self::Boolean(value)
+    }
+}
+
+impl<'a> From<Object<'a>> for Value<'a> {
+    #[inline]
+    fn from(value: Object<'a>) -> Self {
+        Self::Object(value)
+    }
+}
+
+impl<'a> From<Vec<Value<'a>>> for Value<'a> {
+    #[inline]
+    fn from(value: Vec<Value<'a>>) -> Self {
+        Self::Array(value)
+    }
+}
+
+impl<'a> From<&'a str> for Value<'a> {
+    #[inline]
+    fn from(value: &'a str) -> Self {
+        Self::from(JsonString::from(value))
+    }
+}
+
+impl<'a> From<String> for Value<'a> {
+    #[inline]
+    fn from(value: String) -> Self {
+        Self::from(JsonString::from(value))
+    }
+}
+
+impl<'a> From<JsonString<'a>> for Value<'a> {
+    #[inline]
+    fn from(value: JsonString<'a>) -> Self {
+        Self::String(value)
     }
 }
 
@@ -615,16 +706,35 @@ impl<'b, 'a> IndexMut<&'b str> for Value<'a> {
 ///
 /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
 /// operation being performed can be done with a single iteration over the
-/// value's contents instead of multiple random accesses, the iteration
-/// should be preferred. Additional options to make random access faster in
-/// environments that can support it [are being considered][issue] for
-/// future releases.
+/// value's contents instead of multiple random accesses, the iteration should
+/// be preferred. Additional options to make random access faster in
+/// environments that can support it [are being considered][issue] for future
+/// releases.
+///
+/// # Modifying an Object
+///
+/// Because [`Object`] internally is just a `Vec<Entry>`, it implements
+/// `Deref`/`DerefMut` to its internal storage. This means that all of `Vec`'s
+/// methods are available to change the contents of an object.
+///
+/// ```rust
+/// use justjson::{Entry, JsonString, Object, Value};
+///
+/// let mut obj = Object::new();
+/// obj.push(Entry::new(
+///     "hello",
+///     Value::String(JsonString::from("world")),
+/// ));
+///
+/// assert_eq!(Value::Object(obj).to_json(), r#"{"hello":"world"}"#)
+/// ```
 ///
 /// [issue]: https://github.com/khonsulabs/justjson/issues/7
 #[derive(Debug, Eq, PartialEq)]
 pub struct Object<'a>(Vec<Entry<'a>>);
 
 impl<'a> Default for Object<'a> {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -633,6 +743,7 @@ impl<'a> Default for Object<'a> {
 impl<'a> Object<'a> {
     /// Returns an empty object.
     #[must_use]
+    #[inline]
     pub const fn new() -> Self {
         Self(Vec::new())
     }
@@ -640,6 +751,7 @@ impl<'a> Object<'a> {
     /// Returns an empty object that can store up to `capacity` elements without
     /// reallocating.
     #[must_use]
+    #[inline]
     pub fn with_capacity(capacity: usize) -> Self {
         Self(Vec::with_capacity(capacity))
     }
@@ -708,10 +820,21 @@ pub struct Entry<'a> {
     pub value: Value<'a>,
 }
 
+impl<'a> Entry<'a> {
+    /// Returns a new entry for the given key and value.
+    #[inline]
+    pub fn new(key: impl Into<JsonString<'a>>, value: impl Into<Value<'a>>) -> Self {
+        Self {
+            key: key.into(),
+            value: value.into(),
+        }
+    }
+}
+
 #[test]
 fn primitive_values() {
-    assert_eq!(Value::from_json("true").unwrap(), Value::Boolean(true));
-    assert_eq!(Value::from_json("false").unwrap(), Value::Boolean(false));
+    assert_eq!(Value::from_json("true").unwrap(), Value::from(true));
+    assert_eq!(Value::from_json("false").unwrap(), Value::from(false));
     assert_eq!(Value::from_json("null").unwrap(), Value::Null);
 }
 
@@ -731,11 +854,11 @@ fn objects() {
     assert_eq!(
         Value::from_json(r#" { "hello" : "world" , "another" : "value" }"#).unwrap(),
         Value::Object(Object::from_iter([
-            (
+            Entry::new(
                 JsonString::from_json(r#""hello""#).unwrap(),
                 Value::String(JsonString::from_json(r#""world""#).unwrap())
             ),
-            (
+            Entry::new(
                 JsonString::from_json(r#""another""#).unwrap(),
                 Value::String(JsonString::from_json(r#""value""#).unwrap())
             )
@@ -747,27 +870,43 @@ fn objects() {
 fn cow() {
     let mut value =
         Value::from_json_bytes(br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#).unwrap();
-    value["b"] = Value::Boolean(false);
+    value["b"] = Value::from(false);
     let root = value.as_object_mut().unwrap();
     root[0].key = JsonString::from("newa");
+    root[0].value = JsonString::from("a").into();
     let Value::Array(d_array) = &mut root[3].value else { unreachable!() };
     d_array.push(Value::Null);
 
     // Replace the newly inserted null (uses IndexMut on the array).
-    value["d"][0] = Value::Boolean(false);
+    value["d"][0] = Value::from(false);
 
     let generated = value.to_json();
     assert_eq!(
         generated,
-        r#"{"newa":1,"b":false,"c":"hello","d":[false],"e":{}}"#
+        r#"{"newa":"a","b":false,"c":"hello","d":[false],"e":{}}"#
     );
 }
 
 #[test]
 fn index() {
     let mut value = Value::from_json_bytes(br#"{"b":true,"a":[false]}"#).unwrap();
-    assert_eq!(value["b"], Value::Boolean(true));
+    assert_eq!(value["b"], Value::from(true));
     assert_eq!(value.get_index_mut(0), None);
-    assert_eq!(value["a"][0], Value::Boolean(false));
+    assert_eq!(value["a"][0], Value::from(false));
     assert_eq!(value["a"].get_mut("a"), None);
+}
+
+#[test]
+fn froms() {
+    assert_eq!(Value::from(true), Value::Boolean(true));
+    assert_eq!(Value::from(Object::new()), Value::Object(Object::new()));
+    assert_eq!(
+        Value::from(String::from("a")),
+        Value::String(JsonString::from("a"))
+    );
+    assert_eq!(Value::from("a"), Value::String(JsonString::from("a")));
+    assert_eq!(
+        Value::from(JsonString::from("a")),
+        Value::String(JsonString::from("a"))
+    );
 }

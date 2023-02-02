@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   contents of a `Value` when it is an array. Similar to most built-in collection
   types, the `Index` trait implementations will panic if the index is out of
   bounds, but the `get_index` variants return an Option instead of panicking.
+- `From<&str>`, `From<String>`, `From<JsonString<'_>>`, `From<Object<'_>>`, and
+  `From<bool>` have been implemented for `Value<'_>`.
 
 ## v0.2.1
 

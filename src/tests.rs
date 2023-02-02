@@ -26,8 +26,8 @@ fn test_json_parse(source: &[u8], value: &Value<'_>) {
 
 #[test]
 fn keywords() {
-    test_json_parse(b"true", &Value::Boolean(true));
-    test_json_parse(b"false", &Value::Boolean(false));
+    test_json_parse(b"true", &Value::from(true));
+    test_json_parse(b"false", &Value::from(false));
     test_json_parse(b"null", &Value::Null);
 }
 
@@ -38,14 +38,14 @@ fn empty_array() {
 
 #[test]
 fn one_element_array() {
-    test_json_parse(b"[true]", &Value::Array(vec![Value::Boolean(true)]));
+    test_json_parse(b"[true]", &Value::Array(vec![Value::from(true)]));
 }
 
 #[test]
 fn two_element_array() {
     test_json_parse(
         b"[true,false]",
-        &Value::Array(vec![Value::Boolean(true), Value::Boolean(false)]),
+        &Value::Array(vec![Value::from(true), Value::from(false)]),
     );
 }
 
@@ -53,7 +53,7 @@ fn two_element_array() {
 fn spaced_out_array() {
     test_json_parse(
         b" [ true , false ] ",
-        &Value::Array(vec![Value::Boolean(true), Value::Boolean(false)]),
+        &Value::Array(vec![Value::from(true), Value::from(false)]),
     );
 }
 
@@ -66,14 +66,14 @@ fn whitespace() {
 fn basic_string() {
     test_json_parse(
         br#""hello""#,
-        &Value::String(JsonString {
+        &Value::from(JsonString {
             source: StringContents::Json(AnyStr::Borrowed("hello")),
             info: JsonStringInfo::new(false, 5),
         }),
     );
     test_json_parse(
         br#""""#,
-        &Value::String(JsonString {
+        &Value::from(JsonString {
             source: StringContents::Json(AnyStr::Borrowed("")),
             info: JsonStringInfo::new(false, 0),
         }),
@@ -84,7 +84,7 @@ fn basic_string() {
 fn escapey_string() {
     test_json_parse(
         br#""\"\\\/\b\f\n\r\t\u25eF""#,
-        &Value::String(JsonString {
+        &Value::from(JsonString {
             source: StringContents::Json(AnyStr::Borrowed(r#"\"\\\/\b\f\n\r\t\u25eF"#)),
             info: JsonStringInfo::new(true, 11),
         }),
@@ -95,7 +95,7 @@ fn escapey_string() {
 fn surrogate_pair() {
     test_json_parse(
         br#""\ud83d\ude39\ud83d\udc8d""#,
-        &Value::String(JsonString::from_json("\"\u{1f639}\u{1f48d}\"").unwrap()),
+        &Value::from(JsonString::from_json("\"\u{1f639}\u{1f48d}\"").unwrap()),
     );
     assert_eq!(
         JsonString::from_json(r#""\ud83d\ude39\ud83d\udc8d""#,).unwrap(),
@@ -117,7 +117,7 @@ fn one_mapping() {
                 source: StringContents::Json(AnyStr::Borrowed("hello")),
                 info: JsonStringInfo::new(false, 5),
             },
-            Value::Boolean(true),
+            Value::from(true),
         )])),
     );
 }
@@ -132,7 +132,7 @@ fn two_mappings() {
                     source: StringContents::Json(AnyStr::Borrowed("hello")),
                     info: JsonStringInfo::new(false, 5),
                 },
-                Value::Boolean(true),
+                Value::from(true),
             ),
             (
                 JsonString {
@@ -152,7 +152,7 @@ fn spaced_out_object() {
         &Value::Object(Object::from_iter([
             (
                 JsonString::from_json("\"hello\"").unwrap(),
-                Value::Boolean(true),
+                Value::from(true),
             ),
             (JsonString::from_json("\"world\"").unwrap(), Value::Null),
         ])),
@@ -210,13 +210,10 @@ fn object_of_everything() {
                     source: AnyStr::Borrowed(r#"1"#),
                 }),
             ),
-            (
-                JsonString::from_json(r#""b""#).unwrap(),
-                Value::Boolean(true),
-            ),
+            (JsonString::from_json(r#""b""#).unwrap(), Value::from(true)),
             (
                 JsonString::from_json(r#""c""#).unwrap(),
-                Value::String(JsonString::from_json(r#""hello""#).unwrap()),
+                Value::from(JsonString::from_json(r#""hello""#).unwrap()),
             ),
             (
                 JsonString::from_json(r#""d""#).unwrap(),
@@ -238,8 +235,8 @@ fn array_of_everything() {
             Value::Number(JsonNumber {
                 source: AnyStr::Borrowed(r#"1"#),
             }),
-            Value::Boolean(true),
-            Value::String(JsonString::from_json(r#""hello""#).unwrap()),
+            Value::from(true),
+            Value::from(JsonString::from_json(r#""hello""#).unwrap()),
             Value::Array(vec![]),
             Value::Object(Object::new()),
         ]),
