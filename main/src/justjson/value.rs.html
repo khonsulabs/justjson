@@ -593,6 +593,9 @@
 <a href="#593" id="593">593</a>
 <a href="#594" id="594">594</a>
 <a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::{string::String, vec::Vec};
 <span class="kw">use </span>core::convert::Infallible;
@@ -1133,10 +1136,13 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Eq, PartialEq)]
+<span class="doccomment">/// An key-value pair in an [`Object`].
+</span><span class="attr">#[derive(Debug, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Entry&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
-    <span class="kw">pub </span>value: Value&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="doccomment">/// The key of this entry.
+    </span><span class="kw">pub </span>key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="doccomment">/// The value associated with the key.
+    </span><span class="kw">pub </span>value: Value&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
 <span class="attr">#[test]
