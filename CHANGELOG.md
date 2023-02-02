@@ -21,8 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Value::get_index(usize)`, `Value::get_index_mut(usize)`, and
   `Index<usize>`/`IndexMut<usize>` have been added to allow easier access to the
   contents of a `Value` when it is an array. Similar to most built-in collection
-  types, the `Index` trait implementations will panic if the key is not found,
-  but the `get` variants return an Option instead of panicking.
+  types, the `Index` trait implementations will panic if the index is out of
+  bounds, but the `get_index` variants return an Option instead of panicking.
 
 ## v0.2.1
 
