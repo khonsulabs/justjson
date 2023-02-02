@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"justjson":[["impl&lt;'b&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"justjson/struct.JsonString.html\" title=\"struct justjson::JsonString\">JsonString</a>&lt;'b&gt;"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
