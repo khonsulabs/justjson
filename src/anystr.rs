@@ -53,6 +53,23 @@ impl<'a> PartialEq<str> for AnyStr<'a> {
     }
 }
 
+impl<'a, 'b> PartialOrd<AnyStr<'b>> for AnyStr<'a> {
+    fn partial_cmp(&self, other: &AnyStr<'b>) -> Option<core::cmp::Ordering> {
+        self.partial_cmp(other.as_ref())
+    }
+}
+
+impl<'a, 'b> PartialOrd<&'b str> for AnyStr<'a> {
+    fn partial_cmp(&self, other: &&'b str) -> Option<core::cmp::Ordering> {
+        self.partial_cmp(*other)
+    }
+}
+impl<'a> PartialOrd<str> for AnyStr<'a> {
+    fn partial_cmp(&self, other: &str) -> Option<core::cmp::Ordering> {
+        self.as_ref().partial_cmp(other)
+    }
+}
+
 impl<'a> Deref for AnyStr<'a> {
     type Target = str;
 
@@ -87,4 +104,10 @@ fn hash() {
     set.insert(AnyStr::from(String::from("hello")));
     assert!(set.contains(&AnyStr::from("hello")));
     assert!(set.contains("hello"));
+}
+
+#[test]
+fn ord() {
+    assert!(AnyStr::Borrowed("a") < "b");
+    assert!(AnyStr::Borrowed("a") < AnyStr::Borrowed("b"));
 }

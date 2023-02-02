@@ -36,10 +36,10 @@ and numbers are kept in their original form in the [`JsonString`][string] and
 are fully validated when parsed. **The net effect is significantly fewer
 allocations when parsing a JSON value.**
 
-[`JsonString`][string] implements `PartialCmp<&str>` such that if the
-`JsonString` contains escape sequences, the comparison is handled correctly.
-Each `JsonString` tracks its decoded length as well as whether any escapes are
-present, allowing this comparison to be very efficient.
+[`JsonString`][string] implements `PartialEq<&str>`/`PartialCmp<&str>` such that
+if the `JsonString` contains escape sequences, the comparison is handled
+correctly. Each `JsonString` tracks its decoded length as well as whether any
+escapes are present, allowing this comparison to be very efficient.
 
 ```rust
 let json = justjson::JsonString::from_json("\"Hello, World!\"").unwrap();

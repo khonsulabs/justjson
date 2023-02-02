@@ -1,6 +1,8 @@
 #[cfg(feature = "alloc")]
 use alloc::string::String;
+use core::cmp::Ordering;
 use core::fmt::{self, Debug, Display, Formatter, Write};
+use core::hash;
 use core::str::{CharIndices, Chars};
 
 use crate::anystr::AnyStr;
@@ -30,6 +32,11 @@ use crate::parser::{ParseDelegate, Parser};
 /// comparison implementations to perform quick length checks on the decoded
 /// length to avoid comparing the bytes of strings that decode to different
 /// lengths.
+///
+/// Additionally, this type implements `Ord`, `PartialOrd`, and `Hash` in ways
+/// that are consistent regardless of whether the string has escape sequences or
+/// not. If the underlying representation does not need extra processing, the
+/// built-in implementations for `&str` are always used.
 #[derive(Debug, Eq, Clone)]
 
 pub struct JsonString<'a> {
@@ -186,14 +193,14 @@ impl<'a> From<String> for JsonString<'a> {
     }
 }
 
-impl<'a, 'b> PartialEq<&'a str> for &'b JsonString<'b> {
+impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
     fn eq(&self, other: &&'a str) -> bool {
-        (*self) == other
+        self.eq(*other)
     }
 }
 
-impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
-    fn eq(&self, other: &&'a str) -> bool {
+impl<'b> PartialEq<str> for JsonString<'b> {
+    fn eq(&self, other: &str) -> bool {
         match &self.source {
             StringContents::Json(source) => {
                 if self.info.has_escapes() {
@@ -207,7 +214,7 @@ impl<'a, 'b> PartialEq<&'a str> for JsonString<'b> {
                         .all(|(a, b)| a == b)
                 } else {
                     // Direct string comparison excluding the quotes.
-                    source == *other
+                    source == other
                 }
             }
             StringContents::Raw(source) => source == other,
@@ -255,30 +262,7 @@ impl<'a, 'b> PartialEq<JsonString<'a>> for JsonString<'b> {
 
 #[test]
 #[cfg(feature = "alloc")]
-fn json_string_from_json() {
-    assert_eq!(
-        JsonString::from_json(r#""Hello, World!""#).unwrap(),
-        JsonString {
-            source: StringContents::Json(AnyStr::Borrowed(r#"Hello, World!"#)),
-            info: JsonStringInfo::new(false, 13),
-        }
-    );
-
-    let expected_string = JsonString::from_json(r#"true"#)
-        .expect_err("shouldn't allow non-strings")
-        .kind;
-    assert!(matches!(expected_string, ErrorKind::ExpectedString));
-}
-
-#[test]
-#[cfg(feature = "alloc")]
-fn json_string_from_raw() {
-    assert_eq!(JsonString::from(String::from("a")), JsonString::from("a"));
-}
-
-#[test]
-#[cfg(feature = "alloc")]
-fn json_string_cmp() {
+fn json_string_eq() {
     #[track_caller]
     fn test_json<'a, T>(json: &'a str, expected: T)
     where
@@ -348,6 +332,198 @@ fn json_string_cmp() {
         JsonString::from("\0 "),
         JsonString::from_json(r#""\u0000""#).unwrap(),
     );
+}
+
+impl<'b> PartialOrd<str> for JsonString<'b> {
+    fn partial_cmp(&self, other: &str) -> Option<Ordering> {
+        match &self.source {
+            StringContents::Json(_) if self.info.has_escapes() => {
+                let mut left_chars = self.decoded();
+                let mut right_chars = other.chars();
+                loop {
+                    match (left_chars.next(), right_chars.next()) {
+                        (Some(left), Some(right)) => match left.cmp(&right) {
+                            Ordering::Equal => continue,
+                            Ordering::Less => return Some(Ordering::Less),
+                            Ordering::Greater => return Some(Ordering::Greater),
+                        },
+                        (Some(_), _) => return Some(Ordering::Greater),
+                        (_, Some(_)) => return Some(Ordering::Less),
+                        (None, None) => return Some(Ordering::Equal),
+                    }
+                }
+            }
+            StringContents::Json(left) | StringContents::Raw(left) => Some(left.cmp(other)),
+        }
+    }
+}
+
+impl<'a, 'b> PartialOrd<&'a str> for JsonString<'b> {
+    fn partial_cmp(&self, other: &&'a str) -> Option<Ordering> {
+        self.partial_cmp(*other)
+    }
+}
+
+impl<'b> Ord for JsonString<'b> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // There aren't any shortcuts for comparisons
+        match (&self.source, &other.source) {
+            (StringContents::Json(left), StringContents::Json(right))
+                if !self.info.has_escapes() && !other.info.has_escapes() =>
+            {
+                left.cmp(right)
+            }
+            (StringContents::Raw(left), StringContents::Raw(right)) => left.cmp(right),
+            (StringContents::Json(_), StringContents::Raw(right)) => {
+                self.partial_cmp(&&**right).expect("always some")
+            }
+            (StringContents::Raw(left), StringContents::Json(_)) => {
+                other.partial_cmp(&&**left).expect("always some").reverse()
+            }
+            _ => {
+                let mut left_chars = self.decoded();
+                let mut right_chars = other.decoded();
+                loop {
+                    match (left_chars.next(), right_chars.next()) {
+                        (Some(left), Some(right)) => match left.cmp(&right) {
+                            Ordering::Equal => continue,
+                            Ordering::Less => return Ordering::Less,
+                            Ordering::Greater => return Ordering::Greater,
+                        },
+                        (Some(_), _) => return Ordering::Greater,
+                        (_, Some(_)) => return Ordering::Less,
+                        (None, None) => return Ordering::Equal,
+                    }
+                }
+            }
+        }
+    }
+}
+impl<'a, 'b> PartialOrd<JsonString<'a>> for JsonString<'b> {
+    fn partial_cmp(&self, other: &JsonString<'a>) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[cfg(feature = "alloc")]
+#[cfg(test)]
+macro_rules! jstr {
+    ($src:literal) => {
+        JsonString::from_json(concat!("\"", $src, "\"")).unwrap()
+    };
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+#[allow(clippy::cmp_owned)]
+fn json_string_cmp() {
+    macro_rules! assert_lt {
+        ($left:expr, $right:expr) => {
+            assert!($left < $right);
+        };
+    }
+
+    macro_rules! assert_gt {
+        ($left:expr, $right:expr) => {
+            assert!($left > $right);
+        };
+    }
+
+    macro_rules! assert_ord_eq {
+        ($left:expr, $right:expr) => {
+            assert_eq!($left.partial_cmp($right), Some(Ordering::Equal));
+        };
+    }
+
+    // no escapes, which ends up using str.cmp
+    assert_lt!(jstr!("a"), "b");
+    assert_gt!(jstr!("b"), "a");
+    assert_ord_eq!(jstr!("a"), "a");
+    assert_ord_eq!(JsonString::from("\n"), "\n");
+
+    // Escapes vs no escapes. Same as above, but encoding a/b as unicode escapes
+    assert_lt!(jstr!(r#"\u0061"#), "b");
+    assert_gt!(jstr!(r#"\u0062"#), "a");
+    assert_ord_eq!(jstr!(r#"\u0061"#), "a");
+    // differing lengths, but matching prefix
+    assert_lt!(jstr!(r#"\u0061"#), "aa");
+    assert_gt!(jstr!(r#"\u0061a"#), "a");
+
+    // Same suite of tests, but with json strings on the right
+    // Escapes vs no escapes. Same as above, but encoding a/b as unicode escapes
+    assert_lt!(jstr!(r#"\u0061"#), JsonString::from("b"));
+    assert_gt!(jstr!(r#"\u0062"#), JsonString::from("a"));
+    assert_ord_eq!(jstr!(r#"\u0061"#), &JsonString::from("a"));
+    // differing lengths, but matching prefix
+    assert_lt!(jstr!(r#"\u0061"#), JsonString::from("aa"));
+    assert_gt!(jstr!(r#"\u0061a"#), JsonString::from("a"));
+    // Raw on both sides
+    assert_ord_eq!(JsonString::from("\n"), &JsonString::from("\n"));
+    // Raw either side
+    assert_lt!(jstr!(r#"\n"#), JsonString::from("\na"));
+    assert_gt!(JsonString::from("\na"), jstr!(r#"\n"#));
+    // JSON no escapes both sides
+    assert_lt!(jstr!("a"), JsonString::from("b"));
+}
+
+impl<'a> hash::Hash for JsonString<'a> {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        match &self.source {
+            StringContents::Json(_) if self.info.has_escapes() => {
+                // The standard string hash writes out as bytes, but char
+                // hashing is done by converting to u32. We're purposely
+                // re-implementing Hasher::write_str via chars.
+                let mut char_bytes = [0; 4];
+                for ch in self.decoded() {
+                    state.write(ch.encode_utf8(&mut char_bytes).as_bytes());
+                }
+                state.write_u8(0xff); // from Hasher::write_str
+            }
+            StringContents::Json(str) | StringContents::Raw(str) => str.hash(state),
+        }
+    }
+}
+
+#[test]
+#[cfg(feature = "std")]
+fn json_string_hash() {
+    use core::hash::{BuildHasher, Hasher};
+    use std::collections::hash_map::RandomState;
+    fn hash(t: impl hash::Hash, state: &RandomState) -> u64 {
+        let mut hasher = state.build_hasher();
+        t.hash(&mut hasher);
+        hasher.finish()
+    }
+
+    let state = RandomState::default();
+    assert_eq!(
+        hash(JsonString::from("\n"), &state),
+        hash(jstr!("\\n"), &state)
+    );
+    assert_eq!(hash(jstr!("a"), &state), hash("a", &state));
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+fn json_string_from_json() {
+    assert_eq!(
+        JsonString::from_json(r#""Hello, World!""#).unwrap(),
+        JsonString {
+            source: StringContents::Json(AnyStr::Borrowed(r#"Hello, World!"#)),
+            info: JsonStringInfo::new(false, 13),
+        }
+    );
+
+    let expected_string = JsonString::from_json(r#"true"#)
+        .expect_err("shouldn't allow non-strings")
+        .kind;
+    assert!(matches!(expected_string, ErrorKind::ExpectedString));
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+fn json_string_from_raw() {
+    assert_eq!(JsonString::from(String::from("a")), JsonString::from("a"));
 }
 
 #[test]

@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.2.2
+
+## Added
+
+- `JsonString` now implements `Ord`, `PartialOrd`, and `PartialOrd<str>`, and
+  `Hash`.
+- `Entry`, the type which `Object` is a collection of, is now exported. This was
+  an oversight. Thanks to @PolScript for reporting this in #6.
+- `Value::get(key)`, `Value::get_mut(key)`, and `Index<&str>`/`IndexMut<&str>`
+  have been added to allow easier access to the contents of a `Value` when it is
+  an object. Similar to most built-in collection types, the `Index` trait
+  implementations will panic if the key is not found, but the `get` variants
+  return an Option instead of panicking.
+- `Value::get_index(usize)`, `Value::get_index_mut(usize)`, and
+  `Index<usize>`/`IndexMut<usize>` have been added to allow easier access to the
+  contents of a `Value` when it is an array. Similar to most built-in collection
+  types, the `Index` trait implementations will panic if the index is out of
+  bounds, but the `get_index` variants return an Option instead of panicking.
+- `From<&str>`, `From<String>`, `From<JsonString<'_>>`, `From<Object<'_>>`, and
+  `From<bool>` have been implemented for `Value<'_>`.
+
 ## v0.2.1
 
 This release contains no code changes. The `Cargo.toml` section for docs.rs has
