@@ -105,6 +105,12 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>core::borrow::Borrow;
@@ -211,6 +217,12 @@
     set.insert(AnyStr::from(String::from(<span class="string">&quot;hello&quot;</span>)));
     <span class="macro">assert!</span>(set.contains(<span class="kw-2">&amp;</span>AnyStr::from(<span class="string">&quot;hello&quot;</span>)));
     <span class="macro">assert!</span>(set.contains(<span class="string">&quot;hello&quot;</span>));
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>ord() {
+    <span class="macro">assert!</span>(AnyStr::Borrowed(<span class="string">&quot;a&quot;</span>) &lt; <span class="string">&quot;b&quot;</span>);
+    <span class="macro">assert!</span>(AnyStr::Borrowed(<span class="string">&quot;a&quot;</span>) &lt; AnyStr::Borrowed(<span class="string">&quot;b&quot;</span>));
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (11d96b593 2023-02-01)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
