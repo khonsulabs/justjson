@@ -2,7 +2,7 @@
 use alloc::{string::String, vec::Vec};
 use core::convert::Infallible;
 use core::fmt::{self, Display};
-use core::ops::{Deref, DerefMut};
+use core::ops::{Deref, DerefMut, Index, IndexMut};
 
 use crate::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
 use crate::{Error, JsonNumber, JsonString};
@@ -67,7 +67,8 @@ impl<'a> Value<'a> {
     /// Returns the [`Object`] inside of this value, if this is a
     /// [`Value::Object`].
     #[must_use]
-    pub fn as_object(&self) -> Option<&Object<'a>> {
+    #[inline]
+    pub const fn as_object(&self) -> Option<&Object<'a>> {
         if let Self::Object(obj) = self {
             Some(obj)
         } else {
@@ -75,10 +76,65 @@ impl<'a> Value<'a> {
         }
     }
 
+    /// Returns a mutable reference to the [`Object`] inside of this value, if
+    /// this is a [`Value::Object`].
+    #[must_use]
+    #[inline]
+    pub fn as_object_mut(&mut self) -> Option<&mut Object<'a>> {
+        if let Self::Object(obj) = self {
+            Some(obj)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the contained value associated with `key`, if this is a
+    /// [`Value::Object`]. Returns `None` if the value is not an object or if
+    /// the key is not found.
+    ///
+    /// # Performance
+    ///
+    /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
+    /// operation being performed can be done with a single iteration over the
+    /// value's contents instead of multiple random accesses, the iteration
+    /// should be preferred. Additional options to make random access faster in
+    /// environments that can support it [are being considered][issue] for
+    /// future releases.
+    ///
+    /// [issue]: https://github.com/khonsulabs/justjson/issues/7
+    #[must_use]
+    #[inline]
+    pub fn get(&self, key: &str) -> Option<&Value<'a>> {
+        let object = self.as_object()?;
+        object.get(key)
+    }
+
+    /// Returns a mutable reference to the contained value associated with
+    /// `key`, if this is a [`Value::Object`]. Returns `None` if the value is
+    /// not an object or if the key is not found.
+    ///
+    /// # Performance
+    ///
+    /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
+    /// operation being performed can be done with a single iteration over the
+    /// value's contents instead of multiple random accesses, the iteration
+    /// should be preferred. Additional options to make random access faster in
+    /// environments that can support it [are being considered][issue] for
+    /// future releases.
+    ///
+    /// [issue]: https://github.com/khonsulabs/justjson/issues/7
+    #[must_use]
+    #[inline]
+    pub fn get_mut(&mut self, key: &str) -> Option<&mut Value<'a>> {
+        let object = self.as_object_mut()?;
+        object.get_mut(key)
+    }
+
     /// Returns the [`JsonString`] inside of this value, if this is a
     /// [`Value::String`].
     #[must_use]
-    pub fn as_string(&self) -> Option<&JsonString<'a>> {
+    #[inline]
+    pub const fn as_string(&self) -> Option<&JsonString<'a>> {
         if let Self::String(obj) = self {
             Some(obj)
         } else {
@@ -89,7 +145,8 @@ impl<'a> Value<'a> {
     /// Returns the [`JsonNumber`] inside of this value, if this is a
     /// [`Value::Number`].
     #[must_use]
-    pub fn as_number(&self) -> Option<&JsonNumber<'a>> {
+    #[inline]
+    pub const fn as_number(&self) -> Option<&JsonNumber<'a>> {
         if let Self::Number(obj) = self {
             Some(obj)
         } else {
@@ -100,7 +157,8 @@ impl<'a> Value<'a> {
     /// Returns the `bool` inside of this value, if this is a
     /// [`Value::Boolean`].
     #[must_use]
-    pub fn as_bool(&self) -> Option<bool> {
+    #[inline]
+    pub const fn as_bool(&self) -> Option<bool> {
         if let Self::Boolean(value) = self {
             Some(*value)
         } else {
@@ -111,6 +169,7 @@ impl<'a> Value<'a> {
     /// Returns the slice of values inside of this value, if this is a
     /// [`Value::Array`].
     #[must_use]
+    #[inline]
     pub fn as_array(&self) -> Option<&[Self]> {
         if let Self::Array(value) = self {
             Some(value)
@@ -119,9 +178,42 @@ impl<'a> Value<'a> {
         }
     }
 
+    /// Returns a mutable reference to the Vec of values inside of this value,
+    /// if this is a [`Value::Array`].
+    #[must_use]
+    #[inline]
+    pub fn as_array_mut(&mut self) -> Option<&mut Vec<Self>> {
+        if let Self::Array(value) = self {
+            Some(value)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the contained value at `index`, if this is a [`Value::Array`].
+    /// Returns `None` if the value is not an array or if `index` is beyond the
+    /// bounds of the array.
+    #[must_use]
+    #[inline]
+    pub fn get_index(&self, index: usize) -> Option<&Value<'a>> {
+        let sequence = self.as_array()?;
+        sequence.get(index)
+    }
+
+    /// Returns a mutable reference to the contained value at `index`, if this
+    /// is a [`Value::Array`]. Returns `None` if the value is not an array or if
+    /// `index` is beyond the bounds of the array.
+    #[must_use]
+    #[inline]
+    pub fn get_index_mut(&mut self, index: usize) -> Option<&mut Value<'a>> {
+        let sequence = self.as_array_mut()?;
+        sequence.get_mut(index)
+    }
+
     /// Returns true if this value is `null`/[`Value::Null`].
     #[must_use]
-    pub fn is_null(&self) -> bool {
+    #[inline]
+    pub const fn is_null(&self) -> bool {
         matches!(self, Value::Null)
     }
 
@@ -485,7 +577,52 @@ where
     }
 }
 
+impl<'a> Index<usize> for Value<'a> {
+    type Output = Value<'a>;
+
+    #[inline]
+    fn index(&self, index: usize) -> &Self::Output {
+        let sequence = self.as_array().expect("value is not an array");
+        &sequence[index]
+    }
+}
+
+impl<'a> IndexMut<usize> for Value<'a> {
+    #[inline]
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        let sequence = self.as_array_mut().expect("value is not an array");
+        &mut sequence[index]
+    }
+}
+
+impl<'b, 'a> Index<&'b str> for Value<'a> {
+    type Output = Value<'a>;
+
+    #[inline]
+    fn index(&self, index: &'b str) -> &Self::Output {
+        self.get(index).expect("key not found")
+    }
+}
+
+impl<'b, 'a> IndexMut<&'b str> for Value<'a> {
+    #[inline]
+    fn index_mut(&mut self, index: &'b str) -> &mut Self::Output {
+        self.get_mut(index).expect("key not found")
+    }
+}
+
 /// A JSON Object (list of key-value pairs).
+///
+/// # Performance
+///
+/// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
+/// operation being performed can be done with a single iteration over the
+/// value's contents instead of multiple random accesses, the iteration
+/// should be preferred. Additional options to make random access faster in
+/// environments that can support it [are being considered][issue] for
+/// future releases.
+///
+/// [issue]: https://github.com/khonsulabs/justjson/issues/7
 #[derive(Debug, Eq, PartialEq)]
 pub struct Object<'a>(Vec<Entry<'a>>);
 
@@ -508,17 +645,43 @@ impl<'a> Object<'a> {
     pub fn with_capacity(capacity: usize) -> Self {
         Self(Vec::with_capacity(capacity))
     }
+
+    /// Returns the value associated with `key`, if found.
+    #[must_use]
+    #[inline]
+    pub fn get(&self, key: &str) -> Option<&Value<'a>> {
+        self.iter()
+            .find_map(|entry| (entry.key == key).then_some(&entry.value))
+    }
+
+    /// Returns a mutable reference to the value associated with `key`, if
+    /// found.
+    #[must_use]
+    #[inline]
+    pub fn get_mut(&mut self, key: &str) -> Option<&mut Value<'a>> {
+        self.get_entry_mut(key).map(|entry| &mut entry.value)
+    }
+
+    /// Returns a mutable reference to the entry associated with `key`, if
+    /// found.
+    #[must_use]
+    #[inline]
+    pub fn get_entry_mut(&mut self, key: &str) -> Option<&mut Entry<'a>> {
+        self.iter_mut().find(|entry| entry.key == key)
+    }
 }
 
 impl<'a> Deref for Object<'a> {
     type Target = Vec<Entry<'a>>;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl<'a> DerefMut for Object<'a> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -586,13 +749,25 @@ fn objects() {
 fn cow() {
     let mut value =
         Value::from_json_bytes(br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#).unwrap();
-    let Value::Object(root) = &mut value else { unreachable!() };
+    value["b"] = Value::Boolean(false);
+    let root = value.as_object_mut().unwrap();
     root[0].key = JsonString::from("newa");
     let Value::Array(d_array) = &mut root[3].value else { unreachable!() };
     d_array.push(Value::Null);
+
+    // Replace the newly inserted null (uses IndexMut on the array).
+    value["d"][0] = Value::Boolean(false);
+
     let generated = value.to_json();
     assert_eq!(
         generated,
-        r#"{"newa":1,"b":true,"c":"hello","d":[null],"e":{}}"#
+        r#"{"newa":1,"b":false,"c":"hello","d":[false],"e":{}}"#
     );
+}
+
+#[test]
+fn index() {
+    let value = Value::from_json_bytes(br#"{"b":true,"a":[false]}"#).unwrap();
+    assert_eq!(value["b"], Value::Boolean(true));
+    assert_eq!(value["a"][0], Value::Boolean(false));
 }

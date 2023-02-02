@@ -405,6 +405,7 @@ impl<'a, 'b> PartialOrd<JsonString<'a>> for JsonString<'b> {
     }
 }
 
+#[cfg(feature = "alloc")]
 #[cfg(test)]
 macro_rules! jstr {
     ($src:literal) => {
