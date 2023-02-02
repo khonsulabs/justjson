@@ -105,3 +105,9 @@ fn hash() {
     assert!(set.contains(&AnyStr::from("hello")));
     assert!(set.contains("hello"));
 }
+
+#[test]
+fn ord() {
+    assert!(AnyStr::Borrowed("a") < "b");
+    assert!(AnyStr::Borrowed("a") < AnyStr::Borrowed("b"));
+}

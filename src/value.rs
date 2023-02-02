@@ -582,16 +582,14 @@ impl<'a> Index<usize> for Value<'a> {
 
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
-        let sequence = self.as_array().expect("value is not an array");
-        &sequence[index]
+        self.get_index(index).expect("index not found")
     }
 }
 
 impl<'a> IndexMut<usize> for Value<'a> {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        let sequence = self.as_array_mut().expect("value is not an array");
-        &mut sequence[index]
+        self.get_index_mut(index).expect("index not found")
     }
 }
 
@@ -767,7 +765,9 @@ fn cow() {
 
 #[test]
 fn index() {
-    let value = Value::from_json_bytes(br#"{"b":true,"a":[false]}"#).unwrap();
+    let mut value = Value::from_json_bytes(br#"{"b":true,"a":[false]}"#).unwrap();
     assert_eq!(value["b"], Value::Boolean(true));
+    assert_eq!(value.get_index_mut(0), None);
     assert_eq!(value["a"][0], Value::Boolean(false));
+    assert_eq!(value["a"].get_mut("a"), None);
 }
