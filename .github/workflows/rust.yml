@@ -41,7 +41,7 @@ jobs:
       - name: Install Rust
         uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.58
+          rust-version: 1.65
       - name: Run unit tests
         run: cargo test --all-targets --features heapless
 

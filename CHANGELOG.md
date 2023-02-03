@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+## Changed
+
+- This crate's MSRV has been changed to 1.65. This is not a breaking change,
+  however, as the crate never supported its advertised MSRV, and this new MSRV
+  reflects what the true MSRV has always been. An additional CI pass was added
+  to ensure the MSRV is always tested against. Thanks to @hr8 in #8 for
+  reporting this.
+
 ## v0.2.2
 
 ## Added
@@ -12,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `JsonString` now implements `Ord`, `PartialOrd`, and `PartialOrd<str>`, and
   `Hash`.
 - `Entry`, the type which `Object` is a collection of, is now exported. This was
-  an oversight. Thanks to @PolScript for reporting this in #6.
+  an oversight. Thanks to @PoiScript for reporting this in #6.
 - `Value::get(key)`, `Value::get_mut(key)`, and `Index<&str>`/`IndexMut<&str>`
   have been added to allow easier access to the contents of a `Value` when it is
   an object. Similar to most built-in collection types, the `Index` trait
