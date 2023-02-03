@@ -17,8 +17,15 @@ pub enum AnyStr<'a> {
     Borrowed(&'a str),
 }
 
-impl<'a> AsRef<str> for AnyStr<'a> {
-    fn as_ref(&self) -> &str {
+impl<'a> AnyStr<'a> {
+    /// Returns this string as a `str` reference.
+    ///
+    /// This function in general doesn't need to be called, as `AnyStr`
+    /// implements `AsRef<str>`, `Borrow<str>`, and `Deref<Target = str>`. This
+    /// allows it to act as if it were a `&str` in most situations.
+    #[inline]
+    #[must_use]
+    pub fn as_str(&self) -> &str {
         match self {
             #[cfg(feature = "alloc")]
             Self::Owned(str) => str,
@@ -27,7 +34,15 @@ impl<'a> AsRef<str> for AnyStr<'a> {
     }
 }
 
+impl<'a> AsRef<str> for AnyStr<'a> {
+    #[inline]
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
 impl<'a> Borrow<str> for AnyStr<'a> {
+    #[inline]
     fn borrow(&self) -> &str {
         self.as_ref()
     }
@@ -36,35 +51,41 @@ impl<'a> Borrow<str> for AnyStr<'a> {
 impl<'a> Eq for AnyStr<'a> {}
 
 impl<'a, 'b> PartialEq<AnyStr<'b>> for AnyStr<'a> {
+    #[inline]
     fn eq(&self, other: &AnyStr<'b>) -> bool {
         self.as_ref() == other.as_ref()
     }
 }
 
 impl<'a, 'b> PartialEq<&'b str> for AnyStr<'a> {
+    #[inline]
     fn eq(&self, other: &&'b str) -> bool {
         self == *other
     }
 }
 
 impl<'a> PartialEq<str> for AnyStr<'a> {
+    #[inline]
     fn eq(&self, other: &str) -> bool {
         self.as_ref() == other
     }
 }
 
 impl<'a, 'b> PartialOrd<AnyStr<'b>> for AnyStr<'a> {
+    #[inline]
     fn partial_cmp(&self, other: &AnyStr<'b>) -> Option<core::cmp::Ordering> {
         self.partial_cmp(other.as_ref())
     }
 }
 
 impl<'a, 'b> PartialOrd<&'b str> for AnyStr<'a> {
+    #[inline]
     fn partial_cmp(&self, other: &&'b str) -> Option<core::cmp::Ordering> {
         self.partial_cmp(*other)
     }
 }
 impl<'a> PartialOrd<str> for AnyStr<'a> {
+    #[inline]
     fn partial_cmp(&self, other: &str) -> Option<core::cmp::Ordering> {
         self.as_ref().partial_cmp(other)
     }
@@ -73,18 +94,21 @@ impl<'a> PartialOrd<str> for AnyStr<'a> {
 impl<'a> Deref for AnyStr<'a> {
     type Target = str;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         self.as_ref()
     }
 }
 
 impl<'a> Hash for AnyStr<'a> {
+    #[inline]
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.as_ref().hash(state);
     }
 }
 
 impl<'a> From<&'a str> for AnyStr<'a> {
+    #[inline]
     fn from(value: &'a str) -> Self {
         Self::Borrowed(value)
     }
@@ -92,6 +116,7 @@ impl<'a> From<&'a str> for AnyStr<'a> {
 
 #[cfg(feature = "alloc")]
 impl<'a> From<String> for AnyStr<'a> {
+    #[inline]
     fn from(value: String) -> Self {
         Self::Owned(value)
     }

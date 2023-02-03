@@ -146,6 +146,18 @@ impl<'a> JsonString<'a> {
             StringContents::Raw(raw) => raw.len(),
         }
     }
+
+    /// Returns a reference to the contents of this value if the contained
+    /// string does not have any escape sequences that must be decoded.
+    #[must_use]
+    #[inline]
+    pub fn as_str(&self) -> Option<&str> {
+        match &self.source {
+            StringContents::Json(str) if !self.info.has_escapes() => Some(str),
+            StringContents::Json(_) => None,
+            StringContents::Raw(str) => Some(str),
+        }
+    }
 }
 
 impl<'a> From<&'a str> for JsonString<'a> {
@@ -503,6 +515,20 @@ fn json_string_hash() {
     assert_eq!(hash(jstr!("a"), &state), hash("a", &state));
 }
 
+impl<'a> Display for JsonString<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.decoded().fmt(f)
+    }
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+fn display() {
+    use std::string::ToString;
+    let json = JsonString::from_json(r#""hello, world!""#).unwrap();
+    assert_eq!(json.to_string(), "hello, world!");
+}
+
 #[test]
 #[cfg(feature = "alloc")]
 fn json_string_from_json() {
@@ -518,6 +544,16 @@ fn json_string_from_json() {
         .expect_err("shouldn't allow non-strings")
         .kind;
     assert!(matches!(expected_string, ErrorKind::ExpectedString));
+}
+
+#[test]
+fn as_str() {
+    let json_with_escapes = JsonString::from_json(r#""\n""#).unwrap();
+    assert_eq!(json_with_escapes.as_str(), None);
+    let json_no_escapes = JsonString::from_json(r#""hi""#).unwrap();
+    assert_eq!(json_no_escapes.as_str(), Some("hi"));
+    let raw = JsonString::from("hi");
+    assert_eq!(raw.as_str(), Some("hi"));
 }
 
 #[test]

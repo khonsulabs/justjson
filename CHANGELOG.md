@@ -15,6 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to ensure the MSRV is always tested against. Thanks to @hr8 in #8 for
   reporting this.
 
+## Added
+
+- `AnyStr::as_str()` has been added, which acts the same as
+  `AsRef<str>`/`Borrow<str>`/`Deref<Target = str>`.
+- `JsonString::as_str()` has been added, which will return an `&str` to the
+  contained string, if it doesn't contain escape sequences. If the string has
+  escape sequences, None will be returned.
+- `Value::as_str()` has been added, which will return an `&str` to the contained
+  string if the the `Value` is a `JsonString` that has no escape sequences. If
+  the value is not a string or it has escape sequences, None will be returned.
+
+  Thanks to @hr8 in #9 for requesting this.
+- `JsonString` now implements `Display` with the decoded representation. This
+  also means that `ToString` is now implemented such that it produces a decoded
+  string.
+
 ## v0.2.2
 
 ## Added

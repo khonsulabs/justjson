@@ -142,6 +142,19 @@ impl<'a> Value<'a> {
         }
     }
 
+    /// Returns a reference to the contents of this value if it is a
+    /// [`Value::String`], and it does not have any escape sequences that need
+    /// to be decoded.
+    #[must_use]
+    #[inline]
+    pub fn as_str(&self) -> Option<&str> {
+        if let Self::String(json_string) = self {
+            json_string.as_str()
+        } else {
+            None
+        }
+    }
+
     /// Returns the [`JsonNumber`] inside of this value, if this is a
     /// [`Value::Number`].
     #[must_use]
@@ -354,6 +367,12 @@ fn value_ases() {
         ""
     );
     assert_eq!(
+        Value::String(JsonString::from_json("\"\"").unwrap())
+            .as_str()
+            .unwrap(),
+        ""
+    );
+    assert_eq!(
         Value::Number(JsonNumber::from_json("1").unwrap())
             .as_number()
             .unwrap()
@@ -372,6 +391,7 @@ fn value_ases() {
     assert_eq!(Value::Null.as_bool(), None);
     assert_eq!(Value::Null.as_number(), None);
     assert_eq!(Value::Null.as_string(), None);
+    assert_eq!(Value::Null.as_str(), None);
     assert_eq!(Value::Null.as_object(), None);
     assert_eq!(Value::Null.as_array(), None);
 }
