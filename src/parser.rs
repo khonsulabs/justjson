@@ -2,6 +2,7 @@ use core::convert::Infallible;
 use core::iter::Peekable;
 use core::marker::PhantomData;
 use core::slice;
+use std::ops::Deref;
 
 use crate::anystr::AnyStr;
 use crate::string::{
@@ -10,6 +11,7 @@ use crate::string::{
 };
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
+#[derive(Debug, Clone)]
 pub enum Token<'a> {
     Null,
     Bool(bool),
@@ -25,12 +27,15 @@ pub enum Token<'a> {
 
 pub struct Tokenizer<'a, const GUARANTEED_UTF8: bool> {
     source: ByteIterator<'a>,
+
+    head: Option<(Token<'a>, usize)>,
 }
 
 impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     pub fn new(source: &'a [u8]) -> Self {
         Self {
             source: ByteIterator::new(source),
+            head: None,
         }
     }
 
@@ -40,9 +45,6 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     }
 
     fn read_peek(&mut self, offset: usize, first: &'a u8) -> Result<Token<'a>, Error> {
-        // The problem here is that we're unable to know what the next path is, to do so we
-        // need a stack? Tho i'd like to avoid that at all costs
-        // in theory we could do that by changing the tokenizer in between and doing some nesting?
         match first {
             b'{' => Ok(Token::Object),
             b'}' => Ok(Token::ObjectEnd),
@@ -334,11 +336,33 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     }
 
     pub fn next(&mut self) -> Result<Token<'a>, Error> {
-        self.read_from_source()
+        if let Some(token) = self.head.take() {
+            Ok(token.0)
+        } else {
+            self.read_from_source()
+        }
+    }
+
+    // ideally return a reference instead
+    pub fn peek(&mut self) -> Result<&Token<'a>, Error> {
+        // we cannot use a destructure here, as otherwise the borrow checker will complain
+        // we could use `get_or_insert_with`, but it does not allow for fallible functions
+        if self.head.is_some() {
+            return Ok(&self.head.as_ref().unwrap().0);
+        }
+
+        let offset = self.offset();
+        let token = self.read_from_source()?;
+
+        Ok(&(self.head.insert((token, offset)).0))
     }
 
     pub fn offset(&self) -> usize {
-        self.source.offset
+        if let Some((_, offset)) = self.head {
+            offset
+        } else {
+            self.source.offset
+        }
     }
 }
 
@@ -500,8 +524,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     where
         D: ParseDelegate<'a>,
     {
-        let token = self.tokenizer.next().map_err(Error::into_fallable)?;
         let offset = self.tokenizer.offset();
+        let token = self.tokenizer.next().map_err(Error::into_fallable)?;
 
         let unexpected = |value: u8| {
             Err(Error {
@@ -553,12 +577,14 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     where
         D: ParseDelegate<'a>,
     {
+        let offset = self.tokenizer.offset();
         let mut object = state.delegate.begin_object().map_err(|kind| Error {
-            offset: self.tokenizer.offset(),
+            offset,
             kind: ErrorKind::ErrorFromDelegate(kind),
         })?;
 
         loop {
+            let offset = self.tokenizer.offset();
             let token = self.tokenizer.next().map_err(Error::into_fallable)?;
 
             let key = match token {
@@ -567,7 +593,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                         .delegate
                         .object_key(&mut object, value)
                         .map_err(|kind| Error {
-                            offset: self.tokenizer.offset(),
+                            offset,
                             kind: ErrorKind::ErrorFromDelegate(kind),
                         })?
                 }
@@ -578,29 +604,30 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     }
 
                     return Err(Error {
-                        offset: self.tokenizer.offset(),
+                        offset,
                         kind: ErrorKind::IllegalTrailingComma,
                     });
                 }
                 Token::Array | Token::Bool(_) | Token::Null | Token::Number(_) | Token::Object => {
                     return Err(Error {
-                        offset: self.tokenizer.offset(),
+                        offset,
                         kind: ErrorKind::ObjectKeysMustBeStrings,
                     });
                 }
                 _ => {
                     return Err(Error {
-                        offset: self.tokenizer.offset(),
+                        offset,
                         kind: ErrorKind::ExpectedObjectKey,
                     })
                 }
             };
 
+            let offset = self.tokenizer.offset();
             match self.tokenizer.next().map_err(Error::into_fallable) {
                 Ok(Token::Colon) => {}
                 Ok(_) => {
                     return Err(Error {
-                        offset: self.tokenizer.offset(),
+                        offset,
                         kind: ErrorKind::ExpectedColon,
                     })
                 }
@@ -611,15 +638,17 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
             }
 
+            let offset = self.tokenizer.offset();
             let value = self.read_tokens(state)?;
             state
                 .delegate
                 .object_value(&mut object, key, value)
                 .map_err(|kind| Error {
-                    offset: self.tokenizer.offset(),
+                    offset,
                     kind: ErrorKind::ErrorFromDelegate(kind),
                 })?;
 
+            let offset = self.tokenizer.offset();
             match self.tokenizer.next().map_err(Error::into_fallable)? {
                 Token::Comma => {}
                 Token::ObjectEnd => {
@@ -627,7 +656,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 }
                 _ => {
                     return Err(Error {
-                        offset: self.tokenizer.offset(),
+                        offset,
                         kind: ErrorKind::ExpectedCommaOrEndOfObject,
                     })
                 }
@@ -648,21 +677,26 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     where
         D: ParseDelegate<'a>,
     {
+        let offset = self.tokenizer.offset();
         let mut array = state.delegate.begin_array().map_err(|kind| Error {
             offset: self.tokenizer.offset(),
             kind: ErrorKind::ErrorFromDelegate(kind),
         })?;
 
         loop {
-            let token = self.tokenizer.next().map_err(Error::into_fallable)?;
+            let offset = self.tokenizer.offset();
+            let token = self.tokenizer.peek().map_err(Error::into_fallable)?;
 
             if matches!(token, Token::ArrayEnd) {
+                // commit the token
+                self.tokenizer.next().map_err(Error::into_fallable)?;
+
                 if state.delegate.array_is_empty(&array) || state.config.allow_trailing_commas {
                     break;
                 }
 
                 return Err(Error {
-                    offset: self.tokenizer.offset(),
+                    offset,
                     kind: ErrorKind::IllegalTrailingComma,
                 });
             }
@@ -677,6 +711,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                     kind: ErrorKind::ErrorFromDelegate(kind),
                 })?;
 
+            let offset = self.tokenizer.offset();
             let token = self.tokenizer.next().map_err(Error::into_fallable)?;
 
             match token {
@@ -684,7 +719,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 Token::ArrayEnd => break,
                 _ => {
                     return Err(Error {
-                        offset: self.tokenizer.offset(),
+                        offset,
                         kind: ErrorKind::ExpectedCommaOrEndOfArray,
                     })
                 }
@@ -692,7 +727,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
 
         let array = state.delegate.end_array(array).map_err(|kind| Error {
-            offset: self.tokenizer.offset(),
+            offset,
             kind: ErrorKind::ErrorFromDelegate(kind),
         })?;
 
