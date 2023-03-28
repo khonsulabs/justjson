@@ -2,6 +2,7 @@ use core::convert::Infallible;
 use core::iter::Peekable;
 use core::marker::PhantomData;
 use core::slice;
+use std::println;
 
 use crate::anystr::AnyStr;
 use crate::string::{
@@ -26,15 +27,12 @@ pub enum Token<'a> {
 
 pub struct Tokenizer<'a, const GUARANTEED_UTF8: bool> {
     source: ByteIterator<'a>,
-
-    head: Option<(Token<'a>, usize)>,
 }
 
 impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     pub fn new(source: &'a [u8]) -> Self {
         Self {
             source: ByteIterator::new(source),
-            head: None,
         }
     }
 
@@ -64,12 +62,14 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
                 .read_number_from_source(InitialNumberState::Digit, offset)
                 .map(Token::Number),
             b't' => self
-                .read_literal_from_source(b"rue")
+                .read_literal_from_source([b'r', b'u', b'e'])
                 .map(|()| Token::Bool(true)),
             b'f' => self
-                .read_literal_from_source(b"alse")
+                .read_literal_from_source([b'a', b'l', b's', b'e'])
                 .map(|()| Token::Bool(false)),
-            b'n' => self.read_literal_from_source(b"ull").map(|()| Token::Null),
+            b'n' => self
+                .read_literal_from_source([b'u', b'l', b'l'])
+                .map(|()| Token::Null),
             _ => Err(Error {
                 offset,
                 kind: ErrorKind::Unexpected(*first),
@@ -324,16 +324,21 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     }
 
     #[inline]
-    fn read_literal_from_source(&mut self, remaining_bytes: &[u8]) -> Result<(), Error> {
-        for expected in remaining_bytes {
-            let (offset, byte) = self.source.read()?;
+    fn read_literal_from_source<const N: usize>(
+        &mut self,
+        remaining_bytes: [u8; N],
+    ) -> Result<(), Error> {
+        let mut buffer = [0; N];
 
-            if byte != expected {
-                return Err(Error {
-                    offset,
-                    kind: ErrorKind::Unexpected(*byte),
-                });
-            }
+        for elem in &mut buffer {
+            *elem = *self.source.next().unwrap().1;
+        }
+
+        if buffer != remaining_bytes {
+            return Err(Error {
+                offset: self.source.offset,
+                kind: ErrorKind::Unexpected(b'x'),
+            });
         }
 
         Ok(())
@@ -341,37 +346,23 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
 
     #[inline]
     pub fn next(&mut self) -> Result<Token<'a>, Error> {
-        if let Some(token) = self.head.take() {
-            Ok(token.0)
-        } else {
-            self.read_from_source()
-        }
+        self.read_from_source()
     }
 
     #[inline]
-    #[allow(unsafe_code)]
-    // ideally return a reference instead
-    pub fn peek(&mut self) -> Result<&Token<'a>, Error> {
-        // we cannot use a destructure here, as otherwise the borrow checker will complain
-        // we could use `get_or_insert_with`, but it does not allow for fallible functions
-        if self.head.is_some() {
-            // SAFETY: we know that `self.head` must not be none
-            return Ok(unsafe { &self.head.as_ref().unwrap_unchecked().0 });
-        }
+    pub fn peek_char(&mut self) -> Result<&u8, Error> {
+        self.source.skip_ws();
+        let offset = self.source.offset;
 
-        let offset = self.offset();
-        let token = self.read_from_source()?;
-
-        Ok(&(self.head.insert((token, offset)).0))
+        self.source.peek().ok_or(Error {
+            offset,
+            kind: ErrorKind::UnexpectedEof,
+        })
     }
 
     #[inline]
     pub fn offset(&self) -> usize {
-        if let Some((_, offset)) = self.head {
-            offset
-        } else {
-            self.source.offset
-        }
+        self.source.offset
     }
 }
 
@@ -552,9 +543,6 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
         match token {
             Token::Null => state.delegate.null().map_err(into_error),
-            Token::Bool(value) => state.delegate.boolean(value).map_err(into_error),
-            Token::String(value) => state.delegate.string(value).map_err(into_error),
-            Token::Number(value) => state.delegate.number(value).map_err(into_error),
             Token::Object => {
                 state.begin_nest().map_err(|kind| Error { offset, kind })?;
 
@@ -581,6 +569,9 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
             Token::ArrayEnd => unexpected(b']'),
             Token::Colon => unexpected(b':'),
             Token::Comma => unexpected(b','),
+            Token::Bool(value) => state.delegate.boolean(value).map_err(into_error),
+            Token::String(value) => state.delegate.string(value).map_err(into_error),
+            Token::Number(value) => state.delegate.number(value).map_err(into_error),
         }
     }
 
@@ -600,17 +591,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
             let token = self.tokenizer.next().map_err(Error::into_fallable)?;
 
             let key = match token {
-                Token::String(value) => {
-                    state
-                        .delegate
-                        .object_key(&mut object, value)
-                        .map_err(|kind| Error {
-                            offset,
-                            kind: ErrorKind::ErrorFromDelegate(kind),
-                        })?
-                }
                 Token::ObjectEnd => {
-                    if state.delegate.object_is_empty(&object) || state.config.allow_trailing_commas
+                    if state.config.allow_trailing_commas || state.delegate.object_is_empty(&object)
                     {
                         break;
                     }
@@ -619,6 +601,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                         offset,
                         kind: ErrorKind::IllegalTrailingComma,
                     });
+                }
+                Token::String(value) => {
+                    state
+                        .delegate
+                        .object_key(&mut object, value)
+                        .map_err(|kind| Error {
+                            offset,
+                            kind: ErrorKind::ErrorFromDelegate(kind),
+                        })?
                 }
                 Token::Array | Token::Bool(_) | Token::Null | Token::Number(_) | Token::Object => {
                     return Err(Error {
@@ -635,19 +626,17 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
             };
 
             let offset = self.tokenizer.offset();
-            match self.tokenizer.next().map_err(Error::into_fallable) {
-                Ok(Token::Colon) => {}
-                Ok(_) => {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::ExpectedColon,
-                    })
-                }
-                Err(mut error) => {
-                    error.kind = ErrorKind::ExpectedColon;
+            let token = self.tokenizer.next().map_err(|mut error| {
+                error.kind = ErrorKind::ExpectedColon;
 
-                    return Err(error);
-                }
+                error.into_fallable()
+            })?;
+
+            if token != Token::Colon {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::ExpectedColon,
+                });
             }
 
             let offset = self.tokenizer.offset();
@@ -661,17 +650,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 })?;
 
             let offset = self.tokenizer.offset();
-            match self.tokenizer.next().map_err(Error::into_fallable)? {
-                Token::Comma => {}
-                Token::ObjectEnd => {
-                    break;
-                }
-                _ => {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::ExpectedCommaOrEndOfObject,
-                    })
-                }
+            let token = self.tokenizer.next().map_err(Error::into_fallable)?;
+
+            if token == Token::ObjectEnd {
+                break;
+            } else if token != Token::Comma {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::ExpectedCommaOrEndOfObject,
+                });
             }
         }
 
@@ -698,13 +685,14 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
         loop {
             let offset = self.tokenizer.offset();
-            let token = self.tokenizer.peek().map_err(Error::into_fallable)?;
 
-            if matches!(token, Token::ArrayEnd) {
+            let token = self.tokenizer.peek_char().map_err(Error::into_fallable)?;
+
+            if *token == b']' {
                 // commit the token
-                self.tokenizer.next().map_err(Error::into_fallable)?;
+                self.tokenizer.source.offset += 1;
 
-                if state.delegate.array_is_empty(&array) || state.config.allow_trailing_commas {
+                if state.config.allow_trailing_commas || state.delegate.array_is_empty(&array) {
                     break;
                 }
 
@@ -727,15 +715,13 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
             let offset = self.tokenizer.offset();
             let token = self.tokenizer.next().map_err(Error::into_fallable)?;
 
-            match token {
-                Token::Comma => {}
-                Token::ArrayEnd => break,
-                _ => {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::ExpectedCommaOrEndOfArray,
-                    })
-                }
+            if token == Token::ArrayEnd {
+                break;
+            } else if token != Token::Comma {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::ExpectedCommaOrEndOfArray,
+                });
             }
         }
 
@@ -816,7 +802,6 @@ pub trait ParseDelegate<'a> {
 struct ByteIterator<'a> {
     bytes: &'a [u8],
     offset: usize,
-    iterator: Peekable<slice::Iter<'a, u8>>,
 }
 
 impl<'a> Iterator for ByteIterator<'a> {
@@ -824,11 +809,17 @@ impl<'a> Iterator for ByteIterator<'a> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iterator.next().map(|b| {
-            let offset = self.offset;
-            self.offset += 1;
-            (offset, b)
-        })
+        let token = self.bytes.get(self.offset);
+
+        match token {
+            None => None,
+            Some(token) => {
+                let offset = self.offset;
+                self.offset += 1;
+
+                Some((offset, token))
+            }
+        }
     }
 }
 
@@ -838,21 +829,31 @@ impl<'a> ByteIterator<'a> {
         Self {
             bytes: slice,
             offset: 0,
-            iterator: slice.iter().peekable(),
         }
     }
 
     #[inline]
-    pub fn peek(&mut self) -> Option<&&'a u8> {
-        self.iterator.peek()
+    pub fn peek(&mut self) -> Option<&'a u8> {
+        self.bytes.get(self.offset)
     }
 
     #[inline]
     fn next_non_ws(&mut self) -> Result<(usize, &'a u8), Error> {
+        self.skip_ws();
+
+        self.read()
+    }
+
+    #[inline]
+    fn skip_ws(&mut self) {
         loop {
-            match self.read()? {
-                (_, b' ' | b'\n' | b'\t' | b'\r') => {}
-                other => return Ok(other),
+            match self.bytes.get(self.offset) {
+                Some(b' ' | b'\n' | b'\t' | b'\r') => {
+                    self.offset += 1;
+                }
+                _ => {
+                    return;
+                }
             }
         }
     }
