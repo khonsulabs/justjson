@@ -62,14 +62,12 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
                 .read_number_from_source(InitialNumberState::Digit, offset)
                 .map(Token::Number),
             b't' => self
-                .read_literal_from_source([b'r', b'u', b'e'])
+                .read_literal_from_source(b"rue")
                 .map(|()| Token::Bool(true)),
             b'f' => self
-                .read_literal_from_source([b'a', b'l', b's', b'e'])
+                .read_literal_from_source(b"alse")
                 .map(|()| Token::Bool(false)),
-            b'n' => self
-                .read_literal_from_source([b'u', b'l', b'l'])
-                .map(|()| Token::Null),
+            b'n' => self.read_literal_from_source(b"ull").map(|()| Token::Null),
             _ => Err(Error {
                 offset,
                 kind: ErrorKind::Unexpected(*first),
@@ -324,21 +322,19 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     }
 
     #[inline]
-    fn read_literal_from_source<const N: usize>(
-        &mut self,
-        remaining_bytes: [u8; N],
-    ) -> Result<(), Error> {
-        let mut buffer = [0; N];
-
-        for elem in &mut buffer {
-            *elem = *self.source.next().unwrap().1;
-        }
-
-        if buffer != remaining_bytes {
-            return Err(Error {
+    fn read_literal_from_source(&mut self, remaining_bytes: &[u8]) -> Result<(), Error> {
+        for expected in remaining_bytes {
+            let (offset, received) = self.source.next().ok_or(Error {
                 offset: self.source.offset,
-                kind: ErrorKind::Unexpected(b'x'),
-            });
+                kind: ErrorKind::UnexpectedEof,
+            })?;
+
+            if received != expected {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::Unexpected(*received),
+                });
+            }
         }
 
         Ok(())
@@ -688,6 +684,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
             let token = self.tokenizer.peek_char().map_err(Error::into_fallable)?;
 
+            // a bit of a cheat for the sake of ultimate performance, instead of using an Option<Token>
+            // we look at the char itself to determine the of a token
             if *token == b']' {
                 // commit the token
                 self.tokenizer.source.offset += 1;
