@@ -38,7 +38,6 @@ use crate::parser::{ParseDelegate, Parser};
 /// not. If the underlying representation does not need extra processing, the
 /// built-in implementations for `&str` are always used.
 #[derive(Debug, Eq, Clone)]
-
 pub struct JsonString<'a> {
     /// The JSON-source for the string.
     pub(crate) source: StringContents<'a>,
@@ -588,7 +587,7 @@ fn decode_if_needed() {
 ///
 /// - Whether any escape sequences are in the source
 /// - The length of the String if the escape sequences are decoded.
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct JsonStringInfo(usize);
 
 impl JsonStringInfo {
@@ -1019,7 +1018,7 @@ fn escape() {
     assert_eq!(raw.as_json_str().map(AnyStr::as_ref), Some("hello"));
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum StringContents<'a> {
     Json(AnyStr<'a>),
     Raw(AnyStr<'a>),
