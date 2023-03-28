@@ -3,7 +3,7 @@ use crate::parser::{ParseDelegate, Parser};
 use crate::{Error, ErrorKind};
 
 /// A JSON-encoded number.
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct JsonNumber<'a> {
     /// The JSON source for this number.
     pub(crate) source: AnyStr<'a>,

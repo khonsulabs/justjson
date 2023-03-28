@@ -10,7 +10,7 @@ use crate::string::{
 };
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Token<'a> {
     Null,
     Bool(bool),
@@ -38,11 +38,13 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         }
     }
 
+    #[inline]
     fn read_from_source(&mut self) -> Result<Token<'a>, Error> {
         let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
         self.read_peek(offset, byte)
     }
 
+    #[inline]
     fn read_peek(&mut self, offset: usize, first: &'a u8) -> Result<Token<'a>, Error> {
         match first {
             b'{' => Ok(Token::Object),
@@ -75,6 +77,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         }
     }
 
+    #[inline]
     #[allow(unsafe_code)]
     fn read_string_from_source(&mut self, start: usize) -> Result<JsonString<'a>, Error> {
         let safe_strings = if GUARANTEED_UTF8 {
@@ -220,6 +223,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     }
 
     #[allow(unsafe_code)]
+    #[inline]
     fn read_number_from_source(
         &mut self,
         initial_state: InitialNumberState,
@@ -319,6 +323,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         })
     }
 
+    #[inline]
     fn read_literal_from_source(&mut self, remaining_bytes: &[u8]) -> Result<(), Error> {
         for expected in remaining_bytes {
             let (offset, byte) = self.source.read()?;
@@ -334,6 +339,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         Ok(())
     }
 
+    #[inline]
     pub fn next(&mut self) -> Result<Token<'a>, Error> {
         if let Some(token) = self.head.take() {
             Ok(token.0)
@@ -342,12 +348,15 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         }
     }
 
+    #[inline]
+    #[allow(unsafe_code)]
     // ideally return a reference instead
     pub fn peek(&mut self) -> Result<&Token<'a>, Error> {
         // we cannot use a destructure here, as otherwise the borrow checker will complain
         // we could use `get_or_insert_with`, but it does not allow for fallible functions
         if self.head.is_some() {
-            return Ok(&self.head.as_ref().unwrap().0);
+            // SAFETY: we know that `self.head` must not be none
+            return Ok(unsafe { &self.head.as_ref().unwrap_unchecked().0 });
         }
 
         let offset = self.offset();
@@ -356,6 +365,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         Ok(&(self.head.insert((token, offset)).0))
     }
 
+    #[inline]
     pub fn offset(&self) -> usize {
         if let Some((_, offset)) = self.head {
             offset
@@ -509,6 +519,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
     }
 
+    #[inline]
     fn read_from_source<D>(
         &mut self,
         state: &mut ParseState<'a, D>,
@@ -519,6 +530,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         self.read_tokens(state)
     }
 
+    #[inline]
     fn read_tokens<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
@@ -572,6 +584,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
     }
 
+    #[inline]
     fn read_object<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
@@ -672,6 +685,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         Ok(object)
     }
 
+    #[inline]
     fn read_array<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error<D::Error>>
     where
         D: ParseDelegate<'a>,
