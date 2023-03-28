@@ -2,7 +2,6 @@ use core::convert::Infallible;
 use core::iter::Peekable;
 use core::marker::PhantomData;
 use core::slice;
-use std::ops::Deref;
 
 use crate::anystr::AnyStr;
 use crate::string::{
