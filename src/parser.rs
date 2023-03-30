@@ -1,8 +1,5 @@
 use core::convert::Infallible;
-use core::iter::Peekable;
 use core::marker::PhantomData;
-use core::slice;
-use std::println;
 
 use crate::anystr::AnyStr;
 use crate::string::{
@@ -11,34 +8,75 @@ use crate::string::{
 };
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+/// A JSON Token.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Token<'a> {
+    /// The `null` keyword.
     Null,
+    /// A boolean literal.
     Bool(bool),
+    /// A string literal.
     String(JsonString<'a>),
+    /// A numeric literal.
     Number(JsonNumber<'a>),
+    /// The beginning of an object (`{`).
     Object,
+    /// The end of an object (`}`).
     ObjectEnd,
+    /// The beginning of an array (`[`).
     Array,
+    /// The end of an array (`]`).
     ArrayEnd,
+    /// A colon (`:`), delimiting a key-value pair inan object.
     Colon,
+    /// A comma (`,`), delimiting a list of values or key-value pairs.
     Comma,
 }
 
+/// A JSON tokenizer, which converts JSON source to a series of [`Token`]s.
 pub struct Tokenizer<'a, const GUARANTEED_UTF8: bool> {
     source: ByteIterator<'a>,
 }
 
+impl<'a> Tokenizer<'a, true> {
+    /// Returns a new tokenizer for the JSON `source` provided.
+    ///
+    /// Because the `str` type guarantees that `json` is valid UTF-8, no
+    /// additional unicode checks are performed on unescaped unicode sequences.
+    #[must_use]
+    pub fn for_json(source: &'a str) -> Self {
+        Self::new(source.as_bytes())
+    }
+}
+
+impl<'a> Tokenizer<'a, false> {
+    /// Returns a new tokenizer for the JSON `source` bytes provided.
+    ///
+    /// This function verifies that `json` is valid UTF-8 while parsing the
+    /// JSON.
+    #[must_use]
+    pub fn for_json_bytes(source: &'a [u8]) -> Self {
+        Self::new(source)
+    }
+}
+
 impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
-    pub fn new(source: &'a [u8]) -> Self {
+    #[must_use]
+    #[inline]
+    fn new(source: &'a [u8]) -> Self {
         Self {
             source: ByteIterator::new(source),
         }
     }
 
+    /// Returns the next token, or an [`ErrorKind::UnexpectedEof`].
+    ///
+    /// This is functionally identical to this types [`Iterator`]
+    /// implementation, except that this function returns an error instead of
+    /// None when no more tokens remain.
     #[inline]
-    fn read_from_source(&mut self) -> Result<Token<'a>, Error> {
-        let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
+    pub fn next_or_eof(&mut self) -> Result<Token<'a>, Error> {
+        let (offset, byte) = self.source.read_non_ws().map_err(Error::into_fallable)?;
         self.read_peek(offset, byte)
     }
 
@@ -112,7 +150,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
                         // Manual UTF-8 validation
                         let utf8_start = offset;
                         while let Some(byte) = self.source.peek() {
-                            if byte < &&128 {
+                            if byte < &128 {
                                 break;
                             }
 
@@ -341,12 +379,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     }
 
     #[inline]
-    pub fn next(&mut self) -> Result<Token<'a>, Error> {
-        self.read_from_source()
-    }
-
-    #[inline]
-    pub fn peek_char(&mut self) -> Result<&u8, Error> {
+    fn peek_char(&mut self) -> Result<&u8, Error> {
         self.source.skip_ws();
         let offset = self.source.offset;
 
@@ -356,8 +389,10 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         })
     }
 
+    /// Returns the current byte offset of the tokenizer.
     #[inline]
-    pub fn offset(&self) -> usize {
+    #[must_use]
+    pub const fn offset(&self) -> usize {
         self.source.offset
     }
 }
@@ -417,6 +452,15 @@ impl<'a> Parser<'a, false> {
         config: ParseConfig,
     ) -> Result<JsonKind, Error> {
         Self::parse_bytes(json, config, ())
+    }
+}
+
+impl<'a, const GUARANTEED_UTF8: bool> Iterator for Tokenizer<'a, GUARANTEED_UTF8> {
+    type Item = Result<Token<'a>, Error>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let (offset, byte) = self.source.next_non_ws()?;
+        Some(self.read_peek(offset, byte))
     }
 }
 
@@ -493,13 +537,8 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         }
 
         match parser.tokenizer.source.next_non_ws() {
-            Err(err) => {
-                // The only error that next_non_ws can return is an unexpected
-                // eof.
-                debug_assert!(matches!(err.kind, ErrorKind::UnexpectedEof));
-                Ok(value)
-            }
-            Ok((offset, _)) => Err(Error {
+            None => Ok(value),
+            Some((offset, _)) => Err(Error {
                 offset,
                 kind: ErrorKind::TrailingNonWhitespace,
             }),
@@ -523,7 +562,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         D: ParseDelegate<'a>,
     {
         let offset = self.tokenizer.offset();
-        let token = self.tokenizer.next().map_err(Error::into_fallable)?;
+        let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
 
         let unexpected = |value: u8| {
             Err(Error {
@@ -584,7 +623,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
 
         loop {
             let offset = self.tokenizer.offset();
-            let token = self.tokenizer.next().map_err(Error::into_fallable)?;
+            let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
 
             let key = match token {
                 Token::ObjectEnd => {
@@ -622,7 +661,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
             };
 
             let offset = self.tokenizer.offset();
-            let token = self.tokenizer.next().map_err(|mut error| {
+            let token = self.tokenizer.next_or_eof().map_err(|mut error| {
                 error.kind = ErrorKind::ExpectedColon;
 
                 error.into_fallable()
@@ -646,7 +685,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 })?;
 
             let offset = self.tokenizer.offset();
-            let token = self.tokenizer.next().map_err(Error::into_fallable)?;
+            let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
 
             if token == Token::ObjectEnd {
                 break;
@@ -711,7 +750,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                 })?;
 
             let offset = self.tokenizer.offset();
-            let token = self.tokenizer.next().map_err(Error::into_fallable)?;
+            let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
 
             if token == Token::ArrayEnd {
                 break;
@@ -836,7 +875,14 @@ impl<'a> ByteIterator<'a> {
     }
 
     #[inline]
-    fn next_non_ws(&mut self) -> Result<(usize, &'a u8), Error> {
+    fn next_non_ws(&mut self) -> Option<(usize, &'a u8)> {
+        self.skip_ws();
+
+        self.next()
+    }
+
+    #[inline]
+    fn read_non_ws(&mut self) -> Result<(usize, &'a u8), Error> {
         self.skip_ws();
 
         self.read()
@@ -1145,5 +1191,22 @@ fn validates() {
     assert_eq!(
         Parser::validate_json_bytes(br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#),
         Ok(JsonKind::Object)
+    );
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+fn tokenizes() {
+    assert_eq!(
+        Tokenizer::for_json("true")
+            .collect::<Result<alloc::vec::Vec<_>, _>>()
+            .unwrap(),
+        &[Token::Bool(true)]
+    );
+    assert_eq!(
+        Tokenizer::for_json_bytes(b"false")
+            .collect::<Result<alloc::vec::Vec<_>, _>>()
+            .unwrap(),
+        &[Token::Bool(false)]
     );
 }
