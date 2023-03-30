@@ -1210,6 +1210,7 @@
 <a href="#1210" id="1210">1210</a>
 <a href="#1211" id="1211">1211</a>
 <a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
 </pre><pre class="rust"><code><span class="kw">use </span>core::convert::Infallible;
 <span class="kw">use </span>core::marker::PhantomData;
 
@@ -1283,7 +1284,7 @@
 
     <span class="doccomment">/// Returns the next token, or an [`ErrorKind::UnexpectedEof`].
     ///
-    /// This is functionally identical to this types [`Iterator`]
+    /// This is functionally identical to this type&#39;s [`Iterator`]
     /// implementation, except that this function returns an error instead of
     /// None when no more tokens remain.
     </span><span class="attr">#[inline]
@@ -1670,7 +1671,8 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Iterator <span class="kw">for </span>Tokenizer&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt; {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt;;
 
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.next_non_ws()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">self</span>.read_peek(offset, byte))
     }
