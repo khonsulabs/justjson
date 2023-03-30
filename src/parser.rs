@@ -71,7 +71,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
 
     /// Returns the next token, or an [`ErrorKind::UnexpectedEof`].
     ///
-    /// This is functionally identical to this types [`Iterator`]
+    /// This is functionally identical to this type's [`Iterator`]
     /// implementation, except that this function returns an error instead of
     /// None when no more tokens remain.
     #[inline]
@@ -458,6 +458,7 @@ impl<'a> Parser<'a, false> {
 impl<'a, const GUARANTEED_UTF8: bool> Iterator for Tokenizer<'a, GUARANTEED_UTF8> {
     type Item = Result<Token<'a>, Error>;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         let (offset, byte) = self.source.next_non_ws()?;
         Some(self.read_peek(offset, byte))

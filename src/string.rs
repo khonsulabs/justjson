@@ -687,6 +687,7 @@ impl<'a> Iterator for Decoded<'a> {
     type Item = char;
 
     #[allow(unsafe_code)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         let (_, ch) = self.chars.next()?;
         if self.needs_decoding && ch == '\\' {

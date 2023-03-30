@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `JsonString` now implements `Display` with the decoded representation. This
   also means that `ToString` is now implemented such that it produces a decoded
   string.
+- `Tokenizer` is a new low-level parsing type that provides basic tokenization.
+  Thank you to @indietyp in #13 for refactoring the parser to expose this
+  functionality!
 
 ## v0.2.2
 
