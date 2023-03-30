@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["JsonKind"],"struct":["ParseConfig","Parser"],"trait":["ParseDelegate"]};
+window.SIDEBAR_ITEMS = {"enum":["JsonKind","Token"],"struct":["ParseConfig","Parser","Tokenizer"],"trait":["ParseDelegate"]};
