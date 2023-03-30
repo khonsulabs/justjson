@@ -11,7 +11,7 @@ jobs:
         with:
           rust-version: nightly
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Generate Docs
         run: |
           cargo +nightly doc --no-deps --all-features
