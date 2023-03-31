@@ -434,17 +434,6 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     }
 
     #[inline]
-    fn peek_char(&mut self) -> Result<&u8, Error> {
-        self.source.skip_ws();
-        let offset = self.source.offset;
-
-        self.source.peek().ok_or(Error {
-            offset,
-            kind: ErrorKind::UnexpectedEof,
-        })
-    }
-
-    #[inline]
     pub fn peek(&mut self) -> Option<PeekableTokenKind> {
         self.source.skip_ws();
 
@@ -801,11 +790,9 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         loop {
             let offset = self.tokenizer.offset();
 
-            let token = self.tokenizer.peek_char().map_err(Error::into_fallable)?;
-
             // a bit of a cheat for the sake of ultimate performance, instead of using an Option<Token>
             // we look at the char itself to determine the of a token
-            if *token == b']' {
+            if self.tokenizer.peek() == Some(PeekableTokenKind::ArrayEnd) {
                 // commit the token
                 self.tokenizer.source.offset += 1;
 
