@@ -27,9 +27,64 @@ pub enum Token<'a> {
     Array,
     /// The end of an array (`]`).
     ArrayEnd,
-    /// A colon (`:`), delimiting a key-value pair inan object.
+    /// A colon (`:`), delimiting a key-value pair in an object.
     Colon,
     /// A comma (`,`), delimiting a list of values or key-value pairs.
+    Comma,
+}
+
+/// The (likely) kind of the next JSON token
+///
+/// Tries to guess the kind of token present, based on the next character in the token stream
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+pub enum PeekableTokenKind {
+    /// `null` keyword
+    ///
+    /// Corresponds to [`Token::Null`]
+    Null,
+    /// `true` keyword
+    ///
+    /// Corresponds to [`Token::Bool`]
+    True,
+    /// `false` keyword
+    ///
+    /// Corresponds to [`Token::Bool`]
+    False,
+    /// A string literal
+    ///
+    /// Corresponds to [`Token::String`]
+    String,
+    /// A numeric literal
+    ///
+    /// Corresponds to [`Token::Number`]
+    Number,
+    /// The beginning of an object (`{`)
+    ///
+    /// Corresponds to [`Token::Object`]
+    Object,
+    /// The end of an object (`{`)
+    ///
+    /// Corresponds to [`Token::ObjectEnd`]
+    ObjectEnd,
+    /// The beginning of an array (`[`)
+    ///
+    /// Corresponds to [`Token::Array`]
+    Array,
+    /// The end of an array (`]`)
+    ///
+    /// Corresponds to [`Token::ArrayEnd`]
+    ArrayEnd,
+    /// Unable to determine the specific token.
+    ///
+    /// This kind suggests that the next token is likely malformed, but does not guarantee it.
+    Unrecognized,
+    /// A colon (`:`), delimiting a key-value pair in an object.
+    ///
+    /// Corresponds to [`Token::Colon`]
+    Colon,
+    /// A comma (`,`), delimiting a list of values or key-value pairs.
+    ///
+    /// Corresponds to [`Token::Comma`]
     Comma,
 }
 
@@ -387,6 +442,30 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
             offset,
             kind: ErrorKind::UnexpectedEof,
         })
+    }
+
+    #[inline]
+    pub fn peek(&mut self) -> Option<PeekableTokenKind> {
+        self.source.skip_ws();
+
+        let token = self.source.peek()?;
+
+        let kind = match token {
+            b'{' => PeekableTokenKind::Object,
+            b'}' => PeekableTokenKind::ObjectEnd,
+            b'[' => PeekableTokenKind::Array,
+            b']' => PeekableTokenKind::ArrayEnd,
+            b',' => PeekableTokenKind::Comma,
+            b':' => PeekableTokenKind::Colon,
+            b'"' => PeekableTokenKind::String,
+            b'-' | b'0' | b'1'..=b'9' => PeekableTokenKind::Number,
+            b't' => PeekableTokenKind::True,
+            b'f' => PeekableTokenKind::False,
+            b'n' => PeekableTokenKind::Null,
+            _ => PeekableTokenKind::Unrecognized,
+        };
+
+        Some(kind)
     }
 
     /// Returns the current byte offset of the tokenizer.
