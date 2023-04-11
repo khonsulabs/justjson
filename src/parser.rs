@@ -433,6 +433,11 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
         Ok(())
     }
 
+    /// Peeks at the next non-whitespace character, and returns a what kind of
+    /// token the next token will be if the input is valid JSON syntax.
+    ///
+    /// If the source input has no remaining non-whitespace characters, this
+    /// function returns `None`.
     #[inline]
     pub fn peek(&mut self) -> Option<PeekableTokenKind> {
         self.source.skip_ws();
@@ -447,7 +452,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
             b',' => PeekableTokenKind::Comma,
             b':' => PeekableTokenKind::Colon,
             b'"' => PeekableTokenKind::String,
-            b'-' | b'0' | b'1'..=b'9' => PeekableTokenKind::Number,
+            b'-' | b'0'..=b'9' => PeekableTokenKind::Number,
             b't' => PeekableTokenKind::True,
             b'f' => PeekableTokenKind::False,
             b'n' => PeekableTokenKind::Null,
@@ -1275,5 +1280,36 @@ fn tokenizes() {
             .collect::<Result<alloc::vec::Vec<_>, _>>()
             .unwrap(),
         &[Token::Bool(false)]
+    );
+}
+
+#[test]
+fn tokenizer_peek_tests() {
+    let mut tokenizer = Tokenizer::for_json(r#"{"a": [1, true, false, null]} "#);
+
+    for expected in [
+        PeekableTokenKind::Object,
+        PeekableTokenKind::String,
+        PeekableTokenKind::Colon,
+        PeekableTokenKind::Array,
+        PeekableTokenKind::Number,
+        PeekableTokenKind::Comma,
+        PeekableTokenKind::True,
+        PeekableTokenKind::Comma,
+        PeekableTokenKind::False,
+        PeekableTokenKind::Comma,
+        PeekableTokenKind::Null,
+        PeekableTokenKind::ArrayEnd,
+        PeekableTokenKind::ObjectEnd,
+    ] {
+        assert_eq!(tokenizer.peek(), Some(expected));
+        tokenizer.next().expect("eof").expect("invalid tokens");
+    }
+    assert_eq!(tokenizer.peek(), None);
+    assert_eq!(tokenizer.next(), None);
+
+    assert_eq!(
+        Tokenizer::for_json("<").peek(),
+        Some(PeekableTokenKind::Unrecognized)
     );
 }
