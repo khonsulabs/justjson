@@ -33,7 +33,7 @@ Configuration(
             ),
             "src-base": (
                 default: "https://github.com/khonsulabs/justjson/blob/main",
-                release: "https://github.com/khonsulabs/justjson/blob/v0.1.1",
+                release: "https://github.com/khonsulabs/justjson/blob/v0.2.3",
             ),
             "value": (
                 default: "https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html",

@@ -1,6 +1,6 @@
 [package]
 name = "justjson"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 description = "An efficient JSON Value crate that allows borrowing data."
 license = "MIT OR Apache-2.0"
