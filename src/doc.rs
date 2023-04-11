@@ -414,6 +414,7 @@ impl<'doc, 'a> DocumentIter<'doc, 'a> {
 impl<'doc, 'a> Iterator for DocumentIter<'doc, 'a> {
     type Item = Node<'a>;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         self.nodes.next()
     }

@@ -1,7 +1,5 @@
 use core::convert::Infallible;
-use core::iter::Peekable;
 use core::marker::PhantomData;
-use core::slice;
 
 use crate::anystr::AnyStr;
 use crate::string::{
@@ -10,426 +8,167 @@ use crate::string::{
 };
 use crate::{Error, ErrorKind, JsonNumber, JsonString, JsonStringInfo};
 
-/// Parses JSON, driven by a [`ParseDelegate`].
+/// A JSON Token.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Token<'a> {
+    /// The `null` keyword.
+    Null,
+    /// A boolean literal.
+    Bool(bool),
+    /// A string literal.
+    String(JsonString<'a>),
+    /// A numeric literal.
+    Number(JsonNumber<'a>),
+    /// The beginning of an object (`{`).
+    Object,
+    /// The end of an object (`}`).
+    ObjectEnd,
+    /// The beginning of an array (`[`).
+    Array,
+    /// The end of an array (`]`).
+    ArrayEnd,
+    /// A colon (`:`), delimiting a key-value pair in an object.
+    Colon,
+    /// A comma (`,`), delimiting a list of values or key-value pairs.
+    Comma,
+}
+
+/// The (likely) kind of the next JSON token
 ///
-/// This is a low-level type. In general, users will want to use either the
-/// [`Document`](crate::doc::Document) or [`Value`](crate::Value) types instead of
-/// directly interacting with the parser.
-///
-/// This type uses a constant to track whether UTF-8 needs to be manually
-/// verified or not. This allows the compiler to optimize the `&[u8]` and `&str`
-/// parsing methods independently.
-pub struct Parser<'a, const GUARANTEED_UTF8: bool> {
+/// Tries to guess the kind of token present, based on the next character in the token stream
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+pub enum PeekableTokenKind {
+    /// `null` keyword
+    ///
+    /// Corresponds to [`Token::Null`]
+    Null,
+    /// `true` keyword
+    ///
+    /// Corresponds to [`Token::Bool`]
+    True,
+    /// `false` keyword
+    ///
+    /// Corresponds to [`Token::Bool`]
+    False,
+    /// A string literal
+    ///
+    /// Corresponds to [`Token::String`]
+    String,
+    /// A numeric literal
+    ///
+    /// Corresponds to [`Token::Number`]
+    Number,
+    /// The beginning of an object (`{`)
+    ///
+    /// Corresponds to [`Token::Object`]
+    Object,
+    /// The end of an object (`{`)
+    ///
+    /// Corresponds to [`Token::ObjectEnd`]
+    ObjectEnd,
+    /// The beginning of an array (`[`)
+    ///
+    /// Corresponds to [`Token::Array`]
+    Array,
+    /// The end of an array (`]`)
+    ///
+    /// Corresponds to [`Token::ArrayEnd`]
+    ArrayEnd,
+    /// Unable to determine the specific token.
+    ///
+    /// This kind suggests that the next token is likely malformed, but does not guarantee it.
+    Unrecognized,
+    /// A colon (`:`), delimiting a key-value pair in an object.
+    ///
+    /// Corresponds to [`Token::Colon`]
+    Colon,
+    /// A comma (`,`), delimiting a list of values or key-value pairs.
+    ///
+    /// Corresponds to [`Token::Comma`]
+    Comma,
+}
+
+/// A JSON tokenizer, which converts JSON source to a series of [`Token`]s.
+pub struct Tokenizer<'a, const GUARANTEED_UTF8: bool> {
     source: ByteIterator<'a>,
 }
 
-impl<'a> Parser<'a, false> {
-    /// Parses a JSON payload, invoking functions on `delegate` as the payload
-    /// is parsed.
-    ///
-    /// This function verifies that `json` is valid UTF-8 while parsing the
-    /// JSON.
-    pub fn parse_json_bytes<D>(value: &'a [u8], delegate: D) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        Self::parse_json_bytes_with_config(value, ParseConfig::default(), delegate)
-    }
-
-    /// Parses a JSON payload, invoking functions on `delegate` as the payload
-    /// is parsed. The parser honors the settings from `config`.
-    ///
-    /// This function verifies that `json` is valid UTF-8 while parsing the
-    /// JSON.
-    pub fn parse_json_bytes_with_config<D>(
-        value: &'a [u8],
-        config: ParseConfig,
-        delegate: D,
-    ) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        Self::parse_bytes(value, config, delegate)
-    }
-
-    /// Validates that `json` contains valid JSON and returns the kind of data
-    /// the payload contained.
-    pub fn validate_json_bytes(json: &'a [u8]) -> Result<JsonKind, Error> {
-        Self::validate_json_bytes_with_config(json, ParseConfig::default())
-    }
-
-    /// Validates that `json` contains valid JSON, using the settings from
-    /// `config`, and returns the kind of data the payload contained.
-    pub fn validate_json_bytes_with_config(
-        json: &'a [u8],
-        config: ParseConfig,
-    ) -> Result<JsonKind, Error> {
-        Self::parse_bytes(json, config, ())
-    }
-}
-
-impl<'a> Parser<'a, true> {
-    /// Parses a JSON payload, invoking functions on `delegate` as the payload
-    /// is parsed.
+impl<'a> Tokenizer<'a, true> {
+    /// Returns a new tokenizer for the JSON `source` provided.
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    pub fn parse_json<D>(value: &'a str, delegate: D) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        Self::parse_json_with_config(value, ParseConfig::default(), delegate)
-    }
-
-    /// Parses a JSON payload, invoking functions on `delegate` as the payload
-    /// is parsed. The parser honors the settings from `config`.
-    ///
-    /// Because the `str` type guarantees that `json` is valid UTF-8, no
-    /// additional unicode checks are performed on unescaped unicode sequences.
-    pub fn parse_json_with_config<D>(
-        value: &'a str,
-        config: ParseConfig,
-        delegate: D,
-    ) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        Self::parse_bytes(value.as_bytes(), config, delegate)
-    }
-
-    /// Validates that `json` contains valid JSON and returns the kind of data
-    /// the payload contained.
-    pub fn validate_json(json: &'a str) -> Result<JsonKind, Error> {
-        Self::validate_json_with_config(json, ParseConfig::default())
-    }
-
-    /// Validates that `json` contains valid JSON, using the settings from
-    /// `config`, and returns the kind of data the payload contained.
-    pub fn validate_json_with_config(
-        json: &'a str,
-        config: ParseConfig,
-    ) -> Result<JsonKind, Error> {
-        Self::parse_json_with_config(json, config, ())
+    #[must_use]
+    pub fn for_json(source: &'a str) -> Self {
+        Self::new(source.as_bytes())
     }
 }
 
-impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
-    fn parse_bytes<D>(
-        source: &'a [u8],
-        config: ParseConfig,
-        delegate: D,
-    ) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        let mut state = ParseState::new(config, delegate);
-        let mut parser = Self {
+impl<'a> Tokenizer<'a, false> {
+    /// Returns a new tokenizer for the JSON `source` bytes provided.
+    ///
+    /// This function verifies that `json` is valid UTF-8 while parsing the
+    /// JSON.
+    #[must_use]
+    pub fn for_json_bytes(source: &'a [u8]) -> Self {
+        Self::new(source)
+    }
+}
+
+impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
+    #[must_use]
+    #[inline]
+    fn new(source: &'a [u8]) -> Self {
+        Self {
             source: ByteIterator::new(source),
-        };
-        let value = parser.read_from_source(&mut state)?;
-
-        if !state.config.allow_all_types_at_root
-            && !matches!(
-                state.delegate.kind_of(&value),
-                JsonKind::Object | JsonKind::Array
-            )
-        {
-            return Err(Error {
-                offset: 0,
-                kind: ErrorKind::PayloadsShouldBeObjectOrArray,
-            });
         }
+    }
 
-        match parser.source.next_non_ws() {
-            Err(err) => {
-                // The only error that next_non_ws can return is an unexpected
-                // eof.
-                debug_assert!(matches!(err.kind, ErrorKind::UnexpectedEof));
-                Ok(value)
-            }
-            Ok((offset, _)) => Err(Error {
+    /// Returns the next token, or an [`ErrorKind::UnexpectedEof`].
+    ///
+    /// This is functionally identical to this type's [`Iterator`]
+    /// implementation, except that this function returns an error instead of
+    /// None when no more tokens remain.
+    #[inline]
+    pub fn next_or_eof(&mut self) -> Result<Token<'a>, Error> {
+        let (offset, byte) = self.source.read_non_ws().map_err(Error::into_fallable)?;
+        self.read_peek(offset, byte)
+    }
+
+    #[inline]
+    fn read_peek(&mut self, offset: usize, first: &'a u8) -> Result<Token<'a>, Error> {
+        match first {
+            b'{' => Ok(Token::Object),
+            b'}' => Ok(Token::ObjectEnd),
+            b'[' => Ok(Token::Array),
+            b']' => Ok(Token::ArrayEnd),
+            b',' => Ok(Token::Comma),
+            b':' => Ok(Token::Colon),
+            b'"' => self.read_string_from_source(offset).map(Token::String),
+            b'-' => self
+                .read_number_from_source(InitialNumberState::Sign, offset)
+                .map(Token::Number),
+            b'0' => self
+                .read_number_from_source(InitialNumberState::Zero, offset)
+                .map(Token::Number),
+            b'1'..=b'9' => self
+                .read_number_from_source(InitialNumberState::Digit, offset)
+                .map(Token::Number),
+            b't' => self
+                .read_literal_from_source(b"rue")
+                .map(|()| Token::Bool(true)),
+            b'f' => self
+                .read_literal_from_source(b"alse")
+                .map(|()| Token::Bool(false)),
+            b'n' => self.read_literal_from_source(b"ull").map(|()| Token::Null),
+            _ => Err(Error {
                 offset,
-                kind: ErrorKind::TrailingNonWhitespace,
+                kind: ErrorKind::Unexpected(*first),
             }),
         }
     }
 
-    fn read_from_source<D>(
-        &mut self,
-        state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
-        self.read_from_first_byte(offset, byte, state)
-    }
-
-    fn read_from_first_byte<D>(
-        &mut self,
-        offset: usize,
-        first: &'a u8,
-        state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        let value = match (offset, first) {
-            (offset, b'"') => state
-                .delegate
-                .string(
-                    self.read_string_from_source(offset)
-                        .map_err(Error::into_fallable)?,
-                )
-                .map_err(|kind| Error {
-                    offset,
-                    kind: ErrorKind::ErrorFromDelegate(kind),
-                })?,
-            (offset, b'{') => {
-                state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                self.read_object_from_source(offset, state)?
-            }
-            (offset, b'[') => {
-                state.begin_nest().map_err(|kind| Error { offset, kind })?;
-                self.read_array_from_source(offset, state)?
-            }
-            (offset, ch) if ch == &b'-' => state
-                .delegate
-                .number(
-                    self.read_number_from_source(InitialNumberState::Sign, offset)
-                        .map_err(Error::into_fallable)?,
-                )
-                .map_err(|kind| Error {
-                    offset,
-                    kind: ErrorKind::ErrorFromDelegate(kind),
-                })?,
-            (offset, b'0') => state
-                .delegate
-                .number(
-                    self.read_number_from_source(InitialNumberState::Zero, offset)
-                        .map_err(Error::into_fallable)?,
-                )
-                .map_err(|kind| Error {
-                    offset,
-                    kind: ErrorKind::ErrorFromDelegate(kind),
-                })?,
-            (offset, ch) if (b'1'..=b'9').contains(ch) => state
-                .delegate
-                .number(
-                    self.read_number_from_source(InitialNumberState::Digit, offset)
-                        .map_err(Error::into_fallable)?,
-                )
-                .map_err(|kind| Error {
-                    offset,
-                    kind: ErrorKind::ErrorFromDelegate(kind),
-                })?,
-            (_, b't') => self
-                .read_literal_from_source::<D>(
-                    b"rue",
-                    state.delegate.boolean(true).map_err(|kind| Error {
-                        offset,
-                        kind: ErrorKind::ErrorFromDelegate(kind),
-                    })?,
-                )
-                .map_err(Error::into_fallable)?,
-            (_, b'f') => self
-                .read_literal_from_source::<D>(
-                    b"alse",
-                    state.delegate.boolean(false).map_err(|kind| Error {
-                        offset,
-                        kind: ErrorKind::ErrorFromDelegate(kind),
-                    })?,
-                )
-                .map_err(Error::into_fallable)?,
-            (_, b'n') => self
-                .read_literal_from_source::<D>(
-                    b"ull",
-                    state.delegate.null().map_err(|kind| Error {
-                        offset,
-                        kind: ErrorKind::ErrorFromDelegate(kind),
-                    })?,
-                )
-                .map_err(Error::into_fallable)?,
-            (offset, other) => {
-                return Err(Error {
-                    offset,
-                    kind: ErrorKind::Unexpected(*other),
-                })
-            }
-        };
-
-        Ok(value)
-    }
-
-    fn read_object_from_source<D>(
-        &mut self,
-        start: usize,
-        state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        let mut inner = || -> Result<D::Value, Error<D::Error>> {
-            let mut obj = state.delegate.begin_object().map_err(|kind| Error {
-                offset: start,
-                kind: ErrorKind::ErrorFromDelegate(kind),
-            })?;
-            let mut last_offset;
-            loop {
-                let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
-                last_offset = offset;
-
-                let key = if byte == &b'"' {
-                    self.read_string_from_source(offset)
-                        .map_err(Error::into_fallable)?
-                } else if byte == &b'}' {
-                    if state.delegate.object_is_empty(&obj) || state.config.allow_trailing_commas {
-                        break;
-                    }
-
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::IllegalTrailingComma,
-                    });
-                } else if matches!(byte, b'+' | b'-' | b'{' | b'[' | b't' | b'f' | b'n')
-                    || byte.is_ascii_digit()
-                {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::ObjectKeysMustBeStrings,
-                    });
-                } else {
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::ExpectedObjectKey,
-                    });
-                };
-
-                let key = state
-                    .delegate
-                    .object_key(&mut obj, key)
-                    .map_err(|kind| Error {
-                        offset,
-                        kind: ErrorKind::ErrorFromDelegate(kind),
-                    })?;
-
-                match self.source.next_non_ws().map_err(Error::into_fallable) {
-                    Ok((_, b':')) => {}
-                    Ok((offset, _)) => {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::ExpectedColon,
-                        })
-                    }
-                    Err(mut other) => {
-                        other.kind = ErrorKind::ExpectedColon;
-                        return Err(other);
-                    }
-                }
-
-                let value = self.read_from_source(state)?;
-                state
-                    .delegate
-                    .object_value(&mut obj, key, value)
-                    .map_err(|kind| Error {
-                        offset,
-                        kind: ErrorKind::ErrorFromDelegate(kind),
-                    })?;
-
-                match self.source.next_non_ws().map_err(Error::into_fallable)? {
-                    (_, b',') => {}
-                    (_, b'}') => break,
-                    (offset, _) => {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::ExpectedCommaOrEndOfObject,
-                        })
-                    }
-                }
-            }
-
-            state.delegate.end_object(obj).map_err(|kind| Error {
-                offset: last_offset,
-                kind: ErrorKind::ErrorFromDelegate(kind),
-            })
-        };
-        let result = inner().map_err(|mut err| {
-            if matches!(err.kind, ErrorKind::UnexpectedEof) {
-                err.kind = ErrorKind::UnclosedObject;
-            }
-            err
-        });
-        state.end_nest();
-        result
-    }
-
-    fn read_array_from_source<D>(
-        &mut self,
-        start: usize,
-        state: &mut ParseState<'a, D>,
-    ) -> Result<D::Value, Error<D::Error>>
-    where
-        D: ParseDelegate<'a>,
-    {
-        let mut inner = || -> Result<D::Value, Error<D::Error>> {
-            let mut array = state.delegate.begin_array().map_err(|kind| Error {
-                offset: start,
-                kind: ErrorKind::ErrorFromDelegate(kind),
-            })?;
-            let mut last_offset;
-            loop {
-                let (offset, byte) = self.source.next_non_ws().map_err(Error::into_fallable)?;
-                last_offset = offset;
-
-                let value = if byte == &b']' {
-                    if state.delegate.array_is_empty(&array) || state.config.allow_trailing_commas {
-                        break;
-                    }
-
-                    return Err(Error {
-                        offset,
-                        kind: ErrorKind::IllegalTrailingComma,
-                    });
-                } else {
-                    self.read_from_first_byte(offset, byte, state)?
-                };
-
-                state
-                    .delegate
-                    .array_value(&mut array, value)
-                    .map_err(|kind| Error {
-                        offset: last_offset,
-                        kind: ErrorKind::ErrorFromDelegate(kind),
-                    })?;
-
-                match self.source.next_non_ws().map_err(Error::into_fallable)? {
-                    (_, b',') => {}
-                    (_, b']') => break,
-                    (offset, _) => {
-                        return Err(Error {
-                            offset,
-                            kind: ErrorKind::ExpectedCommaOrEndOfArray,
-                        })
-                    }
-                }
-            }
-
-            state.delegate.end_array(array).map_err(|kind| Error {
-                offset: last_offset,
-                kind: ErrorKind::ErrorFromDelegate(kind),
-            })
-        };
-
-        let result = inner().map_err(|mut err| {
-            if matches!(err.kind, ErrorKind::UnexpectedEof) {
-                err.kind = ErrorKind::UnclosedArray;
-            }
-            err
-        });
-        state.end_nest();
-        result
-    }
-
+    #[inline]
     #[allow(unsafe_code)]
     fn read_string_from_source(&mut self, start: usize) -> Result<JsonString<'a>, Error> {
         let safe_strings = if GUARANTEED_UTF8 {
@@ -466,7 +205,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
                         // Manual UTF-8 validation
                         let utf8_start = offset;
                         while let Some(byte) = self.source.peek() {
-                            if byte < &&128 {
+                            if byte < &128 {
                                 break;
                             }
 
@@ -575,6 +314,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
     }
 
     #[allow(unsafe_code)]
+    #[inline]
     fn read_number_from_source(
         &mut self,
         initial_state: InitialNumberState,
@@ -674,26 +414,434 @@ impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
         })
     }
 
-    fn read_literal_from_source<D>(
-        &mut self,
-        remaining_bytes: &[u8],
-        value: D::Value,
-    ) -> Result<D::Value, Error>
-    where
-        D: ParseDelegate<'a>,
-    {
+    #[inline]
+    fn read_literal_from_source(&mut self, remaining_bytes: &[u8]) -> Result<(), Error> {
         for expected in remaining_bytes {
-            let (offset, byte) = self.source.read()?;
+            let (offset, received) = self.source.next().ok_or(Error {
+                offset: self.source.offset,
+                kind: ErrorKind::UnexpectedEof,
+            })?;
 
-            if byte != expected {
+            if received != expected {
                 return Err(Error {
                     offset,
-                    kind: ErrorKind::Unexpected(*byte),
+                    kind: ErrorKind::Unexpected(*received),
                 });
             }
         }
 
-        Ok(value)
+        Ok(())
+    }
+
+    /// Peeks at the next non-whitespace character, and returns a what kind of
+    /// token the next token will be if the input is valid JSON syntax.
+    ///
+    /// If the source input has no remaining non-whitespace characters, this
+    /// function returns `None`.
+    #[inline]
+    pub fn peek(&mut self) -> Option<PeekableTokenKind> {
+        self.source.skip_ws();
+
+        let token = self.source.peek()?;
+
+        let kind = match token {
+            b'{' => PeekableTokenKind::Object,
+            b'}' => PeekableTokenKind::ObjectEnd,
+            b'[' => PeekableTokenKind::Array,
+            b']' => PeekableTokenKind::ArrayEnd,
+            b',' => PeekableTokenKind::Comma,
+            b':' => PeekableTokenKind::Colon,
+            b'"' => PeekableTokenKind::String,
+            b'-' | b'0'..=b'9' => PeekableTokenKind::Number,
+            b't' => PeekableTokenKind::True,
+            b'f' => PeekableTokenKind::False,
+            b'n' => PeekableTokenKind::Null,
+            _ => PeekableTokenKind::Unrecognized,
+        };
+
+        Some(kind)
+    }
+
+    /// Returns the current byte offset of the tokenizer.
+    #[inline]
+    #[must_use]
+    pub const fn offset(&self) -> usize {
+        self.source.offset
+    }
+}
+
+/// Parses JSON, driven by a [`ParseDelegate`].
+///
+/// This is a low-level type. In general, users will want to use either the
+/// [`Document`](crate::doc::Document) or [`Value`](crate::Value) types instead of
+/// directly interacting with the parser.
+///
+/// This type uses a constant to track whether UTF-8 needs to be manually
+/// verified or not. This allows the compiler to optimize the `&[u8]` and `&str`
+/// parsing methods independently.
+pub struct Parser<'a, const GUARANTEED_UTF8: bool> {
+    tokenizer: Tokenizer<'a, GUARANTEED_UTF8>,
+}
+
+impl<'a> Parser<'a, false> {
+    /// Parses a JSON payload, invoking functions on `delegate` as the payload
+    /// is parsed.
+    ///
+    /// This function verifies that `json` is valid UTF-8 while parsing the
+    /// JSON.
+    pub fn parse_json_bytes<D>(value: &'a [u8], delegate: D) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        Self::parse_json_bytes_with_config(value, ParseConfig::default(), delegate)
+    }
+
+    /// Parses a JSON payload, invoking functions on `delegate` as the payload
+    /// is parsed. The parser honors the settings from `config`.
+    ///
+    /// This function verifies that `json` is valid UTF-8 while parsing the
+    /// JSON.
+    pub fn parse_json_bytes_with_config<D>(
+        value: &'a [u8],
+        config: ParseConfig,
+        delegate: D,
+    ) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        Self::parse_bytes(value, config, delegate)
+    }
+
+    /// Validates that `json` contains valid JSON and returns the kind of data
+    /// the payload contained.
+    pub fn validate_json_bytes(json: &'a [u8]) -> Result<JsonKind, Error> {
+        Self::validate_json_bytes_with_config(json, ParseConfig::default())
+    }
+
+    /// Validates that `json` contains valid JSON, using the settings from
+    /// `config`, and returns the kind of data the payload contained.
+    pub fn validate_json_bytes_with_config(
+        json: &'a [u8],
+        config: ParseConfig,
+    ) -> Result<JsonKind, Error> {
+        Self::parse_bytes(json, config, ())
+    }
+}
+
+impl<'a, const GUARANTEED_UTF8: bool> Iterator for Tokenizer<'a, GUARANTEED_UTF8> {
+    type Item = Result<Token<'a>, Error>;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        let (offset, byte) = self.source.next_non_ws()?;
+        Some(self.read_peek(offset, byte))
+    }
+}
+
+impl<'a> Parser<'a, true> {
+    /// Parses a JSON payload, invoking functions on `delegate` as the payload
+    /// is parsed.
+    ///
+    /// Because the `str` type guarantees that `json` is valid UTF-8, no
+    /// additional unicode checks are performed on unescaped unicode sequences.
+    pub fn parse_json<D>(value: &'a str, delegate: D) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        Self::parse_json_with_config(value, ParseConfig::default(), delegate)
+    }
+
+    /// Parses a JSON payload, invoking functions on `delegate` as the payload
+    /// is parsed. The parser honors the settings from `config`.
+    ///
+    /// Because the `str` type guarantees that `json` is valid UTF-8, no
+    /// additional unicode checks are performed on unescaped unicode sequences.
+    pub fn parse_json_with_config<D>(
+        value: &'a str,
+        config: ParseConfig,
+        delegate: D,
+    ) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        Self::parse_bytes(value.as_bytes(), config, delegate)
+    }
+
+    /// Validates that `json` contains valid JSON and returns the kind of data
+    /// the payload contained.
+    pub fn validate_json(json: &'a str) -> Result<JsonKind, Error> {
+        Self::validate_json_with_config(json, ParseConfig::default())
+    }
+
+    /// Validates that `json` contains valid JSON, using the settings from
+    /// `config`, and returns the kind of data the payload contained.
+    pub fn validate_json_with_config(
+        json: &'a str,
+        config: ParseConfig,
+    ) -> Result<JsonKind, Error> {
+        Self::parse_json_with_config(json, config, ())
+    }
+}
+
+impl<'a, const GUARANTEED_UTF8: bool> Parser<'a, GUARANTEED_UTF8> {
+    fn parse_bytes<D>(
+        source: &'a [u8],
+        config: ParseConfig,
+        delegate: D,
+    ) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        let mut state = ParseState::new(config, delegate);
+        let mut parser = Self {
+            tokenizer: Tokenizer::new(source),
+        };
+        let value = parser.read_from_source(&mut state)?;
+
+        if !state.config.allow_all_types_at_root
+            && !matches!(
+                state.delegate.kind_of(&value),
+                JsonKind::Object | JsonKind::Array
+            )
+        {
+            return Err(Error {
+                offset: 0,
+                kind: ErrorKind::PayloadsShouldBeObjectOrArray,
+            });
+        }
+
+        match parser.tokenizer.source.next_non_ws() {
+            None => Ok(value),
+            Some((offset, _)) => Err(Error {
+                offset,
+                kind: ErrorKind::TrailingNonWhitespace,
+            }),
+        }
+    }
+
+    #[inline]
+    fn read_from_source<D>(
+        &mut self,
+        state: &mut ParseState<'a, D>,
+    ) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        self.read_tokens(state)
+    }
+
+    #[inline]
+    fn read_tokens<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        let offset = self.tokenizer.offset();
+        let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
+
+        let unexpected = |value: u8| {
+            Err(Error {
+                offset,
+                kind: ErrorKind::Unexpected(value),
+            })
+        };
+
+        let into_error = |error: D::Error| Error {
+            offset,
+            kind: ErrorKind::ErrorFromDelegate(error),
+        };
+
+        match token {
+            Token::Null => state.delegate.null().map_err(into_error),
+            Token::Object => {
+                state.begin_nest().map_err(|kind| Error { offset, kind })?;
+
+                self.read_object(state).map_err(|mut error| {
+                    if matches!(error.kind, ErrorKind::UnexpectedEof) {
+                        error.kind = ErrorKind::UnclosedObject;
+                    }
+
+                    error
+                })
+            }
+            Token::Array => {
+                state.begin_nest().map_err(|kind| Error { offset, kind })?;
+
+                self.read_array(state).map_err(|mut error| {
+                    if matches!(error.kind, ErrorKind::UnexpectedEof) {
+                        error.kind = ErrorKind::UnclosedArray;
+                    }
+
+                    error
+                })
+            }
+            Token::ObjectEnd => unexpected(b'}'),
+            Token::ArrayEnd => unexpected(b']'),
+            Token::Colon => unexpected(b':'),
+            Token::Comma => unexpected(b','),
+            Token::Bool(value) => state.delegate.boolean(value).map_err(into_error),
+            Token::String(value) => state.delegate.string(value).map_err(into_error),
+            Token::Number(value) => state.delegate.number(value).map_err(into_error),
+        }
+    }
+
+    #[inline]
+    fn read_object<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        let offset = self.tokenizer.offset();
+        let mut object = state.delegate.begin_object().map_err(|kind| Error {
+            offset,
+            kind: ErrorKind::ErrorFromDelegate(kind),
+        })?;
+
+        loop {
+            let offset = self.tokenizer.offset();
+            let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
+
+            let key = match token {
+                Token::ObjectEnd => {
+                    if state.config.allow_trailing_commas || state.delegate.object_is_empty(&object)
+                    {
+                        break;
+                    }
+
+                    return Err(Error {
+                        offset,
+                        kind: ErrorKind::IllegalTrailingComma,
+                    });
+                }
+                Token::String(value) => {
+                    state
+                        .delegate
+                        .object_key(&mut object, value)
+                        .map_err(|kind| Error {
+                            offset,
+                            kind: ErrorKind::ErrorFromDelegate(kind),
+                        })?
+                }
+                Token::Array | Token::Bool(_) | Token::Null | Token::Number(_) | Token::Object => {
+                    return Err(Error {
+                        offset,
+                        kind: ErrorKind::ObjectKeysMustBeStrings,
+                    });
+                }
+                _ => {
+                    return Err(Error {
+                        offset,
+                        kind: ErrorKind::ExpectedObjectKey,
+                    })
+                }
+            };
+
+            let offset = self.tokenizer.offset();
+            let token = self.tokenizer.next_or_eof().map_err(|mut error| {
+                error.kind = ErrorKind::ExpectedColon;
+
+                error.into_fallable()
+            })?;
+
+            if token != Token::Colon {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::ExpectedColon,
+                });
+            }
+
+            let offset = self.tokenizer.offset();
+            let value = self.read_tokens(state)?;
+            state
+                .delegate
+                .object_value(&mut object, key, value)
+                .map_err(|kind| Error {
+                    offset,
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?;
+
+            let offset = self.tokenizer.offset();
+            let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
+
+            if token == Token::ObjectEnd {
+                break;
+            } else if token != Token::Comma {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::ExpectedCommaOrEndOfObject,
+                });
+            }
+        }
+
+        let object = state.delegate.end_object(object).map_err(|kind| Error {
+            offset: self.tokenizer.offset(),
+            kind: ErrorKind::ErrorFromDelegate(kind),
+        })?;
+
+        state.end_nest();
+
+        Ok(object)
+    }
+
+    #[inline]
+    fn read_array<D>(&mut self, state: &mut ParseState<'a, D>) -> Result<D::Value, Error<D::Error>>
+    where
+        D: ParseDelegate<'a>,
+    {
+        let offset = self.tokenizer.offset();
+        let mut array = state.delegate.begin_array().map_err(|kind| Error {
+            offset: self.tokenizer.offset(),
+            kind: ErrorKind::ErrorFromDelegate(kind),
+        })?;
+
+        loop {
+            let offset = self.tokenizer.offset();
+
+            // a bit of a cheat for the sake of ultimate performance, instead of using an Option<Token>
+            // we look at the char itself to determine the of a token
+            if self.tokenizer.peek() == Some(PeekableTokenKind::ArrayEnd) {
+                // commit the token
+                self.tokenizer.source.offset += 1;
+
+                if state.config.allow_trailing_commas || state.delegate.array_is_empty(&array) {
+                    break;
+                }
+
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::IllegalTrailingComma,
+                });
+            }
+
+            let value = self.read_tokens(state)?;
+
+            state
+                .delegate
+                .array_value(&mut array, value)
+                .map_err(|kind| Error {
+                    offset: self.tokenizer.offset(),
+                    kind: ErrorKind::ErrorFromDelegate(kind),
+                })?;
+
+            let offset = self.tokenizer.offset();
+            let token = self.tokenizer.next_or_eof().map_err(Error::into_fallable)?;
+
+            if token == Token::ArrayEnd {
+                break;
+            } else if token != Token::Comma {
+                return Err(Error {
+                    offset,
+                    kind: ErrorKind::ExpectedCommaOrEndOfArray,
+                });
+            }
+        }
+
+        let array = state.delegate.end_array(array).map_err(|kind| Error {
+            offset,
+            kind: ErrorKind::ErrorFromDelegate(kind),
+        })?;
+
+        state.end_nest();
+
+        Ok(array)
     }
 }
 
@@ -763,7 +911,6 @@ pub trait ParseDelegate<'a> {
 struct ByteIterator<'a> {
     bytes: &'a [u8],
     offset: usize,
-    iterator: Peekable<slice::Iter<'a, u8>>,
 }
 
 impl<'a> Iterator for ByteIterator<'a> {
@@ -771,11 +918,17 @@ impl<'a> Iterator for ByteIterator<'a> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iterator.next().map(|b| {
-            let offset = self.offset;
-            self.offset += 1;
-            (offset, b)
-        })
+        let token = self.bytes.get(self.offset);
+
+        match token {
+            None => None,
+            Some(token) => {
+                let offset = self.offset;
+                self.offset += 1;
+
+                Some((offset, token))
+            }
+        }
     }
 }
 
@@ -785,21 +938,38 @@ impl<'a> ByteIterator<'a> {
         Self {
             bytes: slice,
             offset: 0,
-            iterator: slice.iter().peekable(),
         }
     }
 
     #[inline]
-    pub fn peek(&mut self) -> Option<&&'a u8> {
-        self.iterator.peek()
+    pub fn peek(&mut self) -> Option<&'a u8> {
+        self.bytes.get(self.offset)
     }
 
     #[inline]
-    fn next_non_ws(&mut self) -> Result<(usize, &'a u8), Error> {
+    fn next_non_ws(&mut self) -> Option<(usize, &'a u8)> {
+        self.skip_ws();
+
+        self.next()
+    }
+
+    #[inline]
+    fn read_non_ws(&mut self) -> Result<(usize, &'a u8), Error> {
+        self.skip_ws();
+
+        self.read()
+    }
+
+    #[inline]
+    fn skip_ws(&mut self) {
         loop {
-            match self.read()? {
-                (_, b' ' | b'\n' | b'\t' | b'\r') => {}
-                other => return Ok(other),
+            match self.bytes.get(self.offset) {
+                Some(b' ' | b'\n' | b'\t' | b'\r') => {
+                    self.offset += 1;
+                }
+                _ => {
+                    return;
+                }
             }
         }
     }
@@ -1093,5 +1263,53 @@ fn validates() {
     assert_eq!(
         Parser::validate_json_bytes(br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#),
         Ok(JsonKind::Object)
+    );
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+fn tokenizes() {
+    assert_eq!(
+        Tokenizer::for_json("true")
+            .collect::<Result<alloc::vec::Vec<_>, _>>()
+            .unwrap(),
+        &[Token::Bool(true)]
+    );
+    assert_eq!(
+        Tokenizer::for_json_bytes(b"false")
+            .collect::<Result<alloc::vec::Vec<_>, _>>()
+            .unwrap(),
+        &[Token::Bool(false)]
+    );
+}
+
+#[test]
+fn tokenizer_peek_tests() {
+    let mut tokenizer = Tokenizer::for_json(r#"{"a": [1, true, false, null]} "#);
+
+    for expected in [
+        PeekableTokenKind::Object,
+        PeekableTokenKind::String,
+        PeekableTokenKind::Colon,
+        PeekableTokenKind::Array,
+        PeekableTokenKind::Number,
+        PeekableTokenKind::Comma,
+        PeekableTokenKind::True,
+        PeekableTokenKind::Comma,
+        PeekableTokenKind::False,
+        PeekableTokenKind::Comma,
+        PeekableTokenKind::Null,
+        PeekableTokenKind::ArrayEnd,
+        PeekableTokenKind::ObjectEnd,
+    ] {
+        assert_eq!(tokenizer.peek(), Some(expected));
+        tokenizer.next().expect("eof").expect("invalid tokens");
+    }
+    assert_eq!(tokenizer.peek(), None);
+    assert_eq!(tokenizer.next(), None);
+
+    assert_eq!(
+        Tokenizer::for_json("<").peek(),
+        Some(PeekableTokenKind::Unrecognized)
     );
 }

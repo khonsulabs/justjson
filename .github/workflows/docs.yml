@@ -1,23 +1,23 @@
 name: Docs
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   docs:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Install Rust
         uses: hecrj/setup-rust-action@v1
         with:
           rust-version: nightly
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Generate Docs
         run: |
           cargo +nightly doc --no-deps --all-features
 
       - name: Deploy Docs
+        if: github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@releases/v4
         with:
           branch: gh-pages

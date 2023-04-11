@@ -38,7 +38,6 @@ use crate::parser::{ParseDelegate, Parser};
 /// not. If the underlying representation does not need extra processing, the
 /// built-in implementations for `&str` are always used.
 #[derive(Debug, Eq, Clone)]
-
 pub struct JsonString<'a> {
     /// The JSON-source for the string.
     pub(crate) source: StringContents<'a>,
@@ -144,6 +143,18 @@ impl<'a> JsonString<'a> {
         match &self.source {
             StringContents::Json(_) => self.info.expected_length(),
             StringContents::Raw(raw) => raw.len(),
+        }
+    }
+
+    /// Returns a reference to the contents of this value if the contained
+    /// string does not have any escape sequences that must be decoded.
+    #[must_use]
+    #[inline]
+    pub fn as_str(&self) -> Option<&str> {
+        match &self.source {
+            StringContents::Json(str) if !self.info.has_escapes() => Some(str),
+            StringContents::Json(_) => None,
+            StringContents::Raw(str) => Some(str),
         }
     }
 }
@@ -503,6 +514,20 @@ fn json_string_hash() {
     assert_eq!(hash(jstr!("a"), &state), hash("a", &state));
 }
 
+impl<'a> Display for JsonString<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.decoded().fmt(f)
+    }
+}
+
+#[test]
+#[cfg(feature = "alloc")]
+fn display() {
+    use std::string::ToString;
+    let json = JsonString::from_json(r#""hello, world!""#).unwrap();
+    assert_eq!(json.to_string(), "hello, world!");
+}
+
 #[test]
 #[cfg(feature = "alloc")]
 fn json_string_from_json() {
@@ -518,6 +543,16 @@ fn json_string_from_json() {
         .expect_err("shouldn't allow non-strings")
         .kind;
     assert!(matches!(expected_string, ErrorKind::ExpectedString));
+}
+
+#[test]
+fn as_str() {
+    let json_with_escapes = JsonString::from_json(r#""\n""#).unwrap();
+    assert_eq!(json_with_escapes.as_str(), None);
+    let json_no_escapes = JsonString::from_json(r#""hi""#).unwrap();
+    assert_eq!(json_no_escapes.as_str(), Some("hi"));
+    let raw = JsonString::from("hi");
+    assert_eq!(raw.as_str(), Some("hi"));
 }
 
 #[test]
@@ -552,7 +587,7 @@ fn decode_if_needed() {
 ///
 /// - Whether any escape sequences are in the source
 /// - The length of the String if the escape sequences are decoded.
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub struct JsonStringInfo(usize);
 
 impl JsonStringInfo {
@@ -652,6 +687,7 @@ impl<'a> Iterator for Decoded<'a> {
     type Item = char;
 
     #[allow(unsafe_code)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         let (_, ch) = self.chars.next()?;
         if self.needs_decoding && ch == '\\' {
@@ -983,7 +1019,7 @@ fn escape() {
     assert_eq!(raw.as_json_str().map(AnyStr::as_ref), Some("hello"));
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum StringContents<'a> {
     Json(AnyStr<'a>),
     Raw(AnyStr<'a>),

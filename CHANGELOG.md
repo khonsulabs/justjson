@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.2.3
+
+## Changed
+
+- This crate's MSRV has been changed to 1.65. This is not a breaking change,
+  however, as the crate never supported its advertised MSRV, and this new MSRV
+  reflects what the true MSRV has always been. An additional CI pass was added
+  to ensure the MSRV is always tested against. Thanks to @hr8 in #8 for
+  reporting this.
+
+## Added
+
+- `AnyStr::as_str()` has been added, which acts the same as
+  `AsRef<str>`/`Borrow<str>`/`Deref<Target = str>`.
+- `JsonString::as_str()` has been added, which will return an `&str` to the
+  contained string, if it doesn't contain escape sequences. If the string has
+  escape sequences, None will be returned.
+- `Value::as_str()` has been added, which will return an `&str` to the contained
+  string if the the `Value` is a `JsonString` that has no escape sequences. If
+  the value is not a string or it has escape sequences, None will be returned.
+
+  Thanks to @hr8 in #9 for requesting this.
+- `JsonString` now implements `Display` with the decoded representation. This
+  also means that `ToString` is now implemented such that it produces a decoded
+  string.
+- `Tokenizer` is a new low-level parsing type that provides basic tokenization.
+  Thank you to @indietyp in #13 for refactoring the parser to expose this
+  functionality!
+
 ## v0.2.2
 
 ## Added
@@ -12,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `JsonString` now implements `Ord`, `PartialOrd`, and `PartialOrd<str>`, and
   `Hash`.
 - `Entry`, the type which `Object` is a collection of, is now exported. This was
-  an oversight. Thanks to @PolScript for reporting this in #6.
+  an oversight. Thanks to @PoiScript for reporting this in #6.
 - `Value::get(key)`, `Value::get_mut(key)`, and `Index<&str>`/`IndexMut<&str>`
   have been added to allow easier access to the contents of a `Value` when it is
   an object. Similar to most built-in collection types, the `Index` trait
