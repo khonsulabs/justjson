@@ -2296,7 +2296,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        br#&quot;-1&quot;#,</pre>
+                <pre class="has-background-success-light py-0 px-2">        b&quot;-1&quot;,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2322,7 +2322,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(&quot;-1&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2387,7 +2387,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        br#&quot;-1.0&quot;#,</pre>
+                <pre class="has-background-success-light py-0 px-2">        b&quot;-1.0&quot;,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2413,7 +2413,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1.0&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(&quot;-1.0&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2478,7 +2478,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        br#&quot;-1.0e1&quot;#,</pre>
+                <pre class="has-background-success-light py-0 px-2">        b&quot;-1.0e1&quot;,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2504,7 +2504,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1.0e1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(&quot;-1.0e1&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2569,7 +2569,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">        br#&quot;-1.0E-1&quot;#,</pre>
+                <pre class="has-background-success-light py-0 px-2">        b&quot;-1.0E-1&quot;,</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2595,7 +2595,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(r#&quot;-1.0E-1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">            source: AnyStr::Borrowed(&quot;-1.0E-1&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -2764,7 +2764,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                    source: AnyStr::Borrowed(r#&quot;1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">                    source: AnyStr::Borrowed(&quot;1&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3102,7 +3102,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">                source: AnyStr::Borrowed(r#&quot;1&quot;#),</pre>
+                <pre class="has-background-success-light py-0 px-2">                source: AnyStr::Borrowed(&quot;1&quot;),</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3466,7 +3466,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;{1:true}&quot;#, 1, ErrorKind::ObjectKeysMustBeStrings);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;{1:true}&quot;, 1, ErrorKind::ObjectKeysMustBeStrings);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3622,7 +3622,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;[1,]&quot;#, 3, ErrorKind::IllegalTrailingComma);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;[1,]&quot;, 3, ErrorKind::IllegalTrailingComma);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3648,7 +3648,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;[1}&quot;#, 2, ErrorKind::ExpectedCommaOrEndOfArray);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;[1}&quot;, 2, ErrorKind::ExpectedCommaOrEndOfArray);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3674,7 +3674,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;[1,,}&quot;#, 3, ErrorKind::Unexpected(b&#x27;,&#x27;));</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;[1,,}&quot;, 3, ErrorKind::Unexpected(b&#x27;,&#x27;));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3700,7 +3700,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;[1,&quot;#, 3, ErrorKind::UnclosedArray);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;[1,&quot;, 3, ErrorKind::UnclosedArray);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3726,7 +3726,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;[&quot;#, 1, ErrorKind::UnclosedArray);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;[&quot;, 1, ErrorKind::UnclosedArray);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3791,7 +3791,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;tru &quot;#, 3, ErrorKind::Unexpected(b&#x27; &#x27;));</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;tru &quot;, 3, ErrorKind::Unexpected(b&#x27; &#x27;));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3804,7 +3804,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;tru&quot;#, 3, ErrorKind::UnexpectedEof);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;tru&quot;, 3, ErrorKind::UnexpectedEof);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3869,7 +3869,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;true true&quot;#, 5, ErrorKind::TrailingNonWhitespace);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;true true&quot;, 5, ErrorKind::TrailingNonWhitespace);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3895,7 +3895,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;,&quot;#, 0, ErrorKind::Unexpected(b&#x27;,&#x27;));</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;,&quot;, 0, ErrorKind::Unexpected(b&#x27;,&#x27;));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3921,7 +3921,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;#&quot;#, 0, ErrorKind::Unexpected(b&#x27;#&#x27;));</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;#&quot;, 0, ErrorKind::Unexpected(b&#x27;#&#x27;));</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -3947,7 +3947,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;&quot;#, 0, ErrorKind::UnexpectedEof);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;&quot;, 0, ErrorKind::UnexpectedEof);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4259,7 +4259,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;- &quot;#, 1, ErrorKind::ExpectedDigit);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;- &quot;, 1, ErrorKind::ExpectedDigit);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4285,7 +4285,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;1. &quot;#, 2, ErrorKind::ExpectedDecimalDigit);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;1. &quot;, 2, ErrorKind::ExpectedDecimalDigit);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4311,7 +4311,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;1.0E &quot;#, 4, ErrorKind::ExpectedExponent);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;1.0E &quot;, 4, ErrorKind::ExpectedExponent);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4337,7 +4337,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;1.0E- &quot;#, 5, ErrorKind::ExpectedExponent);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;1.0E- &quot;, 5, ErrorKind::ExpectedExponent);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4376,7 +4376,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;-&quot;#, 1, ErrorKind::ExpectedDigit);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;-&quot;, 1, ErrorKind::ExpectedDigit);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4402,7 +4402,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;1.&quot;#, 2, ErrorKind::ExpectedDecimalDigit);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;1.&quot;, 2, ErrorKind::ExpectedDecimalDigit);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4428,7 +4428,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;1.0E&quot;#, 4, ErrorKind::ExpectedExponent);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;1.0E&quot;, 4, ErrorKind::ExpectedExponent);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -4454,7 +4454,7 @@
                 1
             </div>
             <div class="column has-background-success-light p-0">
-                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(r#&quot;1.0E-&quot;#, 5, ErrorKind::ExpectedExponent);</pre>
+                <pre class="has-background-success-light py-0 px-2">    assert_json_error_kind_matches!(&quot;1.0E-&quot;, 5, ErrorKind::ExpectedExponent);</pre>
             </div>
         </div><div class="columns p-0 m-0">
             <div
@@ -7904,7 +7904,7 @@
         </div></div>
         <footer class="footer">
             <div class="content has-text-centered">
-                <p class="heading">Date: 2023-04-11 16:21</p>
+                <p class="heading">Date: 2023-12-08 21:29</p>
             </div>
         </footer>
     </body>
