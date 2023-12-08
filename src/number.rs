@@ -211,3 +211,29 @@ fn from_json_bad_types() {
         ErrorKind::ExpectedNumber
     );
 }
+
+#[test]
+#[cfg(feature = "alloc")]
+fn as_es() {
+    macro_rules! test_as {
+        ($as:ident) => {
+            assert_eq!(JsonNumber::from_json("1").unwrap().$as(), Some(1));
+        };
+    }
+
+    test_as!(as_i8);
+    test_as!(as_i16);
+    test_as!(as_i32);
+    test_as!(as_i64);
+    test_as!(as_i128);
+    test_as!(as_isize);
+    test_as!(as_u8);
+    test_as!(as_u16);
+    test_as!(as_u32);
+    test_as!(as_u64);
+    test_as!(as_u128);
+    test_as!(as_usize);
+
+    assert!(JsonNumber::from_json("0").unwrap().as_f32().unwrap().abs() < f32::EPSILON);
+    assert!(JsonNumber::from_json("0").unwrap().as_f64().unwrap().abs() < f64::EPSILON);
+}
