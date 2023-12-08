@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/number.rs`."><title>number.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-63a85fc7cf22dee2.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (88fb1b922 2023-04-10)" data-search-js="search-bc5a112813b5d712.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-0bcba95ff279c1db.css" data-theme-light-css="light-db279b6232be9c13.css" data-theme-dark-css="dark-cf923f49f397b216.css" data-theme-ayu-css="ayu-be46fdc453a55015.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-1159a395118aa44e.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/number.rs`."><title>number.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c67e44d78ab2db17.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (503e12932 2023-12-07)" data-channel="nightly" data-search-js="search-5a66c239c06b3a66.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -181,25 +181,57 @@
 <a href="#181" id="181">181</a>
 <a href="#182" id="182">182</a>
 <a href="#183" id="183">183</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::anystr::AnyStr;
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>core::str::FromStr;
+
+<span class="kw">use </span><span class="kw">crate</span>::anystr::AnyStr;
 <span class="kw">use </span><span class="kw">crate</span>::parser::{ParseDelegate, Parser};
 <span class="kw">use crate</span>::{Error, ErrorKind};
 
 <span class="doccomment">/// A JSON-encoded number.
 </span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone)]
-</span><span class="kw">pub struct </span>JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>JsonNumber&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The JSON source for this number.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) source: AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) source: AnyStr&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; JsonNumber&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Parses `json`, expecting a single number value.
     ///
     /// # Errors
     ///
     /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
-    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         Parser::parse_json(json, NumberParser).map_err(Error::into_infallable)
     }
 
@@ -209,6 +241,16 @@
         <span class="self">self</span>.source.as_ref()
     }
 
+    <span class="doccomment">/// Parses the contained value as an [`f32`], if possible.
+    ///
+    /// The JSON parser only validates that the number takes a correct form. If
+    /// a number cannot be parsed by the underlying routine due to having too
+    /// many digits, it this function can return None.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>as_f32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
+        <span class="self">self</span>.parse().ok()
+    }
+
     <span class="doccomment">/// Parses the contained value as an [`f64`], if possible.
     ///
     /// The JSON parser only validates that the number takes a correct form. If
@@ -216,35 +258,53 @@
     /// many digits, it this function can return None.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>as_f64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;f64&gt; {
-        <span class="self">self</span>.source().parse().ok()
+        <span class="self">self</span>.parse().ok()
     }
 
-    <span class="doccomment">/// Parses the contained value as an [`i64`], if possible.
-    ///
-    /// If the source number is a floating point number, this will always return None.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>as_i64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
-        <span class="self">self</span>.source().parse().ok()
-    }
-
-    <span class="doccomment">/// Parses the contained value as an [`u64`], if possible.
-    ///
-    /// If the source number is a floating point number or has a negative sign,
-    /// this will always return None.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>as_u64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
-        <span class="self">self</span>.source().parse().ok()
+    <span class="doccomment">/// Parses the contained value.
+    </span><span class="kw">pub fn </span>parse&lt;T: FromStr&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, T::Err&gt; {
+        <span class="self">self</span>.source().parse()
     }
 }
 
+<span class="macro">macro_rules! </span>impl_as_number {
+    (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
+        <span class="kw">impl </span>JsonNumber&lt;<span class="lifetime">'_</span>&gt; {
+            <span class="doccomment">/// Parses the contained value as an
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"[`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"`]"</span>)]
+            </span><span class="doccomment">/// if possible.
+            ///
+            /// If the source number is a floating point number or has a negative sign,
+            /// this will always return None.
+            </span><span class="attr">#[<span class="macro-nonterminal">must_use</span>]
+            </span><span class="kw">pub fn </span><span class="macro-nonterminal">$name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt; {
+                <span class="macro-nonterminal">self</span>.parse().ok()
+            }
+        }
+    };
+}
+
+<span class="macro">impl_as_number!</span>(as_u8, u8);
+<span class="macro">impl_as_number!</span>(as_u16, u16);
+<span class="macro">impl_as_number!</span>(as_u32, u32);
+<span class="macro">impl_as_number!</span>(as_u64, u64);
+<span class="macro">impl_as_number!</span>(as_u128, u128);
+<span class="macro">impl_as_number!</span>(as_usize, usize);
+<span class="macro">impl_as_number!</span>(as_i8, i8);
+<span class="macro">impl_as_number!</span>(as_i16, i16);
+<span class="macro">impl_as_number!</span>(as_i32, i32);
+<span class="macro">impl_as_number!</span>(as_i64, i64);
+<span class="macro">impl_as_number!</span>(as_i128, i128);
+<span class="macro">impl_as_number!</span>(as_isize, isize);
+
 <span class="kw">struct </span>NumberParser;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>NumberParser {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ParseDelegate&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>NumberParser {
     <span class="kw">type </span>Array = ();
     <span class="kw">type </span>Error = ErrorKind;
     <span class="kw">type </span>Key = ();
     <span class="kw">type </span>Object = ();
-    <span class="kw">type </span>Value = JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">type </span>Value = JsonNumber&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="kw">fn </span>null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Err</span>(ErrorKind::ExpectedNumber)
@@ -254,11 +314,11 @@
         <span class="prelude-val">Err</span>(ErrorKind::ExpectedNumber)
     }
 
-    <span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(value)
     }
 
-    <span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: <span class="kw">crate</span>::JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: <span class="kw">crate</span>::JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Err</span>(ErrorKind::ExpectedNumber)
     }
 
@@ -269,9 +329,9 @@
     <span class="kw">fn </span>object_key(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         _object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
-        _key: <span class="kw">crate</span>::JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+        _key: <span class="kw">crate</span>::JsonString&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>object_value(
@@ -280,15 +340,15 @@
         _key: <span class="self">Self</span>::Key,
         _value: <span class="self">Self</span>::Value,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>object_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, _object: <span class="kw-2">&amp;</span><span class="self">Self</span>::Object) -&gt; bool {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>end_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _object: <span class="self">Self</span>::Object) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>begin_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Array, <span class="self">Self</span>::Error&gt; {
@@ -300,42 +360,42 @@
         _array: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Array,
         _value: <span class="self">Self</span>::Value,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from array_value"</span>)
     }
 
     <span class="kw">fn </span>array_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, _array: <span class="kw-2">&amp;</span><span class="self">Self</span>::Array) -&gt; bool {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from array_value"</span>)
     }
 
     <span class="kw">fn </span>end_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _array: <span class="self">Self</span>::Array) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from array_value"</span>)
     }
 
     <span class="kw">fn </span>kind_of(<span class="kw-2">&amp;</span><span class="self">self</span>, _value: <span class="kw-2">&amp;</span><span class="self">Self</span>::Value) -&gt; <span class="kw">crate</span>::parser::JsonKind {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;allow_all_types_at_root is always true&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"allow_all_types_at_root is always true"</span>)
     }
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>json_number_from_json() {
     <span class="macro">assert_eq!</span>(
-        JsonNumber::from_json(<span class="string">&quot;1&quot;</span>).unwrap(),
+        JsonNumber::from_json(<span class="string">"1"</span>).unwrap(),
         JsonNumber {
-            source: AnyStr::Borrowed(<span class="string">&quot;1&quot;</span>)
+            source: AnyStr::Borrowed(<span class="string">"1"</span>)
         }
     );
 
-    <span class="kw">let </span>expected_number = JsonNumber::from_json(<span class="string">r#&quot;true&quot;#</span>)
-        .expect_err(<span class="string">&quot;shouldn&#39;t allow non-numbers&quot;</span>)
+    <span class="kw">let </span>expected_number = JsonNumber::from_json(<span class="string">"true"</span>)
+        .expect_err(<span class="string">"shouldn't allow non-numbers"</span>)
         .kind;
     <span class="macro">assert!</span>(<span class="macro">matches!</span>(expected_number, ErrorKind::ExpectedNumber));
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>json_number_conversions() {
-    <span class="kw">let </span>one = JsonNumber::from_json(<span class="string">&quot;1&quot;</span>).unwrap();
+    <span class="kw">let </span>one = JsonNumber::from_json(<span class="string">"1"</span>).unwrap();
     <span class="macro">assert_eq!</span>(one.as_i64().unwrap(), <span class="number">1</span>);
     <span class="macro">assert_eq!</span>(one.as_u64().unwrap(), <span class="number">1</span>);
     <span class="macro">assert!</span>((one.as_f64().unwrap() - <span class="number">1.0</span>).abs() &lt; f64::EPSILON);
@@ -344,23 +404,23 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>from_json_bad_types() {
     <span class="macro">assert_eq!</span>(
-        JsonNumber::from_json(<span class="string">&quot;\&quot;\&quot;&quot;</span>).unwrap_err().kind,
+        JsonNumber::from_json(<span class="string">"\"\""</span>).unwrap_err().kind,
         ErrorKind::ExpectedNumber
     );
     <span class="macro">assert_eq!</span>(
-        JsonNumber::from_json(<span class="string">&quot;null&quot;</span>).unwrap_err().kind,
+        JsonNumber::from_json(<span class="string">"null"</span>).unwrap_err().kind,
         ErrorKind::ExpectedNumber
     );
     <span class="macro">assert_eq!</span>(
-        JsonNumber::from_json(<span class="string">&quot;true&quot;</span>).unwrap_err().kind,
+        JsonNumber::from_json(<span class="string">"true"</span>).unwrap_err().kind,
         ErrorKind::ExpectedNumber
     );
     <span class="macro">assert_eq!</span>(
-        JsonNumber::from_json(<span class="string">&quot;[]&quot;</span>).unwrap_err().kind,
+        JsonNumber::from_json(<span class="string">"[]"</span>).unwrap_err().kind,
         ErrorKind::ExpectedNumber
     );
     <span class="macro">assert_eq!</span>(
-        JsonNumber::from_json(<span class="string">&quot;{}&quot;</span>).unwrap_err().kind,
+        JsonNumber::from_json(<span class="string">"{}"</span>).unwrap_err().kind,
         ErrorKind::ExpectedNumber
     );
 }

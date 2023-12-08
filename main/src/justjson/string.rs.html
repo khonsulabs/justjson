@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/string.rs`."><title>string.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-63a85fc7cf22dee2.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (88fb1b922 2023-04-10)" data-search-js="search-bc5a112813b5d712.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-0bcba95ff279c1db.css" data-theme-light-css="light-db279b6232be9c13.css" data-theme-dark-css="dark-cf923f49f397b216.css" data-theme-ayu-css="ayu-be46fdc453a55015.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-1159a395118aa44e.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/string.rs`."><title>string.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c67e44d78ab2db17.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (503e12932 2023-12-07)" data-channel="nightly" data-search-js="search-5a66c239c06b3a66.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1137,7 +1137,13 @@
 <a href="#1137" id="1137">1137</a>
 <a href="#1138" id="1138">1138</a>
 <a href="#1139" id="1139">1139</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug, Display, Formatter, Write};
@@ -1159,10 +1165,10 @@
 /// ```rust
 /// use justjson::JsonString;
 ///
-/// let json = JsonString::from_json(r#&quot;&quot;Check out this cat: \&quot;\ud83d\ude39\&quot;&quot;&quot;#).unwrap();
-/// assert_eq!(json, &quot;Check out this cat: \&quot;😹\&quot;&quot;);
+/// let json = JsonString::from_json(r#""Check out this cat: \"\ud83d\ude39\"""#).unwrap();
+/// assert_eq!(json, "Check out this cat: \"😹\"");
 /// let alternate_form =
-///     JsonString::from_json(&quot;\&quot;Check out this cat: \\\&quot;\u{1f639}\\\&quot;\&quot;&quot;).unwrap();
+///     JsonString::from_json("\"Check out this cat: \\\"\u{1f639}\\\"\"").unwrap();
 /// assert_eq!(json, alternate_form)
 /// ```
 ///
@@ -1177,20 +1183,20 @@
 /// not. If the underlying representation does not need extra processing, the
 /// built-in implementations for `&amp;str` are always used.
 </span><span class="attr">#[derive(Debug, Eq, Clone)]
-</span><span class="kw">pub struct </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>JsonString&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The JSON-source for the string.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) source: StringContents&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) source: StringContents&lt;<span class="lifetime">'a</span>&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) info: JsonStringInfo,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; JsonString&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Parses `json`, expecting a single string value.
     ///
     /// # Errors
     ///
     /// Returns [`ErrorKind::ExpectedString`] if a non-string value is
     /// encountered.
-    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         Parser::parse_json(json, StringParser).map_err(Error::into_infallable)
     }
 
@@ -1202,8 +1208,8 @@
     /// sequences, so this function is nearly instananeous when there are no
     /// escape sequences.
     </span><span class="attr">#[must_use]
-    #[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-    </span><span class="kw">pub fn </span>decode_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyStr&lt;<span class="lifetime">&#39;a</span>&gt; {
+    #[cfg(feature = <span class="string">"alloc"</span>)]
+    </span><span class="kw">pub fn </span>decode_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyStr&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
             StringContents::Json(source) =&gt; {
                 <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
@@ -1220,8 +1226,8 @@
     /// If the string is already internally represented as a JSON string, this
     /// function returns its source via borrowing and no additional processing.
     </span><span class="attr">#[must_use]
-    #[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-    </span><span class="kw">pub fn </span>escape_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyStr&lt;<span class="lifetime">&#39;a</span>&gt; {
+    #[cfg(feature = <span class="string">"alloc"</span>)]
+    </span><span class="kw">pub fn </span>escape_if_needed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyStr&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
             StringContents::Json(source) =&gt; source.clone(),
             StringContents::Raw(<span class="kw">_</span>) =&gt; {
@@ -1236,24 +1242,24 @@
 
     <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>decoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoded&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>decoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Decoded&lt;<span class="lifetime">'_</span>&gt; {
         Decoded::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="self">self</span>.info)
     }
 
     <span class="doccomment">/// Returns the string after decoding any JSON escape sequences.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>as_json(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AsJson&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>as_json(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AsJson&lt;<span class="lifetime">'_</span>&gt; {
         AsJson::new(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="self">self</span>.info)
     }
 
-    <span class="doccomment">/// Returns a reference to the underlying storage of this string, if it&#39;s
+    <span class="doccomment">/// Returns a reference to the underlying storage of this string, if it's
     /// already encoded for use in a JSON string. This does not include the
     /// surrounding quotation marks.
     ///
     /// If None is returned, the string must be decoded using
     /// [`as_json()`](Self::as_json).
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>as_json_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_json_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>AnyStr&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">if let </span>StringContents::Json(source) = <span class="kw-2">&amp;</span><span class="self">self</span>.source {
             <span class="prelude-val">Some</span>(source)
         } <span class="kw">else </span>{
@@ -1298,8 +1304,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="comment">// Analyze the string for characters that need to be escaped.
         </span><span class="kw">let </span>source = StringContents::Raw(AnyStr::Borrowed(value));
         <span class="kw">let </span><span class="kw-2">mut </span>escaped = AsJson::new(<span class="kw-2">&amp;</span>source, JsonStringInfo::NONE);
@@ -1320,8 +1326,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;String&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;String&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>from(value: String) -&gt; <span class="self">Self </span>{
         <span class="comment">// Analyze the string for characters that need to be escaped.
         </span><span class="kw">let </span>borrowed_contents = StringContents::Raw(AnyStr::Borrowed(<span class="kw-2">&amp;</span>value));
@@ -1343,18 +1349,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; bool {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'b</span>&gt; {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">'a </span>str) -&gt; bool {
         <span class="self">self</span>.eq(<span class="kw-2">*</span>other)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>&gt; PartialEq&lt;str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>&gt; PartialEq&lt;str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'b</span>&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
             StringContents::Json(source) =&gt; {
                 <span class="kw">if </span><span class="self">self</span>.info.has_escapes() {
-                    <span class="comment">// Quick check, if the decoded length differs, the strings can&#39;t be equal
+                    <span class="comment">// Quick check, if the decoded length differs, the strings can't be equal
                     </span><span class="kw">if </span><span class="self">self</span>.info.expected_length() != other.len() {
                         <span class="kw">return </span><span class="bool-val">false</span>;
                     }
@@ -1372,8 +1378,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialEq&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; bool {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; PartialEq&lt;JsonString&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'b</span>&gt; {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; bool {
         <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="kw-2">&amp;</span>other.source) {
             (StringContents::Json(a), StringContents::Json(b)) =&gt; {
                 <span class="kw">match </span>(<span class="self">self</span>.info.has_escapes(), other.info.has_escapes()) {
@@ -1411,80 +1417,80 @@
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>json_string_eq() {
     <span class="attr">#[track_caller]
-    </span><span class="kw">fn </span>test_json&lt;<span class="lifetime">&#39;a</span>, T&gt;(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, expected: T)
+    </span><span class="kw">fn </span>test_json&lt;<span class="lifetime">'a</span>, T&gt;(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, expected: T)
     <span class="kw">where
         </span>T: Debug,
-        JsonString&lt;<span class="lifetime">&#39;a</span>&gt;: PartialEq&lt;T&gt;,
+        JsonString&lt;<span class="lifetime">'a</span>&gt;: PartialEq&lt;T&gt;,
     {
         <span class="macro">assert_eq!</span>(JsonString::from_json(json).unwrap(), expected);
     }
 
     <span class="attr">#[track_caller]
-    </span><span class="kw">fn </span>test_json_ne&lt;<span class="lifetime">&#39;a</span>, T&gt;(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, expected: T)
+    </span><span class="kw">fn </span>test_json_ne&lt;<span class="lifetime">'a</span>, T&gt;(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, expected: T)
     <span class="kw">where
         </span>T: Debug,
-        JsonString&lt;<span class="lifetime">&#39;a</span>&gt;: PartialEq&lt;T&gt;,
+        JsonString&lt;<span class="lifetime">'a</span>&gt;: PartialEq&lt;T&gt;,
     {
         <span class="macro">assert_ne!</span>(JsonString::from_json(json).unwrap(), expected);
     }
 
     <span class="comment">// Test &amp;str comparisons
-    </span>test_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>, <span class="string">&quot;Hello, World!&quot;</span>);
-    test_json(<span class="string">r#&quot;&quot;\&quot;\\\/\b\f\n\r\t\u25eF&quot;&quot;#</span>, <span class="string">&quot;\&quot;\\/\x07\x0c\n\r\t\u{25ef}&quot;</span>);
-    test_json(<span class="string">&quot;\&quot;\u{25ef}\&quot;&quot;</span>, <span class="string">&quot;\u{25ef}&quot;</span>);
+    </span>test_json(<span class="string">r#""Hello, World!""#</span>, <span class="string">"Hello, World!"</span>);
+    test_json(<span class="string">r#""\"\\\/\b\f\n\r\t\u25eF""#</span>, <span class="string">"\"\\/\x07\x0c\n\r\t\u{25ef}"</span>);
+    test_json(<span class="string">"\"\u{25ef}\""</span>, <span class="string">"\u{25ef}"</span>);
     <span class="comment">// Test decoded length not being the same
-    </span>test_json_ne(<span class="string">r#&quot;&quot;\n&quot;&quot;#</span>, <span class="string">&quot;&quot;</span>);
+    </span>test_json_ne(<span class="string">r#""\n""#</span>, <span class="string">""</span>);
     <span class="comment">// Test decoded char not matching
-    </span>test_json_ne(<span class="string">r#&quot;&quot;\n&quot;&quot;#</span>, <span class="string">&quot;x&quot;</span>);
+    </span>test_json_ne(<span class="string">r#""\n""#</span>, <span class="string">"x"</span>);
     <span class="comment">// Test regular char not matching in decoded comparison
-    </span>test_json_ne(<span class="string">r#&quot;&quot;\na&quot;&quot;#</span>, <span class="string">&quot;\nx&quot;</span>);
+    </span>test_json_ne(<span class="string">r#""\na""#</span>, <span class="string">"\nx"</span>);
 
     <span class="comment">// Test JsonString comparisons
     // Decoded length not being the same between two JsonStrings.
     </span>test_json_ne(
-        <span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>,
-        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000\u0000&quot;&quot;#</span>).unwrap(),
+        <span class="string">r#""\u0000""#</span>,
+        JsonString::from_json(<span class="string">r#""\u0000\u0000""#</span>).unwrap(),
     );
-    <span class="comment">// Same decoded length, lhs doesn&#39;t have escapes, rhs does
-    </span>test_json_ne(<span class="string">r#&quot;&quot;ab&quot;&quot;#</span>, JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap());
+    <span class="comment">// Same decoded length, lhs doesn't have escapes, rhs does
+    </span>test_json_ne(<span class="string">r#""ab""#</span>, JsonString::from_json(<span class="string">r#""\u0000""#</span>).unwrap());
     <span class="comment">// Raw strings in JsonString
-    </span><span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;a&quot;</span>), <span class="string">&quot;a&quot;</span>);
-    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;a&quot;</span>), JsonString::from(<span class="string">&quot;a&quot;</span>));
+    </span><span class="macro">assert_eq!</span>(JsonString::from(<span class="string">"a"</span>), <span class="string">"a"</span>);
+    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">"a"</span>), JsonString::from(<span class="string">"a"</span>));
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap(),
-        JsonString::from(<span class="string">&quot;a&quot;</span>)
+        JsonString::from_json(<span class="string">"\"a\""</span>).unwrap(),
+        JsonString::from(<span class="string">"a"</span>)
     );
     <span class="macro">assert_eq!</span>(
-        JsonString::from(<span class="string">&quot;a&quot;</span>),
-        JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap()
+        JsonString::from(<span class="string">"a"</span>),
+        JsonString::from_json(<span class="string">"\"a\""</span>).unwrap()
     );
 
-    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;\0&quot;</span>), <span class="string">&quot;\0&quot;</span>);
-    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">&quot;\0&quot;</span>), JsonString::from(<span class="string">&quot;\0&quot;</span>));
+    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">"\0"</span>), <span class="string">"\0"</span>);
+    <span class="macro">assert_eq!</span>(JsonString::from(<span class="string">"\0"</span>), JsonString::from(<span class="string">"\0"</span>));
 
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
-        JsonString::from(<span class="string">&quot;\0&quot;</span>),
+        JsonString::from_json(<span class="string">r#""\u0000""#</span>).unwrap(),
+        JsonString::from(<span class="string">"\0"</span>),
     );
     <span class="macro">assert_eq!</span>(
-        JsonString::from(<span class="string">&quot;\0&quot;</span>),
-        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
+        JsonString::from(<span class="string">"\0"</span>),
+        JsonString::from_json(<span class="string">r#""\u0000""#</span>).unwrap(),
     );
 
     <span class="macro">assert_ne!</span>(
-        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
-        JsonString::from(<span class="string">&quot;\0 &quot;</span>),
+        JsonString::from_json(<span class="string">r#""\u0000""#</span>).unwrap(),
+        JsonString::from(<span class="string">"\0 "</span>),
     );
     <span class="macro">assert_ne!</span>(
-        JsonString::from(<span class="string">&quot;\0 &quot;</span>),
-        JsonString::from_json(<span class="string">r#&quot;&quot;\u0000&quot;&quot;#</span>).unwrap(),
+        JsonString::from(<span class="string">"\0 "</span>),
+        JsonString::from_json(<span class="string">r#""\u0000""#</span>).unwrap(),
     );
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>&gt; PartialOrd&lt;str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>&gt; PartialOrd&lt;str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'b</span>&gt; {
     <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
             StringContents::Json(<span class="kw">_</span>) <span class="kw">if </span><span class="self">self</span>.info.has_escapes() =&gt; {
@@ -1508,15 +1514,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialOrd&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
-    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; PartialOrd&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'b</span>&gt; {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
         <span class="self">self</span>.partial_cmp(<span class="kw-2">*</span>other)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>&gt; Ord <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>&gt; Ord <span class="kw">for </span>JsonString&lt;<span class="lifetime">'b</span>&gt; {
     <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
-        <span class="comment">// There aren&#39;t any shortcuts for comparisons
+        <span class="comment">// There aren't any shortcuts for comparisons
         </span><span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="kw-2">&amp;</span>other.source) {
             (StringContents::Json(left), StringContents::Json(right))
                 <span class="kw">if </span>!<span class="self">self</span>.info.has_escapes() &amp;&amp; !other.info.has_escapes() =&gt;
@@ -1525,10 +1531,10 @@
             }
             (StringContents::Raw(left), StringContents::Raw(right)) =&gt; left.cmp(right),
             (StringContents::Json(<span class="kw">_</span>), StringContents::Raw(right)) =&gt; {
-                <span class="self">self</span>.partial_cmp(&amp;&amp;<span class="kw-2">**</span>right).expect(<span class="string">&quot;always some&quot;</span>)
+                <span class="self">self</span>.partial_cmp(&amp;&amp;<span class="kw-2">**</span>right).expect(<span class="string">"always some"</span>)
             }
             (StringContents::Raw(left), StringContents::Json(<span class="kw">_</span>)) =&gt; {
-                other.partial_cmp(&amp;&amp;<span class="kw-2">**</span>left).expect(<span class="string">&quot;always some&quot;</span>).reverse()
+                other.partial_cmp(&amp;&amp;<span class="kw-2">**</span>left).expect(<span class="string">"always some"</span>).reverse()
             }
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>left_chars = <span class="self">self</span>.decoded();
@@ -1549,22 +1555,22 @@
         }
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; PartialOrd&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;b</span>&gt; {
-    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; PartialOrd&lt;JsonString&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>JsonString&lt;<span class="lifetime">'b</span>&gt; {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
         <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 #[cfg(test)]
 </span><span class="macro">macro_rules! </span>jstr {
     (<span class="macro-nonterminal">$src</span>:literal) =&gt; {
-        JsonString::from_json(<span class="macro">concat!</span>(<span class="string">&quot;\&quot;&quot;</span>, <span class="macro-nonterminal">$src</span>, <span class="string">&quot;\&quot;&quot;</span>)).unwrap()
+        JsonString::from_json(<span class="macro">concat!</span>(<span class="string">"\""</span>, <span class="macro-nonterminal">$src</span>, <span class="string">"\""</span>)).unwrap()
     };
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 #[allow(clippy::cmp_owned)]
 </span><span class="kw">fn </span>json_string_cmp() {
     <span class="macro">macro_rules! </span>assert_lt {
@@ -1586,42 +1592,42 @@
     }
 
     <span class="comment">// no escapes, which ends up using str.cmp
-    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">&quot;a&quot;</span>), <span class="string">&quot;b&quot;</span>);
-    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">&quot;b&quot;</span>), <span class="string">&quot;a&quot;</span>);
-    <span class="macro">assert_ord_eq!</span>(<span class="macro">jstr!</span>(<span class="string">&quot;a&quot;</span>), <span class="string">&quot;a&quot;</span>);
-    <span class="macro">assert_ord_eq!</span>(JsonString::from(<span class="string">&quot;\n&quot;</span>), <span class="string">&quot;\n&quot;</span>);
+    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">"a"</span>), <span class="string">"b"</span>);
+    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">"b"</span>), <span class="string">"a"</span>);
+    <span class="macro">assert_ord_eq!</span>(<span class="macro">jstr!</span>(<span class="string">"a"</span>), <span class="string">"a"</span>);
+    <span class="macro">assert_ord_eq!</span>(JsonString::from(<span class="string">"\n"</span>), <span class="string">"\n"</span>);
 
     <span class="comment">// Escapes vs no escapes. Same as above, but encoding a/b as unicode escapes
-    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061&quot;#</span>), <span class="string">&quot;b&quot;</span>);
-    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0062&quot;#</span>), <span class="string">&quot;a&quot;</span>);
-    <span class="macro">assert_ord_eq!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061&quot;#</span>), <span class="string">&quot;a&quot;</span>);
+    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061"#</span>), <span class="string">"b"</span>);
+    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0062"#</span>), <span class="string">"a"</span>);
+    <span class="macro">assert_ord_eq!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061"#</span>), <span class="string">"a"</span>);
     <span class="comment">// differing lengths, but matching prefix
-    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061&quot;#</span>), <span class="string">&quot;aa&quot;</span>);
-    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061a&quot;#</span>), <span class="string">&quot;a&quot;</span>);
+    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061"#</span>), <span class="string">"aa"</span>);
+    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061a"#</span>), <span class="string">"a"</span>);
 
     <span class="comment">// Same suite of tests, but with json strings on the right
     // Escapes vs no escapes. Same as above, but encoding a/b as unicode escapes
-    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061&quot;#</span>), JsonString::from(<span class="string">&quot;b&quot;</span>));
-    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0062&quot;#</span>), JsonString::from(<span class="string">&quot;a&quot;</span>));
-    <span class="macro">assert_ord_eq!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061&quot;#</span>), <span class="kw-2">&amp;</span>JsonString::from(<span class="string">&quot;a&quot;</span>));
+    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061"#</span>), JsonString::from(<span class="string">"b"</span>));
+    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0062"#</span>), JsonString::from(<span class="string">"a"</span>));
+    <span class="macro">assert_ord_eq!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061"#</span>), <span class="kw-2">&amp;</span>JsonString::from(<span class="string">"a"</span>));
     <span class="comment">// differing lengths, but matching prefix
-    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061&quot;#</span>), JsonString::from(<span class="string">&quot;aa&quot;</span>));
-    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\u0061a&quot;#</span>), JsonString::from(<span class="string">&quot;a&quot;</span>));
+    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061"#</span>), JsonString::from(<span class="string">"aa"</span>));
+    <span class="macro">assert_gt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\u0061a"#</span>), JsonString::from(<span class="string">"a"</span>));
     <span class="comment">// Raw on both sides
-    </span><span class="macro">assert_ord_eq!</span>(JsonString::from(<span class="string">&quot;\n&quot;</span>), <span class="kw-2">&amp;</span>JsonString::from(<span class="string">&quot;\n&quot;</span>));
+    </span><span class="macro">assert_ord_eq!</span>(JsonString::from(<span class="string">"\n"</span>), <span class="kw-2">&amp;</span>JsonString::from(<span class="string">"\n"</span>));
     <span class="comment">// Raw either side
-    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#&quot;\n&quot;#</span>), JsonString::from(<span class="string">&quot;\na&quot;</span>));
-    <span class="macro">assert_gt!</span>(JsonString::from(<span class="string">&quot;\na&quot;</span>), <span class="macro">jstr!</span>(<span class="string">r#&quot;\n&quot;#</span>));
+    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">r#"\n"#</span>), JsonString::from(<span class="string">"\na"</span>));
+    <span class="macro">assert_gt!</span>(JsonString::from(<span class="string">"\na"</span>), <span class="macro">jstr!</span>(<span class="string">r#"\n"#</span>));
     <span class="comment">// JSON no escapes both sides
-    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">&quot;a&quot;</span>), JsonString::from(<span class="string">&quot;b&quot;</span>));
+    </span><span class="macro">assert_lt!</span>(<span class="macro">jstr!</span>(<span class="string">"a"</span>), JsonString::from(<span class="string">"b"</span>));
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; hash::Hash <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; hash::Hash <span class="kw">for </span>JsonString&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>hash&lt;H: hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.source {
             StringContents::Json(<span class="kw">_</span>) <span class="kw">if </span><span class="self">self</span>.info.has_escapes() =&gt; {
                 <span class="comment">// The standard string hash writes out as bytes, but char
-                // hashing is done by converting to u32. We&#39;re purposely
+                // hashing is done by converting to u32. We're purposely
                 // re-implementing Hasher::write_str via chars.
                 </span><span class="kw">let </span><span class="kw-2">mut </span>char_bytes = [<span class="number">0</span>; <span class="number">4</span>];
                 <span class="kw">for </span>ch <span class="kw">in </span><span class="self">self</span>.decoded() {
@@ -1635,7 +1641,7 @@
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">fn </span>json_string_hash() {
     <span class="kw">use </span>core::hash::{BuildHasher, Hasher};
     <span class="kw">use </span>std::collections::hash_map::RandomState;
@@ -1647,77 +1653,83 @@
 
     <span class="kw">let </span>state = RandomState::default();
     <span class="macro">assert_eq!</span>(
-        hash(JsonString::from(<span class="string">&quot;\n&quot;</span>), <span class="kw-2">&amp;</span>state),
-        hash(<span class="macro">jstr!</span>(<span class="string">&quot;\\n&quot;</span>), <span class="kw-2">&amp;</span>state)
+        hash(JsonString::from(<span class="string">"\n"</span>), <span class="kw-2">&amp;</span>state),
+        hash(<span class="macro">jstr!</span>(<span class="string">"\\n"</span>), <span class="kw-2">&amp;</span>state)
     );
-    <span class="macro">assert_eq!</span>(hash(<span class="macro">jstr!</span>(<span class="string">&quot;a&quot;</span>), <span class="kw-2">&amp;</span>state), hash(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>state));
+    <span class="macro">assert_eq!</span>(hash(<span class="macro">jstr!</span>(<span class="string">"a"</span>), <span class="kw-2">&amp;</span>state), hash(<span class="string">"a"</span>, <span class="kw-2">&amp;</span>state));
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Display <span class="kw">for </span>JsonString&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="self">self</span>.decoded().fmt(f)
     }
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>display() {
     <span class="kw">use </span>std::string::ToString;
-    <span class="kw">let </span>json = JsonString::from_json(<span class="string">r#&quot;&quot;hello, world!&quot;&quot;#</span>).unwrap();
-    <span class="macro">assert_eq!</span>(json.to_string(), <span class="string">&quot;hello, world!&quot;</span>);
+    <span class="kw">let </span>json = JsonString::from_json(<span class="string">r#""hello, world!""#</span>).unwrap();
+    <span class="macro">assert_eq!</span>(json.to_string(), <span class="string">"hello, world!"</span>);
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>json_string_from_json() {
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">r#&quot;&quot;Hello, World!&quot;&quot;#</span>).unwrap(),
+        JsonString::from_json(<span class="string">r#""Hello, World!""#</span>).unwrap(),
         JsonString {
-            source: StringContents::Json(AnyStr::Borrowed(<span class="string">r#&quot;Hello, World!&quot;#</span>)),
+            source: StringContents::Json(AnyStr::Borrowed(<span class="string">"Hello, World!"</span>)),
             info: JsonStringInfo::new(<span class="bool-val">false</span>, <span class="number">13</span>),
         }
     );
 
-    <span class="kw">let </span>expected_string = JsonString::from_json(<span class="string">r#&quot;true&quot;#</span>)
-        .expect_err(<span class="string">&quot;shouldn&#39;t allow non-strings&quot;</span>)
+    <span class="kw">let </span>expected_string = JsonString::from_json(<span class="string">"true"</span>)
+        .expect_err(<span class="string">"shouldn't allow non-strings"</span>)
         .kind;
     <span class="macro">assert!</span>(<span class="macro">matches!</span>(expected_string, ErrorKind::ExpectedString));
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>as_str() {
-    <span class="kw">let </span>json_with_escapes = JsonString::from_json(<span class="string">r#&quot;&quot;\n&quot;&quot;#</span>).unwrap();
+    <span class="kw">let </span>json_with_escapes = JsonString::from_json(<span class="string">r#""\n""#</span>).unwrap();
     <span class="macro">assert_eq!</span>(json_with_escapes.as_str(), <span class="prelude-val">None</span>);
-    <span class="kw">let </span>json_no_escapes = JsonString::from_json(<span class="string">r#&quot;&quot;hi&quot;&quot;#</span>).unwrap();
-    <span class="macro">assert_eq!</span>(json_no_escapes.as_str(), <span class="prelude-val">Some</span>(<span class="string">&quot;hi&quot;</span>));
-    <span class="kw">let </span>raw = JsonString::from(<span class="string">&quot;hi&quot;</span>);
-    <span class="macro">assert_eq!</span>(raw.as_str(), <span class="prelude-val">Some</span>(<span class="string">&quot;hi&quot;</span>));
+    <span class="kw">let </span>json_no_escapes = JsonString::from_json(<span class="string">r#""hi""#</span>).unwrap();
+    <span class="macro">assert_eq!</span>(json_no_escapes.as_str(), <span class="prelude-val">Some</span>(<span class="string">"hi"</span>));
+    <span class="kw">let </span>raw = JsonString::from(<span class="string">"hi"</span>);
+    <span class="macro">assert_eq!</span>(raw.as_str(), <span class="prelude-val">Some</span>(<span class="string">"hi"</span>));
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>json_string_from_raw() {
-    <span class="macro">assert_eq!</span>(JsonString::from(String::from(<span class="string">&quot;a&quot;</span>)), JsonString::from(<span class="string">&quot;a&quot;</span>));
+    <span class="macro">assert_eq!</span>(JsonString::from(String::from(<span class="string">"a"</span>)), JsonString::from(<span class="string">"a"</span>));
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>decode_if_needed() {
-    <span class="kw">let </span>empty = JsonString::from_json(<span class="string">r#&quot;&quot;&quot;&quot;#</span>).unwrap();
-    <span class="kw">let </span>AnyStr::Borrowed(string) = empty.decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
-    <span class="macro">assert_eq!</span>(string, <span class="string">&quot;&quot;</span>);
-    <span class="kw">let </span>has_escapes = JsonString::from_json(<span class="string">r#&quot;&quot;\r&quot;&quot;#</span>).unwrap();
-    <span class="kw">let </span>AnyStr::Owned(string) = has_escapes.decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
-    <span class="macro">assert_eq!</span>(string, <span class="string">&quot;\r&quot;</span>);
-    <span class="kw">let </span>decoded_via_display = <span class="macro">alloc::format!</span>(<span class="string">&quot;{}&quot;</span>, has_escapes.decoded());
-    <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">&quot;\r&quot;</span>);
+    <span class="kw">let </span>empty = JsonString::from_json(<span class="string">r#""""#</span>).unwrap();
+    <span class="kw">let </span>AnyStr::Borrowed(string) = empty.decode_if_needed() <span class="kw">else </span>{
+        <span class="macro">unreachable!</span>()
+    };
+    <span class="macro">assert_eq!</span>(string, <span class="string">""</span>);
+    <span class="kw">let </span>has_escapes = JsonString::from_json(<span class="string">r#""\r""#</span>).unwrap();
+    <span class="kw">let </span>AnyStr::Owned(string) = has_escapes.decode_if_needed() <span class="kw">else </span>{
+        <span class="macro">unreachable!</span>()
+    };
+    <span class="macro">assert_eq!</span>(string, <span class="string">"\r"</span>);
+    <span class="kw">let </span>decoded_via_display = <span class="macro">alloc::format!</span>(<span class="string">"{}"</span>, has_escapes.decoded());
+    <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">"\r"</span>);
 
-    <span class="kw">let </span>raw_string = JsonString::from(<span class="string">r#&quot;raw string&quot;#</span>);
-    <span class="kw">let </span>AnyStr::Borrowed(string) = raw_string.decode_if_needed() <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
-    <span class="macro">assert_eq!</span>(string, <span class="string">&quot;raw string&quot;</span>);
+    <span class="kw">let </span>raw_string = JsonString::from(<span class="string">"raw string"</span>);
+    <span class="kw">let </span>AnyStr::Borrowed(string) = raw_string.decode_if_needed() <span class="kw">else </span>{
+        <span class="macro">unreachable!</span>()
+    };
+    <span class="macro">assert_eq!</span>(string, <span class="string">"raw string"</span>);
 
-    <span class="kw">let </span>decoded_via_display = <span class="macro">alloc::format!</span>(<span class="string">&quot;{}&quot;</span>, raw_string.decoded());
-    <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">&quot;raw string&quot;</span>);
+    <span class="kw">let </span>decoded_via_display = <span class="macro">alloc::format!</span>(<span class="string">"{}"</span>, raw_string.decoded());
+    <span class="macro">assert_eq!</span>(decoded_via_display, <span class="string">"raw string"</span>);
 }
 
 <span class="doccomment">/// Information about a parsed [`JsonString`].
@@ -1733,19 +1745,19 @@
     <span class="kw">const </span>HAS_ESCAPES_MASK: usize = usize::MAX ^ <span class="self">Self</span>::UNESCAPED_BYTES_MASK;
     <span class="doccomment">/// Information with no escapes and 0 length.
     </span><span class="kw">pub const </span>NONE: <span class="self">Self </span>= <span class="self">Self</span>::new(<span class="bool-val">false</span>, <span class="number">0</span>);
-    <span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
+    <span class="attr">#[cfg(target_pointer_width = <span class="string">"32"</span>)]
     </span><span class="kw">const </span>UNESCAPED_BYTES_MASK: usize = <span class="number">0x7FFF_FFFF</span>;
-    <span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">const </span>UNESCAPED_BYTES_MASK: usize = <span class="number">0x7FFF_FFFF_FFFF_FFFF</span>;
 
     <span class="doccomment">/// Returns a new instance with the initial values provided.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>new(has_escapes: bool, unescaped_length: usize) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Panics aren&#39;t allowed in const fns yet.
+        <span class="comment">// Panics aren't allowed in const fns yet.
         // assert_eq!(
         //     unescaped_length &amp; Self::HAS_ESCAPES_MASK,
         //     0,
-        //     &quot;too many bytes needed&quot;
+        //     "too many bytes needed"
         // );
 
         </span><span class="kw">if </span>has_escapes {
@@ -1768,45 +1780,45 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: usize) {
-        <span class="self">self</span>.<span class="number">0 </span>= <span class="self">self</span>.<span class="number">0</span>.checked_add(bytes).expect(<span class="string">&quot;too many extra bytes&quot;</span>);
+        <span class="self">self</span>.<span class="number">0 </span>= <span class="self">self</span>.<span class="number">0</span>.checked_add(bytes).expect(<span class="string">"too many extra bytes"</span>);
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_bytes_from_escape(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: usize) {
         <span class="self">self</span>.<span class="number">0 </span>= (<span class="self">Self</span>::HAS_ESCAPES_MASK | <span class="self">self</span>.<span class="number">0</span>)
             .checked_add(bytes)
-            .expect(<span class="string">&quot;too many extra bytes&quot;</span>);
+            .expect(<span class="string">"too many extra bytes"</span>);
     }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>JsonStringInfo {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;EscapeInfo&quot;</span>)
-            .field(<span class="string">&quot;has_escapes&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.has_escapes())
-            .field(<span class="string">&quot;unescaped_length&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.expected_length())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"EscapeInfo"</span>)
+            .field(<span class="string">"has_escapes"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.has_escapes())
+            .field(<span class="string">"unescaped_length"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.expected_length())
             .finish()
     }
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>test_string_info_debug() {
     <span class="kw">let </span><span class="kw-2">mut </span>info = JsonStringInfo::NONE;
     info.add_bytes_from_escape(<span class="number">1</span>);
     <span class="macro">assert_eq!</span>(
-        <span class="macro">alloc::format!</span>(<span class="string">&quot;{info:?}&quot;</span>),
-        <span class="string">&quot;EscapeInfo { has_escapes: true, unescaped_length: 1 }&quot;
+        <span class="macro">alloc::format!</span>(<span class="string">"{info:?}"</span>),
+        <span class="string">"EscapeInfo { has_escapes: true, unescaped_length: 1 }"
     </span>);
 }
 
 <span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Decoded&lt;<span class="lifetime">'a</span>&gt; {
     needs_decoding: bool,
-    source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    chars: CharIndices&lt;<span class="lifetime">&#39;a</span>&gt;,
+    source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    chars: CharIndices&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;, info: JsonStringInfo) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Decoded&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StringContents&lt;<span class="lifetime">'a</span>&gt;, info: JsonStringInfo) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>source {
             StringContents::Json(source) =&gt; <span class="self">Self </span>{
                 needs_decoding: info.has_escapes(),
@@ -1822,21 +1834,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>Decoded&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Item = char;
 
     <span class="attr">#[allow(unsafe_code)]
     #[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>(<span class="kw">_</span>, ch) = <span class="self">self</span>.chars.next()<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="self">self</span>.needs_decoding &amp;&amp; ch == <span class="string">&#39;\\&#39; </span>{
-            <span class="kw">match </span><span class="self">self</span>.chars.next().expect(<span class="string">&quot;already validated&quot;</span>) {
-                (<span class="kw">_</span>, <span class="string">&#39;r&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\r&#39;</span>),
-                (<span class="kw">_</span>, <span class="string">&#39;n&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\n&#39;</span>),
-                (<span class="kw">_</span>, <span class="string">&#39;t&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\t&#39;</span>),
-                (<span class="kw">_</span>, <span class="string">&#39;b&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\x07&#39;</span>),
-                (<span class="kw">_</span>, <span class="string">&#39;f&#39;</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;\x0c&#39;</span>),
-                (offset, <span class="string">&#39;u&#39;</span>) =&gt; {
+        <span class="kw">if </span><span class="self">self</span>.needs_decoding &amp;&amp; ch == <span class="string">'\\' </span>{
+            <span class="kw">match </span><span class="self">self</span>.chars.next().expect(<span class="string">"already validated"</span>) {
+                (<span class="kw">_</span>, <span class="string">'r'</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">'\r'</span>),
+                (<span class="kw">_</span>, <span class="string">'n'</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">'\n'</span>),
+                (<span class="kw">_</span>, <span class="string">'t'</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">'\t'</span>),
+                (<span class="kw">_</span>, <span class="string">'b'</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">'\x07'</span>),
+                (<span class="kw">_</span>, <span class="string">'f'</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">'\x0c'</span>),
+                (offset, <span class="string">'u'</span>) =&gt; {
                     <span class="comment">// four hex digits
                     </span><span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
                         <span class="self">self</span>.chars.next();
@@ -1844,7 +1856,7 @@
                     <span class="comment">// We access the string slice directly rather than
                     // trying to rebuild via char indicies for speed.
                     </span><span class="kw">let </span>hex = <span class="kw-2">&amp;</span><span class="self">self</span>.source[offset + <span class="number">1</span>..offset + <span class="number">5</span>];
-                    <span class="kw">let </span><span class="kw-2">mut </span>codepoint = u32::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">&quot;already validated&quot;</span>);
+                    <span class="kw">let </span><span class="kw-2">mut </span>codepoint = u32::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">"already validated"</span>);
 
                     <span class="kw">if </span>(HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(<span class="kw-2">&amp;</span>codepoint) {
                         <span class="comment">// Surrogate pair, which has already been validated.
@@ -1854,7 +1866,7 @@
                         }
                         <span class="kw">let </span>hex = <span class="kw-2">&amp;</span><span class="self">self</span>.source[offset + <span class="number">7</span>..offset + <span class="number">11</span>];
                         <span class="kw">let </span>second_codepoint =
-                            u32::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">&quot;already validated&quot;</span>);
+                            u32::from_str_radix(hex, <span class="number">16</span>).expect(<span class="string">"already validated"</span>);
                         codepoint = merge_surrogate_pair(codepoint, second_codepoint);
                     }
 
@@ -1870,8 +1882,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>Decoded&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Display <span class="kw">for </span>Decoded&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>ch <span class="kw">in </span><span class="self">self</span>.clone() {
             f.write_char(ch)<span class="question-mark">?</span>;
         }
@@ -1881,14 +1893,14 @@
 }
 
 <span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
-    chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>AsJson&lt;<span class="lifetime">'a</span>&gt; {
+    chars: Chars&lt;<span class="lifetime">'a</span>&gt;,
     state: EscapeState,
     info: JsonStringInfo,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Display <span class="kw">for </span>AsJson&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>ch <span class="kw">in </span><span class="self">self</span>.clone() {
             f.write_char(ch)<span class="question-mark">?</span>;
         }
@@ -1908,8 +1920,8 @@
     },
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>&gt; AsJson&lt;<span class="lifetime">&#39;b</span>&gt; {
-    <span class="kw">fn </span>new(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt;, info: JsonStringInfo) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, <span class="lifetime">'a</span>&gt; AsJson&lt;<span class="lifetime">'b</span>&gt; {
+    <span class="kw">fn </span>new(value: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>StringContents&lt;<span class="lifetime">'a</span>&gt;, info: JsonStringInfo) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>value {
             StringContents::Json(source) =&gt; <span class="self">Self </span>{
                 chars: source.chars(),
@@ -1925,7 +1937,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>AsJson&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>AsJson&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Item = char;
 
     <span class="attr">#[inline]
@@ -1939,52 +1951,52 @@
                         <span class="self">self</span>.info.add_bytes(<span class="number">1</span>);
                         <span class="prelude-val">Some</span>(ch)
                     }
-                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;\\&#39; </span>| <span class="string">b&#39;/&#39;</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="string">b'"' </span>| <span class="string">b'\\' </span>| <span class="string">b'/'</span>) =&gt; {
                         <span class="self">self</span>.state = EscapeState::Single(ch <span class="kw">as </span>u8);
                         <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
-                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                        <span class="prelude-val">Some</span>(<span class="string">'\\'</span>)
                     }
-                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\x07&#39;</span>) =&gt; {
-                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;b&#39;</span>);
+                    <span class="prelude-val">Ok</span>(<span class="string">b'\x07'</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b'b'</span>);
                         <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
-                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                        <span class="prelude-val">Some</span>(<span class="string">'\\'</span>)
                     }
-                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\n&#39;</span>) =&gt; {
-                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;n&#39;</span>);
+                    <span class="prelude-val">Ok</span>(<span class="string">b'\n'</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b'n'</span>);
                         <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
-                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                        <span class="prelude-val">Some</span>(<span class="string">'\\'</span>)
                     }
-                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\r&#39;</span>) =&gt; {
-                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;r&#39;</span>);
+                    <span class="prelude-val">Ok</span>(<span class="string">b'\r'</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b'r'</span>);
                         <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
-                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                        <span class="prelude-val">Some</span>(<span class="string">'\\'</span>)
                     }
-                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\t&#39;</span>) =&gt; {
-                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;t&#39;</span>);
+                    <span class="prelude-val">Ok</span>(<span class="string">b'\t'</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b't'</span>);
                         <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
-                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                        <span class="prelude-val">Some</span>(<span class="string">'\\'</span>)
                     }
-                    <span class="prelude-val">Ok</span>(<span class="string">b&#39;\x0c&#39;</span>) =&gt; {
-                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b&#39;f&#39;</span>);
+                    <span class="prelude-val">Ok</span>(<span class="string">b'\x0c'</span>) =&gt; {
+                        <span class="self">self</span>.state = EscapeState::Single(<span class="string">b'f'</span>);
                         <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">2</span>);
-                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                        <span class="prelude-val">Some</span>(<span class="string">'\\'</span>)
                     }
                     <span class="prelude-val">Ok</span>(b) <span class="kw">if </span>(<span class="number">0</span>..=<span class="number">31</span>).contains(<span class="kw-2">&amp;</span>b) =&gt; {
-                        <span class="comment">// Another control character, but it&#39;s not a common one.
+                        <span class="comment">// Another control character, but it's not a common one.
                         // This must be encoded as a unicode escape.
                         </span><span class="self">self</span>.state = EscapeState::Unicode {
                             current_nibble: <span class="prelude-val">None</span>,
                             codepoint: u16::from(b),
                         };
                         <span class="self">self</span>.info.add_bytes_from_escape(<span class="number">6</span>);
-                        <span class="prelude-val">Some</span>(<span class="string">&#39;\\&#39;</span>)
+                        <span class="prelude-val">Some</span>(<span class="string">'\\'</span>)
                     }
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                         <span class="comment">// A unicode character
                         </span><span class="self">self</span>.info.add_bytes(ch.len_utf8());
                         <span class="prelude-val">Some</span>(ch)
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;SAFE_CHARACTERS prevents these&quot;</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SAFE_CHARACTERS prevents these"</span>),
                 }
             }
             EscapeState::Single(ch) =&gt; {
@@ -2000,7 +2012,7 @@
                     <span class="attr">#[allow(clippy::cast_possible_truncation)]
                     </span><span class="kw">let </span>bits = <span class="kw-2">*</span>codepoint <span class="kw">as </span>u8 &amp; <span class="number">0xF</span>;
                     <span class="kw-2">*</span>codepoint &gt;&gt;= <span class="number">4</span>;
-                    <span class="kw">let </span>ch = <span class="kw">if </span>bits &lt; <span class="number">10 </span>{ bits + <span class="string">b&#39;0&#39; </span>} <span class="kw">else </span>{ bits + <span class="string">b&#39;a&#39; </span>};
+                    <span class="kw">let </span>ch = <span class="kw">if </span>bits &lt; <span class="number">10 </span>{ bits + <span class="string">b'0' </span>} <span class="kw">else </span>{ bits + <span class="string">b'a' </span>};
                     <span class="kw-2">*</span>current_nibble += <span class="number">1</span>;
                     <span class="kw">if </span><span class="kw-2">*</span>current_nibble == <span class="number">4 </span>{
                         <span class="self">self</span>.state = EscapeState::None;
@@ -2009,7 +2021,7 @@
                 }
                 <span class="prelude-val">None </span>=&gt; {
                     <span class="kw-2">*</span>current_nibble = <span class="prelude-val">Some</span>(<span class="number">0</span>);
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;u&#39;</span>)
+                    <span class="prelude-val">Some</span>(<span class="string">'u'</span>)
                 }
             },
         }
@@ -2099,17 +2111,17 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>is_empty() {
-    <span class="macro">assert!</span>(JsonString::from(<span class="string">&quot;&quot;</span>).is_empty());
-    <span class="macro">assert!</span>(JsonString::from_json(<span class="string">&quot;\&quot;\&quot;&quot;</span>).unwrap().is_empty());
-    <span class="macro">assert!</span>(!JsonString::from(<span class="string">&quot; &quot;</span>).is_empty());
-    <span class="macro">assert!</span>(!JsonString::from_json(<span class="string">&quot;\&quot; \&quot;&quot;</span>).unwrap().is_empty());
+    <span class="macro">assert!</span>(JsonString::from(<span class="string">""</span>).is_empty());
+    <span class="macro">assert!</span>(JsonString::from_json(<span class="string">"\"\""</span>).unwrap().is_empty());
+    <span class="macro">assert!</span>(!JsonString::from(<span class="string">" "</span>).is_empty());
+    <span class="macro">assert!</span>(!JsonString::from_json(<span class="string">"\" \""</span>).unwrap().is_empty());
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>escape() {
-    <span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}&quot;</span>;
-    <span class="kw">let </span>escaped = <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}&quot;</span>;
+    <span class="kw">let </span>original = <span class="string">"\"\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}"</span>;
+    <span class="kw">let </span>escaped = <span class="string">"\\\"\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}"</span>;
     <span class="kw">let </span>raw = JsonString::from(original);
     <span class="macro">assert_eq!</span>(raw.len(), escaped.len());
     <span class="macro">assert_eq!</span>(raw.decoded_len(), original.len());
@@ -2125,9 +2137,9 @@
     <span class="macro">assert!</span>(raw.as_json_str().is_none());
 
     <span class="comment">// Test converting a String that needs encoding.
-    </span><span class="kw">let </span>original = <span class="string">&quot;\&quot;\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}&quot;</span>;
-    <span class="kw">let </span>escaped = <span class="string">&quot;\\\&quot;\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}&quot;</span>;
-    <span class="kw">let </span>raw: JsonString&lt;<span class="lifetime">&#39;static</span>&gt; = JsonString::from(String::from(original));
+    </span><span class="kw">let </span>original = <span class="string">"\"\\/\u{07}\t\n\r\u{0c}\u{0}\u{25ef}"</span>;
+    <span class="kw">let </span>escaped = <span class="string">"\\\"\\\\/\\b\\t\\n\\r\\f\\u0000\u{25ef}"</span>;
+    <span class="kw">let </span>raw: JsonString&lt;<span class="lifetime">'static</span>&gt; = JsonString::from(String::from(original));
     <span class="macro">assert_eq!</span>(raw.len(), escaped.len());
     <span class="macro">assert_eq!</span>(raw.decoded_len(), original.len());
     <span class="macro">assert_eq!</span>(raw, original);
@@ -2141,9 +2153,9 @@
     <span class="macro">assert_eq!</span>(json, escaped);
     <span class="macro">assert!</span>(raw.as_json_str().is_none());
 
-    <span class="comment">// Test with a raw string that doesn&#39;t need encoding
-    </span><span class="kw">let </span>original = <span class="string">&quot;hello&quot;</span>;
-    <span class="kw">let </span>raw = JsonString::from(<span class="string">&quot;hello&quot;</span>);
+    <span class="comment">// Test with a raw string that doesn't need encoding
+    </span><span class="kw">let </span>original = <span class="string">"hello"</span>;
+    <span class="kw">let </span>raw = JsonString::from(<span class="string">"hello"</span>);
     <span class="macro">assert_eq!</span>(raw.len(), original.len());
     <span class="macro">assert_eq!</span>(raw.decoded_len(), original.len());
     <span class="macro">assert_eq!</span>(raw, original);
@@ -2155,13 +2167,13 @@
     <span class="macro">assert_eq!</span>(json, original);
     <span class="kw">let </span>json = raw.escape_if_needed();
     <span class="macro">assert_eq!</span>(json, original);
-    <span class="macro">assert_eq!</span>(raw.as_json_str().map(AnyStr::as_ref), <span class="prelude-val">Some</span>(<span class="string">&quot;hello&quot;</span>));
+    <span class="macro">assert_eq!</span>(raw.as_json_str().map(AnyStr::as_ref), <span class="prelude-val">Some</span>(<span class="string">"hello"</span>));
 }
 
 <span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-</span><span class="kw">pub enum </span>StringContents&lt;<span class="lifetime">&#39;a</span>&gt; {
-    Json(AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;),
-    Raw(AnyStr&lt;<span class="lifetime">&#39;a</span>&gt;),
+</span><span class="kw">pub enum </span>StringContents&lt;<span class="lifetime">'a</span>&gt; {
+    Json(AnyStr&lt;<span class="lifetime">'a</span>&gt;),
+    Raw(AnyStr&lt;<span class="lifetime">'a</span>&gt;),
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>HIGH_SURROGATE_MIN: u32 = <span class="number">0xD800</span>;
@@ -2176,12 +2188,12 @@
 }
 <span class="kw">struct </span>StringParser;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>StringParser {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ParseDelegate&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>StringParser {
     <span class="kw">type </span>Array = ();
     <span class="kw">type </span>Error = ErrorKind;
     <span class="kw">type </span>Key = ();
     <span class="kw">type </span>Object = ();
-    <span class="kw">type </span>Value = JsonString&lt;<span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">type </span>Value = JsonString&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="kw">fn </span>null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Err</span>(ErrorKind::ExpectedString)
@@ -2191,11 +2203,11 @@
         <span class="prelude-val">Err</span>(ErrorKind::ExpectedString)
     }
 
-    <span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: <span class="kw">crate</span>::JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: <span class="kw">crate</span>::JsonNumber&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Err</span>(ErrorKind::ExpectedString)
     }
 
-    <span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(value)
     }
 
@@ -2206,9 +2218,9 @@
     <span class="kw">fn </span>object_key(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         _object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
-        _key: <span class="kw">crate</span>::JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+        _key: <span class="kw">crate</span>::JsonString&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>object_value(
@@ -2217,15 +2229,15 @@
         _key: <span class="self">Self</span>::Key,
         _value: <span class="self">Self</span>::Value,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>object_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, _object: <span class="kw-2">&amp;</span><span class="self">Self</span>::Object) -&gt; bool {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>end_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _object: <span class="self">Self</span>::Object) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from begin_object&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from begin_object"</span>)
     }
 
     <span class="kw">fn </span>begin_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Array, <span class="self">Self</span>::Error&gt; {
@@ -2237,42 +2249,42 @@
         _array: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Array,
         _value: <span class="self">Self</span>::Value,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from array_value"</span>)
     }
 
     <span class="kw">fn </span>array_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, _array: <span class="kw-2">&amp;</span><span class="self">Self</span>::Array) -&gt; bool {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from array_value"</span>)
     }
 
     <span class="kw">fn </span>end_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _array: <span class="self">Self</span>::Array) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;error returned from array_value&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"error returned from array_value"</span>)
     }
 
     <span class="kw">fn </span>kind_of(<span class="kw-2">&amp;</span><span class="self">self</span>, _value: <span class="kw-2">&amp;</span><span class="self">Self</span>::Value) -&gt; <span class="kw">crate</span>::parser::JsonKind {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;allow_all_types_at_root is always true&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"allow_all_types_at_root is always true"</span>)
     }
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>from_json_bad_types() {
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">&quot;1&quot;</span>).unwrap_err().kind,
+        JsonString::from_json(<span class="string">"1"</span>).unwrap_err().kind,
         ErrorKind::ExpectedString
     );
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">&quot;null&quot;</span>).unwrap_err().kind,
+        JsonString::from_json(<span class="string">"null"</span>).unwrap_err().kind,
         ErrorKind::ExpectedString
     );
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">&quot;true&quot;</span>).unwrap_err().kind,
+        JsonString::from_json(<span class="string">"true"</span>).unwrap_err().kind,
         ErrorKind::ExpectedString
     );
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">&quot;[]&quot;</span>).unwrap_err().kind,
+        JsonString::from_json(<span class="string">"[]"</span>).unwrap_err().kind,
         ErrorKind::ExpectedString
     );
     <span class="macro">assert_eq!</span>(
-        JsonString::from_json(<span class="string">&quot;{}&quot;</span>).unwrap_err().kind,
+        JsonString::from_json(<span class="string">"{}"</span>).unwrap_err().kind,
         ErrorKind::ExpectedString
     );
 }

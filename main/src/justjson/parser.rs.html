@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-63a85fc7cf22dee2.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (88fb1b922 2023-04-10)" data-search-js="search-bc5a112813b5d712.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-0bcba95ff279c1db.css" data-theme-light-css="light-db279b6232be9c13.css" data-theme-dark-css="dark-cf923f49f397b216.css" data-theme-ayu-css="ayu-be46fdc453a55015.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-1159a395118aa44e.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c67e44d78ab2db17.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (503e12932 2023-12-07)" data-channel="nightly" data-search-js="search-5a66c239c06b3a66.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1325,15 +1325,15 @@
 
 <span class="doccomment">/// A JSON Token.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">pub enum </span>Token&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub enum </span>Token&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The `null` keyword.
     </span>Null,
     <span class="doccomment">/// A boolean literal.
     </span>Bool(bool),
     <span class="doccomment">/// A string literal.
-    </span>String(JsonString&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>String(JsonString&lt;<span class="lifetime">'a</span>&gt;),
     <span class="doccomment">/// A numeric literal.
-    </span>Number(JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>Number(JsonNumber&lt;<span class="lifetime">'a</span>&gt;),
     <span class="doccomment">/// The beginning of an object (`{`).
     </span>Object,
     <span class="doccomment">/// The end of an object (`}`).
@@ -1404,36 +1404,36 @@
 }
 
 <span class="doccomment">/// A JSON tokenizer, which converts JSON source to a series of [`Token`]s.
-</span><span class="kw">pub struct </span>Tokenizer&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; {
-    source: ByteIterator&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>Tokenizer&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; {
+    source: ByteIterator&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Tokenizer&lt;<span class="lifetime">&#39;a</span>, <span class="bool-val">true</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Tokenizer&lt;<span class="lifetime">'a</span>, <span class="bool-val">true</span>&gt; {
     <span class="doccomment">/// Returns a new tokenizer for the JSON `source` provided.
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>for_json(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>for_json(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(source.as_bytes())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Tokenizer&lt;<span class="lifetime">&#39;a</span>, <span class="bool-val">false</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Tokenizer&lt;<span class="lifetime">'a</span>, <span class="bool-val">false</span>&gt; {
     <span class="doccomment">/// Returns a new tokenizer for the JSON `source` bytes provided.
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>for_json_bytes(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>for_json_bytes(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(source)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Tokenizer&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Tokenizer&lt;<span class="lifetime">'a</span>, GUARANTEED_UTF8&gt; {
     <span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>new(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             source: ByteIterator::new(source),
         }
@@ -1441,41 +1441,41 @@
 
     <span class="doccomment">/// Returns the next token, or an [`ErrorKind::UnexpectedEof`].
     ///
-    /// This is functionally identical to this type&#39;s [`Iterator`]
+    /// This is functionally identical to this type's [`Iterator`]
     /// implementation, except that this function returns an error instead of
     /// None when no more tokens remain.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>next_or_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>next_or_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
         <span class="kw">let </span>(offset, byte) = <span class="self">self</span>.source.read_non_ws().map_err(Error::into_fallable)<span class="question-mark">?</span>;
         <span class="self">self</span>.read_peek(offset, byte)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: usize, first: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8) -&gt; <span class="prelude-ty">Result</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">fn </span>read_peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: usize, first: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>u8) -&gt; <span class="prelude-ty">Result</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
         <span class="kw">match </span>first {
-            <span class="string">b&#39;{&#39; </span>=&gt; <span class="prelude-val">Ok</span>(Token::Object),
-            <span class="string">b&#39;}&#39; </span>=&gt; <span class="prelude-val">Ok</span>(Token::ObjectEnd),
-            <span class="string">b&#39;[&#39; </span>=&gt; <span class="prelude-val">Ok</span>(Token::Array),
-            <span class="string">b&#39;]&#39; </span>=&gt; <span class="prelude-val">Ok</span>(Token::ArrayEnd),
-            <span class="string">b&#39;,&#39; </span>=&gt; <span class="prelude-val">Ok</span>(Token::Comma),
-            <span class="string">b&#39;:&#39; </span>=&gt; <span class="prelude-val">Ok</span>(Token::Colon),
-            <span class="string">b&#39;&quot;&#39; </span>=&gt; <span class="self">self</span>.read_string_from_source(offset).map(Token::String),
-            <span class="string">b&#39;-&#39; </span>=&gt; <span class="self">self
+            <span class="string">b'{' </span>=&gt; <span class="prelude-val">Ok</span>(Token::Object),
+            <span class="string">b'}' </span>=&gt; <span class="prelude-val">Ok</span>(Token::ObjectEnd),
+            <span class="string">b'[' </span>=&gt; <span class="prelude-val">Ok</span>(Token::Array),
+            <span class="string">b']' </span>=&gt; <span class="prelude-val">Ok</span>(Token::ArrayEnd),
+            <span class="string">b',' </span>=&gt; <span class="prelude-val">Ok</span>(Token::Comma),
+            <span class="string">b':' </span>=&gt; <span class="prelude-val">Ok</span>(Token::Colon),
+            <span class="string">b'"' </span>=&gt; <span class="self">self</span>.read_string_from_source(offset).map(Token::String),
+            <span class="string">b'-' </span>=&gt; <span class="self">self
                 </span>.read_number_from_source(InitialNumberState::Sign, offset)
                 .map(Token::Number),
-            <span class="string">b&#39;0&#39; </span>=&gt; <span class="self">self
+            <span class="string">b'0' </span>=&gt; <span class="self">self
                 </span>.read_number_from_source(InitialNumberState::Zero, offset)
                 .map(Token::Number),
-            <span class="string">b&#39;1&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; <span class="self">self
+            <span class="string">b'1'</span>..=<span class="string">b'9' </span>=&gt; <span class="self">self
                 </span>.read_number_from_source(InitialNumberState::Digit, offset)
                 .map(Token::Number),
-            <span class="string">b&#39;t&#39; </span>=&gt; <span class="self">self
-                </span>.read_literal_from_source(<span class="string">b&quot;rue&quot;</span>)
+            <span class="string">b't' </span>=&gt; <span class="self">self
+                </span>.read_literal_from_source(<span class="string">b"rue"</span>)
                 .map(|()| Token::Bool(<span class="bool-val">true</span>)),
-            <span class="string">b&#39;f&#39; </span>=&gt; <span class="self">self
-                </span>.read_literal_from_source(<span class="string">b&quot;alse&quot;</span>)
+            <span class="string">b'f' </span>=&gt; <span class="self">self
+                </span>.read_literal_from_source(<span class="string">b"alse"</span>)
                 .map(|()| Token::Bool(<span class="bool-val">false</span>)),
-            <span class="string">b&#39;n&#39; </span>=&gt; <span class="self">self</span>.read_literal_from_source(<span class="string">b&quot;ull&quot;</span>).map(|()| Token::Null),
+            <span class="string">b'n' </span>=&gt; <span class="self">self</span>.read_literal_from_source(<span class="string">b"ull"</span>).map(|()| Token::Null),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error {
                 offset,
                 kind: ErrorKind::Unexpected(<span class="kw-2">*</span>first),
@@ -1485,7 +1485,7 @@
 
     <span class="attr">#[inline]
     #[allow(unsafe_code)]
-    </span><span class="kw">fn </span>read_string_from_source(<span class="kw-2">&amp;mut </span><span class="self">self</span>, start: usize) -&gt; <span class="prelude-ty">Result</span>&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">fn </span>read_string_from_source(<span class="kw-2">&amp;mut </span><span class="self">self</span>, start: usize) -&gt; <span class="prelude-ty">Result</span>&lt;JsonString&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
         <span class="kw">let </span>safe_strings = <span class="kw">if </span>GUARANTEED_UTF8 {
             SAFE_STRING_BYTES
         } <span class="kw">else </span>{
@@ -1502,7 +1502,7 @@
                 string_info.add_bytes(<span class="number">1</span>);
             } <span class="kw">else </span>{
                 <span class="kw">match </span>byte {
-                    <span class="string">b&#39;&quot;&#39; </span>=&gt; {
+                    <span class="string">b'"' </span>=&gt; {
                         <span class="kw">break </span><span class="prelude-val">Ok</span>(JsonString {
                             source: StringContents::Json(
                                 <span class="comment">// SAFETY: the UTF8 has been manually verified by the parser.
@@ -1515,7 +1515,7 @@
                             info: string_info,
                         });
                     }
-                    <span class="string">b&#39;\\&#39; </span>=&gt; <span class="self">self</span>.read_string_escape(<span class="kw-2">&amp;mut </span>string_info)<span class="question-mark">?</span>,
+                    <span class="string">b'\\' </span>=&gt; <span class="self">self</span>.read_string_escape(<span class="kw-2">&amp;mut </span>string_info)<span class="question-mark">?</span>,
                     <span class="number">128</span>..=<span class="number">255 </span>=&gt; {
                         <span class="comment">// Manual UTF-8 validation
                         </span><span class="kw">let </span>utf8_start = offset;
@@ -1545,8 +1545,8 @@
                             kind: ErrorKind::Unexpected(<span class="kw-2">*</span>byte),
                         })
                     }
-                    <span class="string">b&#39; &#39;</span>..=<span class="number">127 </span>=&gt; {
-                        <span class="macro">unreachable!</span>(<span class="string">&quot;safe_strings filters these values&quot;</span>)
+                    <span class="string">b' '</span>..=<span class="number">127 </span>=&gt; {
+                        <span class="macro">unreachable!</span>(<span class="string">"safe_strings filters these values"</span>)
                     }
                 }
             }
@@ -1557,10 +1557,10 @@
     #[inline]
     </span><span class="kw">fn </span>read_string_escape(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string_info: <span class="kw-2">&amp;mut </span>JsonStringInfo) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">match </span><span class="self">self</span>.source.read()<span class="question-mark">? </span>{
-            (<span class="kw">_</span>, ch) <span class="kw">if </span><span class="macro">matches!</span>(ch, <span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;\\&#39; </span>| <span class="string">b&#39;/&#39; </span>| <span class="string">b&#39;b&#39; </span>| <span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;r&#39; </span>| <span class="string">b&#39;n&#39; </span>| <span class="string">b&#39;t&#39;</span>) =&gt; {
+            (<span class="kw">_</span>, <span class="string">b'"' </span>| <span class="string">b'\\' </span>| <span class="string">b'/' </span>| <span class="string">b'b' </span>| <span class="string">b'f' </span>| <span class="string">b'r' </span>| <span class="string">b'n' </span>| <span class="string">b't'</span>) =&gt; {
                 string_info.add_bytes_from_escape(<span class="number">1</span>);
             }
-            (offset, <span class="string">b&#39;u&#39;</span>) =&gt; {
+            (offset, <span class="string">b'u'</span>) =&gt; {
                 <span class="comment">// 4 hexadecimal digits.
                 </span><span class="kw">let </span><span class="kw-2">mut </span>decoded = <span class="number">0_u32</span>;
                 <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
@@ -1583,7 +1583,7 @@
                     </span><span class="kw">let </span><span class="kw-2">mut </span>decoded_is_surrogate_pair = <span class="bool-val">false</span>;
                     <span class="kw">if </span>(HIGH_SURROGATE_MIN..=HIGH_SURROGATE_MAX).contains(<span class="kw-2">&amp;</span>decoded) {
                         <span class="comment">// We have a potential surrogate pair. Try to read another \u escape code
-                        </span><span class="kw">if </span><span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;\\&#39; </span>&amp;&amp; <span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b&#39;u&#39; </span>{
+                        </span><span class="kw">if </span><span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b'\\' </span>&amp;&amp; <span class="self">self</span>.source.read()<span class="question-mark">?</span>.<span class="number">1 </span>== <span class="kw-2">&amp;</span><span class="string">b'u' </span>{
                             <span class="kw">let </span><span class="kw-2">mut </span>second_codepoint = <span class="number">0</span>;
                             <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">4 </span>{
                                 <span class="kw">let </span>(offset, digit) = <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
@@ -1634,8 +1634,8 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         initial_state: InitialNumberState,
         start: usize,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
-        <span class="comment">// Numbers are the &quot;hardest&quot; in that we have to peek the digits since
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonNumber&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
+        <span class="comment">// Numbers are the "hardest" in that we have to peek the digits since
         // there is no terminal character. Every other type in JSON has a way to
         // know when the type ends.
 
@@ -1646,14 +1646,14 @@
             <span class="kw">let </span><span class="kw-2">mut </span>read_integer_digit = initial_state == InitialNumberState::Digit;
             <span class="kw">while let </span><span class="prelude-val">Some</span>(byte) = <span class="self">self</span>.source.peek() {
                 <span class="kw">match </span>byte {
-                    <span class="string">b&#39;0&#39; </span><span class="kw">if </span>!read_integer_digit =&gt; {
+                    <span class="string">b'0' </span><span class="kw">if </span>!read_integer_digit =&gt; {
                         <span class="comment">// 0 after a sign still counts as the complete Integer
                         // part.
                         </span><span class="self">self</span>.source.read()<span class="question-mark">?</span>;
                         read_integer_digit = <span class="bool-val">true</span>;
                         <span class="kw">break</span>;
                     }
-                    <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; {
+                    <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; {
                         <span class="self">self</span>.source.read()<span class="question-mark">?</span>;
                         read_integer_digit = <span class="bool-val">true</span>;
                     }
@@ -1670,7 +1670,7 @@
         }
 
         <span class="comment">// If the next character is a period, this is a floating point literal.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b&#39;.&#39;</span>) = <span class="self">self</span>.source.peek() {
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b'.'</span>) = <span class="self">self</span>.source.peek() {
             <span class="self">self</span>.source.next();
 
             <span class="comment">// Read one or more decimal digits
@@ -1693,11 +1693,11 @@
         }
 
         <span class="comment">// Next, we might have an exponent
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b&#39;e&#39; </span>| <span class="string">b&#39;E&#39;</span>) = <span class="self">self</span>.source.peek() {
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b'e' </span>| <span class="string">b'E'</span>) = <span class="self">self</span>.source.peek() {
             <span class="self">self</span>.source.next();
 
             <span class="comment">// Next, we might have a sign
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;+&#39;</span>) = <span class="self">self</span>.source.peek() {
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">b'-' </span>| <span class="string">b'+'</span>) = <span class="self">self</span>.source.peek() {
                 <span class="self">self</span>.source.next();
             }
 
@@ -1760,17 +1760,17 @@
         <span class="kw">let </span>token = <span class="self">self</span>.source.peek()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>kind = <span class="kw">match </span>token {
-            <span class="string">b&#39;{&#39; </span>=&gt; PeekableTokenKind::Object,
-            <span class="string">b&#39;}&#39; </span>=&gt; PeekableTokenKind::ObjectEnd,
-            <span class="string">b&#39;[&#39; </span>=&gt; PeekableTokenKind::Array,
-            <span class="string">b&#39;]&#39; </span>=&gt; PeekableTokenKind::ArrayEnd,
-            <span class="string">b&#39;,&#39; </span>=&gt; PeekableTokenKind::Comma,
-            <span class="string">b&#39;:&#39; </span>=&gt; PeekableTokenKind::Colon,
-            <span class="string">b&#39;&quot;&#39; </span>=&gt; PeekableTokenKind::String,
-            <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; PeekableTokenKind::Number,
-            <span class="string">b&#39;t&#39; </span>=&gt; PeekableTokenKind::True,
-            <span class="string">b&#39;f&#39; </span>=&gt; PeekableTokenKind::False,
-            <span class="string">b&#39;n&#39; </span>=&gt; PeekableTokenKind::Null,
+            <span class="string">b'{' </span>=&gt; PeekableTokenKind::Object,
+            <span class="string">b'}' </span>=&gt; PeekableTokenKind::ObjectEnd,
+            <span class="string">b'[' </span>=&gt; PeekableTokenKind::Array,
+            <span class="string">b']' </span>=&gt; PeekableTokenKind::ArrayEnd,
+            <span class="string">b',' </span>=&gt; PeekableTokenKind::Comma,
+            <span class="string">b':' </span>=&gt; PeekableTokenKind::Colon,
+            <span class="string">b'"' </span>=&gt; PeekableTokenKind::String,
+            <span class="string">b'-' </span>| <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; PeekableTokenKind::Number,
+            <span class="string">b't' </span>=&gt; PeekableTokenKind::True,
+            <span class="string">b'f' </span>=&gt; PeekableTokenKind::False,
+            <span class="string">b'n' </span>=&gt; PeekableTokenKind::Null,
             <span class="kw">_ </span>=&gt; PeekableTokenKind::Unrecognized,
         };
 
@@ -1794,19 +1794,19 @@
 /// This type uses a constant to track whether UTF-8 needs to be manually
 /// verified or not. This allows the compiler to optimize the `&amp;[u8]` and `&amp;str`
 /// parsing methods independently.
-</span><span class="kw">pub struct </span>Parser&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; {
-    tokenizer: Tokenizer&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt;,
+</span><span class="kw">pub struct </span>Parser&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; {
+    tokenizer: Tokenizer&lt;<span class="lifetime">'a</span>, GUARANTEED_UTF8&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>, <span class="bool-val">false</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Parser&lt;<span class="lifetime">'a</span>, <span class="bool-val">false</span>&gt; {
     <span class="doccomment">/// Parses a JSON payload, invoking functions on `delegate` as the payload
     /// is parsed.
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>parse_json_bytes&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
+    </span><span class="kw">pub fn </span>parse_json_bytes&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="self">Self</span>::parse_json_bytes_with_config(value, ParseConfig::default(), delegate)
     }
@@ -1817,34 +1817,34 @@
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
     </span><span class="kw">pub fn </span>parse_json_bytes_with_config&lt;D&gt;(
-        value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+        value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
         config: ParseConfig,
         delegate: D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="self">Self</span>::parse_bytes(value, config, delegate)
     }
 
     <span class="doccomment">/// Validates that `json` contains valid JSON and returns the kind of data
     /// the payload contained.
-    </span><span class="kw">pub fn </span>validate_json_bytes(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;JsonKind, Error&gt; {
+    </span><span class="kw">pub fn </span>validate_json_bytes(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;JsonKind, Error&gt; {
         <span class="self">Self</span>::validate_json_bytes_with_config(json, ParseConfig::default())
     }
 
     <span class="doccomment">/// Validates that `json` contains valid JSON, using the settings from
     /// `config`, and returns the kind of data the payload contained.
     </span><span class="kw">pub fn </span>validate_json_bytes_with_config(
-        json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+        json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
         config: ParseConfig,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonKind, Error&gt; {
         <span class="self">Self</span>::parse_bytes(json, config, ())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Iterator <span class="kw">for </span>Tokenizer&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt; {
-    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Iterator <span class="kw">for </span>Tokenizer&lt;<span class="lifetime">'a</span>, GUARANTEED_UTF8&gt; {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;, Error&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -1853,15 +1853,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Parser&lt;<span class="lifetime">&#39;a</span>, <span class="bool-val">true</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Parser&lt;<span class="lifetime">'a</span>, <span class="bool-val">true</span>&gt; {
     <span class="doccomment">/// Parses a JSON payload, invoking functions on `delegate` as the payload
     /// is parsed.
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>parse_json&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
+    </span><span class="kw">pub fn </span>parse_json&lt;D&gt;(value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, delegate: D) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="self">Self</span>::parse_json_with_config(value, ParseConfig::default(), delegate)
     }
@@ -1872,40 +1872,40 @@
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
     </span><span class="kw">pub fn </span>parse_json_with_config&lt;D&gt;(
-        value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         config: ParseConfig,
         delegate: D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="self">Self</span>::parse_bytes(value.as_bytes(), config, delegate)
     }
 
     <span class="doccomment">/// Validates that `json` contains valid JSON and returns the kind of data
     /// the payload contained.
-    </span><span class="kw">pub fn </span>validate_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;JsonKind, Error&gt; {
+    </span><span class="kw">pub fn </span>validate_json(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;JsonKind, Error&gt; {
         <span class="self">Self</span>::validate_json_with_config(json, ParseConfig::default())
     }
 
     <span class="doccomment">/// Validates that `json` contains valid JSON, using the settings from
     /// `config`, and returns the kind of data the payload contained.
     </span><span class="kw">pub fn </span>validate_json_with_config(
-        json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         config: ParseConfig,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;JsonKind, Error&gt; {
         <span class="self">Self</span>::parse_json_with_config(json, config, ())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Parser&lt;<span class="lifetime">&#39;a</span>, GUARANTEED_UTF8&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>GUARANTEED_UTF8: bool&gt; Parser&lt;<span class="lifetime">'a</span>, GUARANTEED_UTF8&gt; {
     <span class="kw">fn </span>parse_bytes&lt;D&gt;(
-        source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+        source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
         config: ParseConfig,
         delegate: D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>state = ParseState::new(config, delegate);
         <span class="kw">let </span><span class="kw-2">mut </span>parser = <span class="self">Self </span>{
@@ -1937,18 +1937,18 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>read_from_source&lt;D&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;,
+        state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">'a</span>, D&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="self">self</span>.read_tokens(state)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_tokens&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
+    </span><span class="kw">fn </span>read_tokens&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">'a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="kw">let </span>offset = <span class="self">self</span>.tokenizer.offset();
         <span class="kw">let </span>token = <span class="self">self</span>.tokenizer.next_or_eof().map_err(Error::into_fallable)<span class="question-mark">?</span>;
@@ -1989,10 +1989,10 @@
                     error
                 })
             }
-            Token::ObjectEnd =&gt; unexpected(<span class="string">b&#39;}&#39;</span>),
-            Token::ArrayEnd =&gt; unexpected(<span class="string">b&#39;]&#39;</span>),
-            Token::Colon =&gt; unexpected(<span class="string">b&#39;:&#39;</span>),
-            Token::Comma =&gt; unexpected(<span class="string">b&#39;,&#39;</span>),
+            Token::ObjectEnd =&gt; unexpected(<span class="string">b'}'</span>),
+            Token::ArrayEnd =&gt; unexpected(<span class="string">b']'</span>),
+            Token::Colon =&gt; unexpected(<span class="string">b':'</span>),
+            Token::Comma =&gt; unexpected(<span class="string">b','</span>),
             Token::Bool(value) =&gt; state.delegate.boolean(value).map_err(into_error),
             Token::String(value) =&gt; state.delegate.string(value).map_err(into_error),
             Token::Number(value) =&gt; state.delegate.number(value).map_err(into_error),
@@ -2000,9 +2000,9 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_object&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
+    </span><span class="kw">fn </span>read_object&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">'a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="kw">let </span>offset = <span class="self">self</span>.tokenizer.offset();
         <span class="kw">let </span><span class="kw-2">mut </span>object = state.delegate.begin_object().map_err(|kind| Error {
@@ -2097,9 +2097,9 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_array&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
+    </span><span class="kw">fn </span>read_array&lt;D&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>ParseState&lt;<span class="lifetime">'a</span>, D&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;D::Value, Error&lt;D::Error&gt;&gt;
     <span class="kw">where
-        </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="kw">let </span>offset = <span class="self">self</span>.tokenizer.offset();
         <span class="kw">let </span><span class="kw-2">mut </span>array = state.delegate.begin_array().map_err(|kind| Error {
@@ -2164,7 +2164,7 @@
 ///
 /// This type has its functions invoked while a parser is parsing a JSON
 /// payload.
-</span><span class="kw">pub trait </span>ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub trait </span>ParseDelegate&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The type that can represent all parsed JSON value types.
     </span><span class="kw">type </span>Value;
     <span class="doccomment">/// The type that is used to represent a JSON object.
@@ -2181,9 +2181,9 @@
     <span class="doccomment">/// Returns the value representation of a boolean.
     </span><span class="kw">fn </span>boolean(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Returns the value representation of a [`JsonNumber`].
-    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
+    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Returns the value representation of a [`JsonString`].
-    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
+    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt;;
 
     <span class="doccomment">/// Returns an empty object.
     </span><span class="kw">fn </span>begin_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Object, <span class="self">Self</span>::Error&gt;;
@@ -2192,7 +2192,7 @@
     </span><span class="kw">fn </span>object_key(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
-        key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+        key: JsonString&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt;;
     <span class="doccomment">/// Adds a new key-value pair to an object.
     </span><span class="kw">fn </span>object_value(
@@ -2223,13 +2223,13 @@
     </span><span class="kw">fn </span>kind_of(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span><span class="self">Self</span>::Value) -&gt; JsonKind;
 }
 
-<span class="kw">struct </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+<span class="kw">struct </span>ByteIterator&lt;<span class="lifetime">'a</span>&gt; {
+    bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     offset: usize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>ByteIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = (usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>ByteIterator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = (usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>u8);
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -2247,9 +2247,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ByteIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ByteIterator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             bytes: slice,
             offset: <span class="number">0</span>,
@@ -2257,19 +2257,19 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8&gt; {
+    </span><span class="kw">pub fn </span>peek(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>u8&gt; {
         <span class="self">self</span>.bytes.get(<span class="self">self</span>.offset)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8)&gt; {
+    </span><span class="kw">fn </span>next_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>u8)&gt; {
         <span class="self">self</span>.skip_ws();
 
         <span class="self">self</span>.next()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8), Error&gt; {
+    </span><span class="kw">fn </span>read_non_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>u8), Error&gt; {
         <span class="self">self</span>.skip_ws();
 
         <span class="self">self</span>.read()
@@ -2279,7 +2279,7 @@
     </span><span class="kw">fn </span>skip_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.bytes.get(<span class="self">self</span>.offset) {
-                <span class="prelude-val">Some</span>(<span class="string">b&#39; &#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\r&#39;</span>) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="string">b' ' </span>| <span class="string">b'\n' </span>| <span class="string">b'\t' </span>| <span class="string">b'\r'</span>) =&gt; {
                     <span class="self">self</span>.offset += <span class="number">1</span>;
                 }
                 <span class="kw">_ </span>=&gt; {
@@ -2290,7 +2290,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>u8), Error&gt; {
+    </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>u8), Error&gt; {
         <span class="self">self</span>.next().ok_or(Error {
             offset: <span class="self">self</span>.offset,
             kind: ErrorKind::UnexpectedEof,
@@ -2390,15 +2390,15 @@
     <span class="doccomment">/// Allows trailing commas when parsing objects and arrays.
     ///
     /// ```rust
-    /// # #[cfg(feature = &quot;alloc&quot;)]
+    /// # #[cfg(feature = "alloc")]
     /// # fn wrapper() {
     /// use justjson::parser::ParseConfig;
     /// use justjson::Value;
     ///
-    /// let source = r#&quot;{&quot;a&quot;:[true,],}&quot;#;
-    /// Value::from_json(source).expect_err(&quot;not enabled by default&quot;);
+    /// let source = r#"{"a":[true,],}"#;
+    /// Value::from_json(source).expect_err("not enabled by default");
     /// let config = ParseConfig::new().allowing_trailing_commas();
-    /// Value::from_json_with_config(source, config).expect(&quot;now parses&quot;);
+    /// Value::from_json_with_config(source, config).expect("now parses");
     /// # }
     /// ```
     </span><span class="kw">pub const fn </span>allowing_trailing_commas(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -2424,19 +2424,19 @@
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">struct </span>ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;
+</span><span class="kw">struct </span>ParseState&lt;<span class="lifetime">'a</span>, D&gt;
 <span class="kw">where
-    </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
 {
     delegate: D,
     config: ParseConfig,
     remaining_depth: usize,
-    _phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
+    _phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, D&gt; ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, D&gt; ParseState&lt;<span class="lifetime">'a</span>, D&gt;
 <span class="kw">where
-    </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
 {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>begin_nest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&lt;D::Error&gt;&gt; {
@@ -2459,9 +2459,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, D&gt; ParseState&lt;<span class="lifetime">&#39;a</span>, D&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, D&gt; ParseState&lt;<span class="lifetime">'a</span>, D&gt;
 <span class="kw">where
-    </span>D: ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>D: ParseDelegate&lt;<span class="lifetime">'a</span>&gt;,
 {
     <span class="kw">fn </span>new(config: ParseConfig, delegate: D) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -2490,7 +2490,7 @@
     </span>Array,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>() {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ParseDelegate&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>() {
     <span class="kw">type </span>Array = usize;
     <span class="kw">type </span>Error = Infallible;
     <span class="kw">type </span>Key = ();
@@ -2505,11 +2505,11 @@
         <span class="prelude-val">Ok</span>(JsonKind::Boolean)
     }
 
-    <span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: JsonNumber&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(JsonKind::Number)
     }
 
-    <span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(JsonKind::String)
     }
 
@@ -2520,7 +2520,7 @@
     <span class="kw">fn </span>object_key(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         _object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
-        _key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+        _key: JsonString&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(())
     }
@@ -2572,26 +2572,26 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>validates() {
     <span class="macro">assert_eq!</span>(
-        Parser::validate_json(<span class="string">r#&quot;{&quot;a&quot;:1,&quot;b&quot;:true,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[],&quot;e&quot;:{}}&quot;#</span>),
+        Parser::validate_json(<span class="string">r#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#</span>),
         <span class="prelude-val">Ok</span>(JsonKind::Object)
     );
     <span class="macro">assert_eq!</span>(
-        Parser::validate_json_bytes(<span class="string">br#&quot;{&quot;a&quot;:1,&quot;b&quot;:true,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[],&quot;e&quot;:{}}&quot;#</span>),
+        Parser::validate_json_bytes(<span class="string">br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#</span>),
         <span class="prelude-val">Ok</span>(JsonKind::Object)
     );
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>tokenizes() {
     <span class="macro">assert_eq!</span>(
-        Tokenizer::for_json(<span class="string">&quot;true&quot;</span>)
+        Tokenizer::for_json(<span class="string">"true"</span>)
             .collect::&lt;<span class="prelude-ty">Result</span>&lt;alloc::vec::Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
             .unwrap(),
         <span class="kw-2">&amp;</span>[Token::Bool(<span class="bool-val">true</span>)]
     );
     <span class="macro">assert_eq!</span>(
-        Tokenizer::for_json_bytes(<span class="string">b&quot;false&quot;</span>)
+        Tokenizer::for_json_bytes(<span class="string">b"false"</span>)
             .collect::&lt;<span class="prelude-ty">Result</span>&lt;alloc::vec::Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
             .unwrap(),
         <span class="kw-2">&amp;</span>[Token::Bool(<span class="bool-val">false</span>)]
@@ -2600,7 +2600,7 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>tokenizer_peek_tests() {
-    <span class="kw">let </span><span class="kw-2">mut </span>tokenizer = Tokenizer::for_json(<span class="string">r#&quot;{&quot;a&quot;: [1, true, false, null]} &quot;#</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>tokenizer = Tokenizer::for_json(<span class="string">r#"{"a": [1, true, false, null]} "#</span>);
 
     <span class="kw">for </span>expected <span class="kw">in </span>[
         PeekableTokenKind::Object,
@@ -2618,13 +2618,13 @@
         PeekableTokenKind::ObjectEnd,
     ] {
         <span class="macro">assert_eq!</span>(tokenizer.peek(), <span class="prelude-val">Some</span>(expected));
-        tokenizer.next().expect(<span class="string">&quot;eof&quot;</span>).expect(<span class="string">&quot;invalid tokens&quot;</span>);
+        tokenizer.next().expect(<span class="string">"eof"</span>).expect(<span class="string">"invalid tokens"</span>);
     }
     <span class="macro">assert_eq!</span>(tokenizer.peek(), <span class="prelude-val">None</span>);
     <span class="macro">assert_eq!</span>(tokenizer.next(), <span class="prelude-val">None</span>);
 
     <span class="macro">assert_eq!</span>(
-        Tokenizer::for_json(<span class="string">&quot;&lt;&quot;</span>).peek(),
+        Tokenizer::for_json(<span class="string">"&lt;"</span>).peek(),
         <span class="prelude-val">Some</span>(PeekableTokenKind::Unrecognized)
     );
 }

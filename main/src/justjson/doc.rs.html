@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/doc.rs`."><title>doc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-63a85fc7cf22dee2.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (88fb1b922 2023-04-10)" data-search-js="search-bc5a112813b5d712.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-0bcba95ff279c1db.css" data-theme-light-css="light-db279b6232be9c13.css" data-theme-dark-css="dark-cf923f49f397b216.css" data-theme-ayu-css="ayu-be46fdc453a55015.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-1159a395118aa44e.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/doc.rs`."><title>doc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c67e44d78ab2db17.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (503e12932 2023-12-07)" data-channel="nightly" data-search-js="search-5a66c239c06b3a66.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -484,14 +484,14 @@
 <a href="#484" id="484">484</a>
 <a href="#485" id="485">485</a>
 <a href="#486" id="486">486</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::iter::Cloned;
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>core::slice;
 
 <span class="kw">use </span><span class="kw">crate</span>::parser::{JsonKind, ParseConfig, ParseDelegate, Parser};
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use crate</span>::{value::Entry, Object, Value};
 <span class="kw">use crate</span>::{Error, ErrorKind, JsonNumber, JsonString};
 
@@ -511,12 +511,12 @@
 /// [`Node::Number`] all directly represent a [`Value`] with the same name.
 ///
 /// [`Node::Object`] contains a length field, which lets us know how many
-/// key-value pairs will appear after the object&#39;s node. Object keys are
+/// key-value pairs will appear after the object's node. Object keys are
 /// guaranteed to be [`Node::String`]s, but object values can be any [`Node`]
 /// variant. This means care must be taken to handle nested structures.
 ///
 /// [`Node::Array`] also contains a length field, which lets us know how many
-/// values follow the array&#39;s node. Because array values can be any type, care
+/// values follow the array's node. Because array values can be any type, care
 /// must be taken to handle nested structures correctly.
 ///
 /// [`DocumentIter`] has multiple methods to help efficiently deal with nested
@@ -527,19 +527,19 @@
 /// - [`next_value()`](DocumentIter::next_value): Returns a [`Value`] from the
 ///   iterator.
 </span><span class="attr">#[derive(Debug, Eq, PartialEq)]
-</span><span class="kw">pub struct </span>GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt; {
-    nodes: Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt;,
+</span><span class="kw">pub struct </span>GenericDocument&lt;<span class="lifetime">'a</span>, Backing&gt; {
+    nodes: Nodes&lt;<span class="lifetime">'a</span>, Backing&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Backing&gt; GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Backing&gt; GenericDocument&lt;<span class="lifetime">'a</span>, Backing&gt;
 <span class="kw">where
-    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>Backing: NodeCollection&lt;<span class="lifetime">'a</span>&gt;,
 {
     <span class="doccomment">/// Parses a JSON payload from `source`.
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>from_json_bytes(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    </span><span class="kw">pub fn </span>from_json_bytes(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
     <span class="kw">where
         </span>Backing: Default,
     {
@@ -552,7 +552,7 @@
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>from_json_bytes_with_config(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    </span><span class="kw">pub fn </span>from_json_bytes_with_config(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
     <span class="kw">where
         </span>Backing: Default,
     {
@@ -566,7 +566,7 @@
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>from_json(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    </span><span class="kw">pub fn </span>from_json(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
     <span class="kw">where
         </span>Backing: Default,
     {
@@ -579,7 +579,7 @@
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>from_json_with_config(source: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    </span><span class="kw">pub fn </span>from_json_with_config(source: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
     <span class="kw">where
         </span>Backing: Default,
     {
@@ -591,27 +591,27 @@
 
     <span class="doccomment">/// Returns an iterator over the nodes in this document.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DocumentIter&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DocumentIter&lt;<span class="lifetime">'_</span>, <span class="lifetime">'a</span>&gt; {
         <span class="self">self</span>.into_iter()
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Backing&gt; From&lt;GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt;
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Backing&gt; From&lt;GenericDocument&lt;<span class="lifetime">'a</span>, Backing&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt;
 <span class="kw">where
-    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>Backing: NodeCollection&lt;<span class="lifetime">'a</span>&gt;,
 {
-    <span class="kw">fn </span>from(doc: GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(doc: GenericDocument&lt;<span class="lifetime">'a</span>, Backing&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>nodes = doc.nodes.collection.into_iter();
-        <span class="kw">let </span>root = nodes.next().expect(<span class="string">&quot;empty document is invalid&quot;</span>);
+        <span class="kw">let </span>root = nodes.next().expect(<span class="string">"empty document is invalid"</span>);
         hydrate_value_from_node(root, <span class="kw-2">&amp;mut </span>nodes)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">fn </span>hydrate_value_from_node&lt;<span class="lifetime">&#39;a</span>, I&gt;(node: Node&lt;<span class="lifetime">&#39;a</span>&gt;, remaining_nodes: <span class="kw-2">&amp;mut </span>I) -&gt; Value&lt;<span class="lifetime">&#39;a</span>&gt;
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">fn </span>hydrate_value_from_node&lt;<span class="lifetime">'a</span>, I&gt;(node: Node&lt;<span class="lifetime">'a</span>&gt;, remaining_nodes: <span class="kw-2">&amp;mut </span>I) -&gt; Value&lt;<span class="lifetime">'a</span>&gt;
 <span class="kw">where
-    </span>I: Iterator&lt;Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    </span>I: Iterator&lt;Item = Node&lt;<span class="lifetime">'a</span>&gt;&gt;,
 {
     <span class="kw">match </span>node {
         Node::Null =&gt; Value::Null,
@@ -621,9 +621,9 @@
         Node::Object { length: len } =&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>obj = Object::with_capacity(len);
             <span class="kw">for _ in </span><span class="number">0</span>..len {
-                <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">&quot;obbject missing value&quot;</span>);
-                <span class="kw">let </span>Node::String(key) = node <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;object key must be string&quot;</span>) };
-                <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">&quot;object missing value&quot;</span>);
+                <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">"obbject missing value"</span>);
+                <span class="kw">let </span>Node::String(key) = node <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">"object key must be string"</span>) };
+                <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">"object missing value"</span>);
                 obj.push(Entry {
                     key,
                     value: hydrate_value_from_node(node, remaining_nodes),
@@ -634,7 +634,7 @@
         Node::Array { length: len } =&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>values = Vec::with_capacity(len);
             <span class="kw">for _ in </span><span class="number">0</span>..len {
-                <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">&quot;array missing value&quot;</span>);
+                <span class="kw">let </span>node = remaining_nodes.next().expect(<span class="string">"array missing value"</span>);
                 values.push(hydrate_value_from_node(node, remaining_nodes));
             }
             Value::Array(values)
@@ -642,12 +642,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>, Backing&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;doc </span>GenericDocument&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'doc</span>, <span class="lifetime">'a</span>, Backing&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'doc </span>GenericDocument&lt;<span class="lifetime">'a</span>, Backing&gt;
 <span class="kw">where
-    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>Backing: NodeCollection&lt;<span class="lifetime">'a</span>&gt;,
 {
-    <span class="kw">type </span>IntoIter = DocumentIter&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt;;
-    <span class="kw">type </span>Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">type </span>IntoIter = DocumentIter&lt;<span class="lifetime">'doc</span>, <span class="lifetime">'a</span>&gt;;
+    <span class="kw">type </span>Item = Node&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         DocumentIter {
@@ -658,15 +658,15 @@
 
 <span class="doccomment">/// A single value in a [`Document`].
 </span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone)]
-</span><span class="kw">pub enum </span>Node&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub enum </span>Node&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// A null value.
     </span>Null,
     <span class="doccomment">/// A boolean value.
     </span>Boolean(bool),
     <span class="doccomment">/// A string value.
-    </span>String(JsonString&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>String(JsonString&lt;<span class="lifetime">'a</span>&gt;),
     <span class="doccomment">/// A numerical value.
-    </span>Number(JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>Number(JsonNumber&lt;<span class="lifetime">'a</span>&gt;),
     <span class="doccomment">/// An object value with `len` key-value pairs following it.
     </span>Object {
         <span class="doccomment">/// The number of key-value pairs that this object contains.
@@ -680,16 +680,16 @@
 }
 
 <span class="attr">#[derive(Default, Debug, Eq, PartialEq)]
-</span><span class="kw">struct </span>Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt; {
+</span><span class="kw">struct </span>Nodes&lt;<span class="lifetime">'a</span>, Backing&gt; {
     collection: Backing,
-    _phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
+    _phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Backing&gt; Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Backing&gt; Nodes&lt;<span class="lifetime">'a</span>, Backing&gt;
 <span class="kw">where
-    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>Backing: NodeCollection&lt;<span class="lifetime">'a</span>&gt;,
 {
-    <span class="kw">fn </span>push_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
+    <span class="kw">fn </span>push_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="kw">let </span>index = <span class="self">self</span>.collection.as_ref().len();
         <span class="self">self</span>.collection.push(node)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(index)
@@ -703,11 +703,11 @@
         <span class="self">self</span>.push_node(Node::Boolean(boolean))
     }
 
-    <span class="kw">pub fn </span>push_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
+    <span class="kw">pub fn </span>push_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::String(string))
     }
 
-    <span class="kw">pub fn </span>push_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, number: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
+    <span class="kw">pub fn </span>push_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, number: JsonNumber&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorKind&gt; {
         <span class="self">self</span>.push_node(Node::Number(number))
     }
 
@@ -720,19 +720,19 @@
     }
 
     <span class="kw">pub fn </span>extend_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
-        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.collection.as_mut()[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;extended wrong type&quot;</span>) };
+        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.collection.as_mut()[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">"extended wrong type"</span>) };
         <span class="kw-2">*</span>len += <span class="number">1</span>;
     }
 
     <span class="kw">pub fn </span>extend_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
-        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.collection.as_mut()[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;extended wrong type&quot;</span>) };
+        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.collection.as_mut()[index] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">"extended wrong type"</span>) };
         <span class="kw-2">*</span>len += <span class="number">1</span>;
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, Backing&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Nodes&lt;<span class="lifetime">&#39;a</span>, Backing&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, Backing&gt; ParseDelegate&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span>Nodes&lt;<span class="lifetime">'a</span>, Backing&gt;
 <span class="kw">where
-    </span>Backing: NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>Backing: NodeCollection&lt;<span class="lifetime">'a</span>&gt;,
 {
     <span class="kw">type </span>Array = usize;
     <span class="kw">type </span>Error = ErrorKind;
@@ -751,12 +751,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.push_number(value)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.push_string(value)
     }
 
@@ -769,7 +769,7 @@
     </span><span class="kw">fn </span>object_key(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
-        key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+        key: JsonString&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.extend_object(<span class="kw-2">*</span>object);
         <span class="self">self</span>.push_string(key)<span class="question-mark">?</span>;
@@ -788,7 +788,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>object_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, object: <span class="kw-2">&amp;</span><span class="self">Self</span>::Object) -&gt; bool {
-        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.collection.as_ref()[<span class="kw-2">*</span>object] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;invalid object&quot;</span>) };
+        <span class="kw">let </span>Node::Object { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.collection.as_ref()[<span class="kw-2">*</span>object] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">"invalid object"</span>) };
         <span class="kw-2">*</span>len == <span class="number">0
     </span>}
 
@@ -814,7 +814,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>array_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, array: <span class="kw-2">&amp;</span><span class="self">Self</span>::Array) -&gt; bool {
-        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.collection.as_ref()[<span class="kw-2">*</span>array] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">&quot;invalid array&quot;</span>) };
+        <span class="kw">let </span>Node::Array { length: len } = <span class="kw-2">&amp;</span><span class="self">self</span>.collection.as_ref()[<span class="kw-2">*</span>array] <span class="kw">else </span>{ <span class="macro">unreachable!</span>(<span class="string">"invalid array"</span>) };
         <span class="kw-2">*</span>len == <span class="number">0
     </span>}
 
@@ -838,11 +838,11 @@
 
 <span class="doccomment">/// An iterator over the [`Node`]s in a [`Document`].
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>DocumentIter&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt; {
-    nodes: Cloned&lt;slice::Iter&lt;<span class="lifetime">&#39;doc</span>, Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+</span><span class="kw">pub struct </span>DocumentIter&lt;<span class="lifetime">'doc</span>, <span class="lifetime">'a</span>&gt; {
+    nodes: Cloned&lt;slice::Iter&lt;<span class="lifetime">'doc</span>, Node&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt; DocumentIter&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'doc</span>, <span class="lifetime">'a</span>&gt; DocumentIter&lt;<span class="lifetime">'doc</span>, <span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Reads a [`Value`] from the iterator, if any nodes remain.
     ///
     /// This function automatically reads nested objects and arrays.
@@ -852,22 +852,22 @@
     /// use justjson::Value;
     ///
     /// let doc = Document::from_json(
-    ///     r#&quot;{
-    ///         &quot;a&quot;: [1, 2, 3, 4]
-    ///     }&quot;#,
+    ///     r#"{
+    ///         "a": [1, 2, 3, 4]
+    ///     }"#,
     /// )
     /// .unwrap();
     ///
     /// let mut nodes = doc.iter();
     /// assert_eq!(nodes.next(), Some(Node::Object { length: 1 }));
     /// let Node::String(key) = nodes.next().unwrap() else { unreachable!() };
-    /// assert_eq!(key, &quot;a&quot;);
+    /// assert_eq!(key, "a");
     /// let Value::Array(array) = nodes.next_value().unwrap() else { unreachable!() };
     /// assert_eq!(array.len(), 4);
     /// assert!(nodes.next().is_none());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-    </span><span class="kw">pub fn </span>next_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+    </span><span class="kw">pub fn </span>next_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Value&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>node = <span class="self">self</span>.nodes.next()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Some</span>(hydrate_value_from_node(node, <span class="kw-2">&amp;mut </span><span class="self">self</span>.nodes))
@@ -897,8 +897,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>DocumentIter&lt;<span class="lifetime">&#39;doc</span>, <span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'doc</span>, <span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>DocumentIter&lt;<span class="lifetime">'doc</span>, <span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = Node&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -907,24 +907,24 @@
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>document_iteration() {
-    <span class="kw">let </span>source = <span class="string">r#&quot;{&quot;a&quot;:1,&quot;b&quot;:true,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[null],&quot;e&quot;:{}}&quot;#</span>;
+    <span class="kw">let </span>source = <span class="string">r#"{"a":1,"b":true,"c":"hello","d":[null],"e":{}}"#</span>;
     <span class="kw">let </span>doc = Document::from_json(source).unwrap();
     <span class="macro">assert_eq!</span>(
         doc.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
         <span class="macro">alloc::vec!</span>[
             Node::Object { length: <span class="number">5 </span>},
-            Node::String(JsonString::from_json(<span class="string">&quot;\&quot;a\&quot;&quot;</span>).unwrap()),
-            Node::Number(JsonNumber::from_json(<span class="string">&quot;1&quot;</span>).unwrap()),
-            Node::String(JsonString::from_json(<span class="string">&quot;\&quot;b\&quot;&quot;</span>).unwrap()),
+            Node::String(JsonString::from_json(<span class="string">"\"a\""</span>).unwrap()),
+            Node::Number(JsonNumber::from_json(<span class="string">"1"</span>).unwrap()),
+            Node::String(JsonString::from_json(<span class="string">"\"b\""</span>).unwrap()),
             Node::Boolean(<span class="bool-val">true</span>),
-            Node::String(JsonString::from_json(<span class="string">&quot;\&quot;c\&quot;&quot;</span>).unwrap()),
-            Node::String(JsonString::from_json(<span class="string">&quot;\&quot;hello\&quot;&quot;</span>).unwrap()),
-            Node::String(JsonString::from_json(<span class="string">&quot;\&quot;d\&quot;&quot;</span>).unwrap()),
+            Node::String(JsonString::from_json(<span class="string">"\"c\""</span>).unwrap()),
+            Node::String(JsonString::from_json(<span class="string">"\"hello\""</span>).unwrap()),
+            Node::String(JsonString::from_json(<span class="string">"\"d\""</span>).unwrap()),
             Node::Array { length: <span class="number">1 </span>},
             Node::Null,
-            Node::String(JsonString::from_json(<span class="string">&quot;\&quot;e\&quot;&quot;</span>).unwrap()),
+            Node::String(JsonString::from_json(<span class="string">"\"e\""</span>).unwrap()),
             Node::Object { length: <span class="number">0 </span>},
         ]
     );
@@ -938,36 +938,36 @@
 }
 
 <span class="doccomment">/// A collection for use with [`GenericDocument`].
-</span><span class="kw">pub trait </span>NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt;:
-    AsRef&lt;[Node&lt;<span class="lifetime">&#39;a</span>&gt;]&gt; + AsMut&lt;[Node&lt;<span class="lifetime">&#39;a</span>&gt;]&gt; + IntoIterator&lt;Item = Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;
+</span><span class="kw">pub trait </span>NodeCollection&lt;<span class="lifetime">'a</span>&gt;:
+    AsRef&lt;[Node&lt;<span class="lifetime">'a</span>&gt;]&gt; + AsMut&lt;[Node&lt;<span class="lifetime">'a</span>&gt;]&gt; + IntoIterator&lt;Item = Node&lt;<span class="lifetime">'a</span>&gt;&gt;
 {
     <span class="doccomment">/// Push `node` to the end of the collection.
-    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt;;
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt;;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; NodeCollection&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Vec&lt;Node&lt;<span class="lifetime">'a</span>&gt;&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
         <span class="self">self</span>.push(node);
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>N: usize&gt; NodeCollection&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>heapless::Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;, N&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>N: usize&gt; NodeCollection&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>heapless::Vec&lt;Node&lt;<span class="lifetime">'a</span>&gt;, N&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: Node&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorKind&gt; {
         <span class="self">self</span>.push(node).map_err(|<span class="kw">_</span>| ErrorKind::PaylodTooLarge)
     }
 }
 
 <span class="doccomment">/// A convenience alias for a [`GenericDocument`] that uses a `Vec` from
 /// `std`/`alloc`.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">pub type </span>Document&lt;<span class="lifetime">&#39;a</span>&gt; = GenericDocument&lt;<span class="lifetime">&#39;a</span>, Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;;
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">pub type </span>Document&lt;<span class="lifetime">'a</span>&gt; = GenericDocument&lt;<span class="lifetime">'a</span>, Vec&lt;Node&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;;
 
 <span class="doccomment">/// A convenience alias for a [`GenericDocument`] that uses a `heapless::Vec`.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
-</span><span class="kw">pub type </span>HeaplessDocument&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>N: usize&gt; = GenericDocument&lt;<span class="lifetime">&#39;a</span>, heapless::Vec&lt;Node&lt;<span class="lifetime">&#39;a</span>&gt;, N&gt;&gt;;
+</span><span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
+</span><span class="kw">pub type </span>HeaplessDocument&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>N: usize&gt; = GenericDocument&lt;<span class="lifetime">'a</span>, heapless::Vec&lt;Node&lt;<span class="lifetime">'a</span>&gt;, N&gt;&gt;;
 </code></pre></div></section></main></body></html>

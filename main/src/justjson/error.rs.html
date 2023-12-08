@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-63a85fc7cf22dee2.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (88fb1b922 2023-04-10)" data-search-js="search-bc5a112813b5d712.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-0bcba95ff279c1db.css" data-theme-light-css="light-db279b6232be9c13.css" data-theme-dark-css="dark-cf923f49f397b216.css" data-theme-ayu-css="ayu-be46fdc453a55015.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-1159a395118aa44e.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c67e44d78ab2db17.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (503e12932 2023-12-07)" data-channel="nightly" data-search-js="search-5a66c239c06b3a66.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -435,7 +435,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl</span>&lt;DelegateError&gt; std::error::Error <span class="kw">for </span>Error&lt;DelegateError&gt; <span class="kw">where
     </span>DelegateError: std::fmt::Debug + Display
 {
@@ -445,8 +445,8 @@
 <span class="kw">where
     </span>DelegateError: Display,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;error at {}: {}&quot;</span>, <span class="self">self</span>.offset, <span class="self">self</span>.kind)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"error at {}: {}"</span>, <span class="self">self</span>.offset, <span class="self">self</span>.kind)
     }
 }
 
@@ -476,11 +476,11 @@
 </span><span class="kw">pub enum </span>ErrorKind&lt;DelegateError = Infallible&gt; {
     <span class="doccomment">/// An invalid UTF-8 sequence was encountered.
     </span>Utf8,
-    <span class="doccomment">/// An end-of-file was encountered when it wasn&#39;t expected.
+    <span class="doccomment">/// An end-of-file was encountered when it wasn't expected.
     </span>UnexpectedEof,
     <span class="doccomment">/// While parsing an object, something was encountered that was not a valid object key.
     </span>ExpectedObjectKey,
-    <span class="doccomment">/// While parsing an object, a colon was expected after an object&#39;s key.
+    <span class="doccomment">/// While parsing an object, a colon was expected after an object's key.
     </span>ExpectedColon,
     <span class="doccomment">/// A [`Value`][crate::Value] was expected.
     </span>ExpectedValue,
@@ -517,7 +517,7 @@
     </span>UnclosedObject,
     <span class="doccomment">/// An array is missing its end (`]`).
     </span>UnclosedArray,
-    <span class="doccomment">/// A string is missing its end (`&quot;`).
+    <span class="doccomment">/// A string is missing its end (`"`).
     </span>UnclosedString,
     <span class="doccomment">/// A string was expected, but another type was found.
     </span>ExpectedString,
@@ -526,7 +526,7 @@
     <span class="doccomment">/// The JSON being parsed has more depth than the parser was configured to
     /// allow.
     </span>RecursionLimitReached,
-    <span class="doccomment">/// A value that wasn&#39;t an object or array was contained in a JSON payload.
+    <span class="doccomment">/// A value that wasn't an object or array was contained in a JSON payload.
     ///
     /// This error is only returned when the `allow_all_types_at_root`
     /// configuration is set to `false`.
@@ -566,7 +566,7 @@
             ErrorKind::RecursionLimitReached =&gt; ErrorKind::RecursionLimitReached,
             ErrorKind::PayloadsShouldBeObjectOrArray =&gt; ErrorKind::PayloadsShouldBeObjectOrArray,
             ErrorKind::PaylodTooLarge =&gt; ErrorKind::PaylodTooLarge,
-            ErrorKind::ErrorFromDelegate(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;infallible&quot;</span>),
+            ErrorKind::ErrorFromDelegate(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"infallible"</span>),
         }
     }
 }
@@ -614,7 +614,7 @@
         ErrorKind::ExpectedCommaOrEndOfObject,
         ErrorKind::ExpectedCommaOrEndOfArray,
         ErrorKind::IllegalTrailingComma,
-        ErrorKind::Unexpected(<span class="string">b&#39;/&#39;</span>),
+        ErrorKind::Unexpected(<span class="string">b'/'</span>),
         ErrorKind::TrailingNonWhitespace,
         ErrorKind::ObjectKeysMustBeStrings,
         ErrorKind::ExpectedExponent,
@@ -677,7 +677,7 @@
         ErrorKind::ExpectedCommaOrEndOfObject,
         ErrorKind::ExpectedCommaOrEndOfArray,
         ErrorKind::IllegalTrailingComma,
-        ErrorKind::Unexpected(<span class="string">b&#39;/&#39;</span>),
+        ErrorKind::Unexpected(<span class="string">b'/'</span>),
         ErrorKind::TrailingNonWhitespace,
         ErrorKind::ObjectKeysMustBeStrings,
         ErrorKind::ExpectedExponent,
@@ -733,7 +733,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl</span>&lt;DelegateError&gt; std::error::Error <span class="kw">for </span>ErrorKind&lt;DelegateError&gt; <span class="kw">where
     </span>DelegateError: std::fmt::Debug + Display
 {
@@ -743,54 +743,54 @@
 <span class="kw">where
     </span>DelegateError: Display,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            ErrorKind::Utf8 =&gt; f.write_str(<span class="string">&quot;invalid utf-8&quot;</span>),
-            ErrorKind::UnexpectedEof =&gt; f.write_str(<span class="string">&quot;unexpected end of file&quot;</span>),
-            ErrorKind::ExpectedObjectKey =&gt; f.write_str(<span class="string">&quot;expected object key&quot;</span>),
-            ErrorKind::ExpectedColon =&gt; f.write_str(<span class="string">&quot;expected colon (&#39;:&#39;)&quot;</span>),
-            ErrorKind::ExpectedValue =&gt; f.write_str(<span class="string">&quot;expected value&quot;</span>),
-            ErrorKind::ExpectedCommaOrEndOfObject =&gt; f.write_str(<span class="string">&quot;expected comma or end of object&quot;</span>),
-            ErrorKind::ExpectedCommaOrEndOfArray =&gt; f.write_str(<span class="string">&quot;expected comma or end of array&quot;</span>),
-            ErrorKind::IllegalTrailingComma =&gt; f.write_str(<span class="string">&quot;trailing commas are not allowed&quot;</span>),
-            ErrorKind::Unexpected(ch) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;unexpected character: &#39;{ch}&#39;&quot;</span>),
+            ErrorKind::Utf8 =&gt; f.write_str(<span class="string">"invalid utf-8"</span>),
+            ErrorKind::UnexpectedEof =&gt; f.write_str(<span class="string">"unexpected end of file"</span>),
+            ErrorKind::ExpectedObjectKey =&gt; f.write_str(<span class="string">"expected object key"</span>),
+            ErrorKind::ExpectedColon =&gt; f.write_str(<span class="string">"expected colon (':')"</span>),
+            ErrorKind::ExpectedValue =&gt; f.write_str(<span class="string">"expected value"</span>),
+            ErrorKind::ExpectedCommaOrEndOfObject =&gt; f.write_str(<span class="string">"expected comma or end of object"</span>),
+            ErrorKind::ExpectedCommaOrEndOfArray =&gt; f.write_str(<span class="string">"expected comma or end of array"</span>),
+            ErrorKind::IllegalTrailingComma =&gt; f.write_str(<span class="string">"trailing commas are not allowed"</span>),
+            ErrorKind::Unexpected(ch) =&gt; <span class="macro">write!</span>(f, <span class="string">"unexpected character: '{ch}'"</span>),
             ErrorKind::TrailingNonWhitespace =&gt; {
-                f.write_str(<span class="string">&quot;trailing non-whitespace data was encountered&quot;</span>)
+                f.write_str(<span class="string">"trailing non-whitespace data was encountered"</span>)
             }
-            ErrorKind::ObjectKeysMustBeStrings =&gt; f.write_str(<span class="string">&quot;object keys must be strings&quot;</span>),
+            ErrorKind::ObjectKeysMustBeStrings =&gt; f.write_str(<span class="string">"object keys must be strings"</span>),
             ErrorKind::ExpectedExponent =&gt; {
-                f.write_str(<span class="string">&quot;expected exponent sign or digit for number literal&quot;</span>)
+                f.write_str(<span class="string">"expected exponent sign or digit for number literal"</span>)
             }
             ErrorKind::ExpectedDecimalDigit =&gt; {
-                f.write_str(<span class="string">&quot;expected decimal digit for number literal&quot;</span>)
+                f.write_str(<span class="string">"expected decimal digit for number literal"</span>)
             }
-            ErrorKind::ExpectedDigit =&gt; f.write_str(<span class="string">&quot;expected decimal digit for number literal&quot;</span>),
+            ErrorKind::ExpectedDigit =&gt; f.write_str(<span class="string">"expected decimal digit for number literal"</span>),
             ErrorKind::InvalidHexadecimal =&gt; {
-                f.write_str(<span class="string">&quot;invalid hexadecimal in unicode escape sequence&quot;</span>)
+                f.write_str(<span class="string">"invalid hexadecimal in unicode escape sequence"</span>)
             }
-            ErrorKind::InvalidEscape =&gt; f.write_str(<span class="string">&quot;invalid escaped character&quot;</span>),
-            ErrorKind::UnclosedObject =&gt; f.write_str(<span class="string">&quot;expected end of object (&#39;}}&#39;)&quot;</span>),
-            ErrorKind::UnclosedArray =&gt; f.write_str(<span class="string">&quot;expected end of array (&#39;]&#39;)&quot;</span>),
-            ErrorKind::UnclosedString =&gt; f.write_str(<span class="string">&quot;expected end of string (&#39;\&quot;&#39;)&quot;</span>),
-            ErrorKind::ExpectedString =&gt; f.write_str(<span class="string">&quot;expected a string&quot;</span>),
-            ErrorKind::ExpectedNumber =&gt; f.write_str(<span class="string">&quot;expected a number&quot;</span>),
-            ErrorKind::RecursionLimitReached =&gt; f.write_str(<span class="string">&quot;the recursion limit has been reached&quot;</span>),
+            ErrorKind::InvalidEscape =&gt; f.write_str(<span class="string">"invalid escaped character"</span>),
+            ErrorKind::UnclosedObject =&gt; f.write_str(<span class="string">"expected end of object ('}}')"</span>),
+            ErrorKind::UnclosedArray =&gt; f.write_str(<span class="string">"expected end of array (']')"</span>),
+            ErrorKind::UnclosedString =&gt; f.write_str(<span class="string">"expected end of string ('\"')"</span>),
+            ErrorKind::ExpectedString =&gt; f.write_str(<span class="string">"expected a string"</span>),
+            ErrorKind::ExpectedNumber =&gt; f.write_str(<span class="string">"expected a number"</span>),
+            ErrorKind::RecursionLimitReached =&gt; f.write_str(<span class="string">"the recursion limit has been reached"</span>),
             ErrorKind::PayloadsShouldBeObjectOrArray =&gt; {
-                f.write_str(<span class="string">&quot;JSON only allows objects or arrays at the root&quot;</span>)
+                f.write_str(<span class="string">"JSON only allows objects or arrays at the root"</span>)
             }
             ErrorKind::PaylodTooLarge =&gt; {
-                f.write_str(<span class="string">&quot;the payload is too large to be parsed into the destination structure&quot;</span>)
+                f.write_str(<span class="string">"the payload is too large to be parsed into the destination structure"</span>)
             }
-            ErrorKind::ErrorFromDelegate(err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;error from delegate: {err}&quot;</span>),
+            ErrorKind::ErrorFromDelegate(err) =&gt; <span class="macro">write!</span>(f, <span class="string">"error from delegate: {err}"</span>),
         }
     }
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>display_tests() {
     <span class="kw">use </span>alloc::string::ToString;
-    <span class="comment">// This test only ensures that display doesn&#39;t panic. It does not validate
+    <span class="comment">// This test only ensures that display doesn't panic. It does not validate
     // that the messages are actually good.
     </span><span class="kw">for </span>kind <span class="kw">in </span>[
         ErrorKind::Utf8,
@@ -801,7 +801,7 @@
         ErrorKind::ExpectedCommaOrEndOfObject,
         ErrorKind::ExpectedCommaOrEndOfArray,
         ErrorKind::IllegalTrailingComma,
-        ErrorKind::Unexpected(<span class="string">b&#39;/&#39;</span>),
+        ErrorKind::Unexpected(<span class="string">b'/'</span>),
         ErrorKind::TrailingNonWhitespace,
         ErrorKind::ObjectKeysMustBeStrings,
         ErrorKind::ExpectedExponent,
@@ -817,7 +817,7 @@
         ErrorKind::RecursionLimitReached,
         ErrorKind::PayloadsShouldBeObjectOrArray,
         ErrorKind::PaylodTooLarge,
-        ErrorKind::ErrorFromDelegate(<span class="string">&quot;oops&quot;</span>),
+        ErrorKind::ErrorFromDelegate(<span class="string">"oops"</span>),
     ] {
         Error { kind, offset: <span class="number">0 </span>}.to_string();
     }

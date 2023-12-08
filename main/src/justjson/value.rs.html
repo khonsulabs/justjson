@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/value.rs`."><title>value.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-63a85fc7cf22dee2.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0-nightly (88fb1b922 2023-04-10)" data-search-js="search-bc5a112813b5d712.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-0bcba95ff279c1db.css" data-theme-light-css="light-db279b6232be9c13.css" data-theme-dark-css="dark-cf923f49f397b216.css" data-theme-ayu-css="ayu-be46fdc453a55015.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-1159a395118aa44e.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../justjson/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/value.rs`."><title>value.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c67e44d78ab2db17.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="justjson" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0-nightly (503e12932 2023-12-07)" data-channel="nightly" data-search-js="search-5a66c239c06b3a66.js" data-settings-js="settings-fe03fdc259827cd2.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-77dede896d6ac08e.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -928,7 +928,54 @@
 <a href="#928" id="928">928</a>
 <a href="#929" id="929">929</a>
 <a href="#930" id="930">930</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::{string::String, vec::Vec};
 <span class="kw">use </span>core::convert::Infallible;
 <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Display};
@@ -942,28 +989,28 @@
 /// The `Backing` generic is the storage mechanism used by [`JsonNumber`] and
 /// [`JsonString`]. This is generally `&amp;str` or `Cow&lt;str&gt;`.
 </span><span class="attr">#[derive(Debug, Eq, PartialEq)]
-</span><span class="kw">pub enum </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub enum </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// A JSON number.
-    </span>Number(JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>Number(JsonNumber&lt;<span class="lifetime">'a</span>&gt;),
     <span class="doccomment">/// A JSON string.
-    </span>String(JsonString&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>String(JsonString&lt;<span class="lifetime">'a</span>&gt;),
     <span class="doccomment">/// A boolean value.
     </span>Boolean(bool),
     <span class="doccomment">/// A JSON object (key/value pairs).
-    </span>Object(Object&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>Object(Object&lt;<span class="lifetime">'a</span>&gt;),
     <span class="doccomment">/// A JSON array (list of values).
-    </span>Array(Vec&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt;),
+    </span>Array(Vec&lt;Value&lt;<span class="lifetime">'a</span>&gt;&gt;),
     <span class="doccomment">/// A null value.
     </span>Null,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Parses a JSON value from `json`, returning a `Value&lt;&amp;str&gt;` that borrows
     /// data from `json`.
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="self">Self</span>::from_json_with_config(json, ParseConfig::default())
     }
 
@@ -972,7 +1019,7 @@
     ///
     /// Because the `str` type guarantees that `json` is valid UTF-8, no
     /// additional unicode checks are performed on unescaped unicode sequences.
-    </span><span class="kw">pub fn </span>from_json_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         Parser::parse_json_with_config(json, config, ValueParser)
     }
 
@@ -981,7 +1028,7 @@
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>from_json_bytes(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json_bytes(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="self">Self</span>::from_json_bytes_with_config(json, ParseConfig::default())
     }
 
@@ -990,7 +1037,7 @@
     ///
     /// This function verifies that `json` is valid UTF-8 while parsing the
     /// JSON.
-    </span><span class="kw">pub fn </span>from_json_bytes_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>from_json_bytes_with_config(json: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], config: ParseConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         Parser::parse_json_bytes_with_config(json, config, ValueParser)
     }
 
@@ -998,7 +1045,7 @@
     /// [`Value::Object`].
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>as_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub const fn </span>as_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">if let </span><span class="self">Self</span>::Object(obj) = <span class="self">self </span>{
             <span class="prelude-val">Some</span>(obj)
         } <span class="kw">else </span>{
@@ -1010,7 +1057,7 @@
     /// this is a [`Value::Object`].
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>as_object_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Object&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_object_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Object&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">if let </span><span class="self">Self</span>::Object(obj) = <span class="self">self </span>{
             <span class="prelude-val">Some</span>(obj)
         } <span class="kw">else </span>{
@@ -1026,7 +1073,7 @@
     ///
     /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
     /// operation being performed can be done with a single iteration over the
-    /// value&#39;s contents instead of multiple random accesses, the iteration
+    /// value's contents instead of multiple random accesses, the iteration
     /// should be preferred. Additional options to make random access faster in
     /// environments that can support it [are being considered][issue] for
     /// future releases.
@@ -1034,7 +1081,7 @@
     /// [issue]: https://github.com/khonsulabs/justjson/issues/7
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>object = <span class="self">self</span>.as_object()<span class="question-mark">?</span>;
         object.get(key)
     }
@@ -1047,7 +1094,7 @@
     ///
     /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
     /// operation being performed can be done with a single iteration over the
-    /// value&#39;s contents instead of multiple random accesses, the iteration
+    /// value's contents instead of multiple random accesses, the iteration
     /// should be preferred. Additional options to make random access faster in
     /// environments that can support it [are being considered][issue] for
     /// future releases.
@@ -1055,7 +1102,7 @@
     /// [issue]: https://github.com/khonsulabs/justjson/issues/7
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Value&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>object = <span class="self">self</span>.as_object_mut()<span class="question-mark">?</span>;
         object.get_mut(key)
     }
@@ -1064,7 +1111,7 @@
     /// [`Value::String`].
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>as_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub const fn </span>as_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">if let </span><span class="self">Self</span>::String(obj) = <span class="self">self </span>{
             <span class="prelude-val">Some</span>(obj)
         } <span class="kw">else </span>{
@@ -1089,7 +1136,7 @@
     /// [`Value::Number`].
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub const fn </span>as_number(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub const fn </span>as_number(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>JsonNumber&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">if let </span><span class="self">Self</span>::Number(obj) = <span class="self">self </span>{
             <span class="prelude-val">Some</span>(obj)
         } <span class="kw">else </span>{
@@ -1138,7 +1185,7 @@
     /// bounds of the array.
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>get_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>sequence = <span class="self">self</span>.as_array()<span class="question-mark">?</span>;
         sequence.get(index)
     }
@@ -1148,7 +1195,7 @@
     /// `index` is beyond the bounds of the array.
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>get_index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get_index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Value&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>sequence = <span class="self">self</span>.as_array_mut()<span class="question-mark">?</span>;
         sequence.get_mut(index)
     }
@@ -1173,21 +1220,21 @@
 
     <span class="kw">fn </span>write_json_value&lt;W: fmt::Write, <span class="kw">const </span>PRETTY: bool&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        state: <span class="kw-2">&amp;mut </span>WriteState&lt;<span class="lifetime">&#39;_</span>, W, PRETTY&gt;,
+        state: <span class="kw-2">&amp;mut </span>WriteState&lt;<span class="lifetime">'_</span>, W, PRETTY&gt;,
     ) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             Value::String(string) =&gt; state.write_json(string),
             Value::Number(number) =&gt; state.write(number.source()),
-            Value::Boolean(bool) =&gt; state.write(<span class="kw">if </span><span class="kw-2">*</span>bool { <span class="string">&quot;true&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;false&quot; </span>}),
-            Value::Null =&gt; state.write(<span class="string">&quot;null&quot;</span>),
+            Value::Boolean(bool) =&gt; state.write(<span class="kw">if </span><span class="kw-2">*</span>bool { <span class="string">"true" </span>} <span class="kw">else </span>{ <span class="string">"false" </span>}),
+            Value::Null =&gt; state.write(<span class="string">"null"</span>),
             Value::Object(obj) =&gt; <span class="self">Self</span>::write_json_object(obj, state),
             Value::Array(array) =&gt; <span class="self">Self</span>::write_json_array(array, state),
         }
     }
 
     <span class="kw">fn </span>write_json_object&lt;W: fmt::Write, <span class="kw">const </span>PRETTY: bool&gt;(
-        obj: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;_</span>&gt;,
-        state: <span class="kw-2">&amp;mut </span>WriteState&lt;<span class="lifetime">&#39;_</span>, W, PRETTY&gt;,
+        obj: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'_</span>&gt;,
+        state: <span class="kw-2">&amp;mut </span>WriteState&lt;<span class="lifetime">'_</span>, W, PRETTY&gt;,
     ) -&gt; fmt::Result {
         state.begin_object()<span class="question-mark">?</span>;
 
@@ -1198,7 +1245,7 @@
                 state.write_object_key_end()<span class="question-mark">?</span>;
                 entry.value.write_json_value(state)<span class="question-mark">?</span>;
                 <span class="kw">if </span>index != obj.<span class="number">0</span>.len() - <span class="number">1 </span>{
-                    state.write(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                    state.write(<span class="string">","</span>)<span class="question-mark">?</span>;
                 }
                 state.new_line()<span class="question-mark">?</span>;
             }
@@ -1209,7 +1256,7 @@
 
     <span class="kw">fn </span>write_json_array&lt;W: fmt::Write, <span class="kw">const </span>PRETTY: bool&gt;(
         array: <span class="kw-2">&amp;</span>Vec&lt;<span class="self">Self</span>&gt;,
-        state: <span class="kw-2">&amp;mut </span>WriteState&lt;<span class="lifetime">&#39;_</span>, W, PRETTY&gt;,
+        state: <span class="kw-2">&amp;mut </span>WriteState&lt;<span class="lifetime">'_</span>, W, PRETTY&gt;,
     ) -&gt; fmt::Result {
         state.begin_array()<span class="question-mark">?</span>;
 
@@ -1218,7 +1265,7 @@
             <span class="kw">for </span>(index, value) <span class="kw">in </span>array.iter().enumerate() {
                 value.write_json_value(state)<span class="question-mark">?</span>;
                 <span class="kw">if </span>index != array.len() - <span class="number">1 </span>{
-                    state.write(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                    state.write(<span class="string">","</span>)<span class="question-mark">?</span>;
                 }
                 state.new_line()<span class="question-mark">?</span>;
             }
@@ -1233,49 +1280,64 @@
     /// This uses two spaces for indentation, and `\n` for end of lines. Use
     /// [`to_json_pretty_custom()`](Self::to_json_pretty_custom) to customize
     /// the formatting behavior.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if there is not enough memory to format the
+    /// JSON.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>to_json_pretty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
-        <span class="self">self</span>.pretty_write_json_to(<span class="kw-2">&amp;mut </span>out).expect(<span class="string">&quot;out of memory&quot;</span>);
+        <span class="self">self</span>.pretty_write_json_to(<span class="kw-2">&amp;mut </span>out).expect(<span class="string">"out of memory"</span>);
         out
     }
 
     <span class="doccomment">/// Converts this value to its JSON representation, with extra whitespace to
     /// make it easier for a human to read.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if there is not enough memory to format the
+    /// JSON.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>to_json_pretty_custom(<span class="kw-2">&amp;</span><span class="self">self</span>, indentation: <span class="kw-2">&amp;</span>str, line_ending: <span class="kw-2">&amp;</span>str) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
         <span class="self">self</span>.pretty_write_json_to_custom(indentation, line_ending, <span class="kw-2">&amp;mut </span>out)
-            .expect(<span class="string">&quot;out of memory&quot;</span>);
+            .expect(<span class="string">"out of memory"</span>);
         out
     }
 
     <span class="doccomment">/// Converts this value to its JSON representation, with no extraneous
     /// whitespace.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if there is not enough memory to format the
+    /// JSON.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>to_json(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
-        <span class="self">self</span>.write_json_to(<span class="kw-2">&amp;mut </span>out).expect(<span class="string">&quot;out of memory&quot;</span>);
+        <span class="self">self</span>.write_json_to(<span class="kw-2">&amp;mut </span>out).expect(<span class="string">"out of memory"</span>);
         out
     }
 
-    <span class="doccomment">/// Writes this value&#39;s JSON representation to `destination`, with no extraneous
+    <span class="doccomment">/// Writes this value's JSON representation to `destination`, with no extraneous
     /// whitespace.
     </span><span class="kw">pub fn </span>write_json_to&lt;W: fmt::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, destination: W) -&gt; fmt::Result {
-        <span class="self">self</span>.write_json::&lt;W, <span class="bool-val">false</span>&gt;(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, destination)
+        <span class="self">self</span>.write_json::&lt;W, <span class="bool-val">false</span>&gt;(<span class="string">""</span>, <span class="string">""</span>, destination)
     }
 
-    <span class="doccomment">/// Writes this value&#39;s JSON representation to `destination`, with extra
+    <span class="doccomment">/// Writes this value's JSON representation to `destination`, with extra
     /// whitespace to make it easier for a human to read.
     ///
     /// This uses two spaces for indentation, and `\n` for end of lines. Use
     /// [`to_json_pretty_custom()`](Self::to_json_pretty_custom) to customize
     /// the formatting behavior.
     </span><span class="kw">pub fn </span>pretty_write_json_to&lt;W: fmt::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, destination: W) -&gt; fmt::Result {
-        <span class="self">self</span>.pretty_write_json_to_custom(<span class="string">&quot;  &quot;</span>, <span class="string">&quot;\n&quot;</span>, destination)
+        <span class="self">self</span>.pretty_write_json_to_custom(<span class="string">"  "</span>, <span class="string">"\n"</span>, destination)
     }
 
-    <span class="doccomment">/// Writes this value&#39;s JSON representation to `destination`, with extra
+    <span class="doccomment">/// Writes this value's JSON representation to `destination`, with extra
     /// whitespace to make it easier for a human to read.
     </span><span class="kw">pub fn </span>pretty_write_json_to_custom&lt;W: fmt::Write&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1287,23 +1349,53 @@
     }
 }
 
+<span class="macro">macro_rules! </span>impl_as_number {
+    (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
+        <span class="kw">impl </span>Value&lt;<span class="lifetime">'_</span>&gt; {
+            <span class="doccomment">/// Parses the contained value as an
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"[`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">"`]"</span>)]
+            </span><span class="doccomment">/// if possible.
+            ///
+            /// If the source number is a floating point number or has a negative sign,
+            /// this will always return None.
+            </span><span class="attr">#[<span class="macro-nonterminal">must_use</span>]
+            </span><span class="kw">pub fn </span><span class="macro-nonterminal">$name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt; {
+                <span class="macro-nonterminal">self</span>.as_number().and_then(JsonNumber::<span class="macro-nonterminal">$name</span>)
+            }
+        }
+    };
+}
+
+<span class="macro">impl_as_number!</span>(as_u8, u8);
+<span class="macro">impl_as_number!</span>(as_u16, u16);
+<span class="macro">impl_as_number!</span>(as_u32, u32);
+<span class="macro">impl_as_number!</span>(as_u64, u64);
+<span class="macro">impl_as_number!</span>(as_u128, u128);
+<span class="macro">impl_as_number!</span>(as_usize, usize);
+<span class="macro">impl_as_number!</span>(as_i8, i8);
+<span class="macro">impl_as_number!</span>(as_i16, i16);
+<span class="macro">impl_as_number!</span>(as_i32, i32);
+<span class="macro">impl_as_number!</span>(as_i64, i64);
+<span class="macro">impl_as_number!</span>(as_i128, i128);
+<span class="macro">impl_as_number!</span>(as_isize, isize);
+
 <span class="attr">#[test]
 </span><span class="kw">fn </span>value_ases() {
     <span class="macro">assert!</span>(Value::from(<span class="bool-val">true</span>).as_bool().unwrap());
     <span class="macro">assert_eq!</span>(
-        Value::String(JsonString::from_json(<span class="string">&quot;\&quot;\&quot;&quot;</span>).unwrap())
+        Value::String(JsonString::from_json(<span class="string">"\"\""</span>).unwrap())
             .as_string()
             .unwrap(),
-        <span class="string">&quot;&quot;
+        <span class="string">""
     </span>);
     <span class="macro">assert_eq!</span>(
-        Value::String(JsonString::from_json(<span class="string">&quot;\&quot;\&quot;&quot;</span>).unwrap())
+        Value::String(JsonString::from_json(<span class="string">"\"\""</span>).unwrap())
             .as_str()
             .unwrap(),
-        <span class="string">&quot;&quot;
+        <span class="string">""
     </span>);
     <span class="macro">assert_eq!</span>(
-        Value::Number(JsonNumber::from_json(<span class="string">&quot;1&quot;</span>).unwrap())
+        Value::Number(JsonNumber::from_json(<span class="string">"1"</span>).unwrap())
             .as_number()
             .unwrap()
             .as_u64()
@@ -1326,8 +1418,8 @@
     <span class="macro">assert_eq!</span>(Value::Null.as_array(), <span class="prelude-val">None</span>);
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Display <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Display <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span>f.alternate() {
             <span class="self">self</span>.pretty_write_json_to(f)
         } <span class="kw">else </span>{
@@ -1338,12 +1430,12 @@
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ValueParser;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParseDelegate&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>ValueParser {
-    <span class="kw">type </span>Array = Vec&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ParseDelegate&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>ValueParser {
+    <span class="kw">type </span>Array = Vec&lt;Value&lt;<span class="lifetime">'a</span>&gt;&gt;;
     <span class="kw">type </span>Error = Infallible;
-    <span class="kw">type </span>Key = JsonString&lt;<span class="lifetime">&#39;a</span>&gt;;
-    <span class="kw">type </span>Object = Object&lt;<span class="lifetime">&#39;a</span>&gt;;
-    <span class="kw">type </span>Value = Value&lt;<span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">type </span>Key = JsonString&lt;<span class="lifetime">'a</span>&gt;;
+    <span class="kw">type </span>Object = Object&lt;<span class="lifetime">'a</span>&gt;;
+    <span class="kw">type </span>Value = Value&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
@@ -1356,12 +1448,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    </span><span class="kw">fn </span>number(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonNumber&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(Value::Number(value))
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
+    </span><span class="kw">fn </span>string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(Value::String(value))
     }
 
@@ -1374,7 +1466,7 @@
     </span><span class="kw">fn </span>object_key(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         _object: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Object,
-        key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+        key: JsonString&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Key, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(key)
     }
@@ -1438,19 +1530,19 @@
     }
 }
 
-<span class="kw">struct </span>WriteState&lt;<span class="lifetime">&#39;a</span>, W, <span class="kw">const </span>PRETTY: bool&gt; {
+<span class="kw">struct </span>WriteState&lt;<span class="lifetime">'a</span>, W, <span class="kw">const </span>PRETTY: bool&gt; {
     writer: W,
     level: usize,
-    indent_per_level: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    line_ending: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    indent_per_level: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    line_ending: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     is_at_line_start: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, <span class="kw">const </span>PRETTY: bool&gt; WriteState&lt;<span class="lifetime">&#39;a</span>, W, PRETTY&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, <span class="kw">const </span>PRETTY: bool&gt; WriteState&lt;<span class="lifetime">'a</span>, W, PRETTY&gt;
 <span class="kw">where
     </span>W: fmt::Write,
 {
-    <span class="kw">fn </span>new(writer: W, indentation: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, line_ending: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(writer: W, indentation: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, line_ending: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             writer,
             level: <span class="number">0</span>,
@@ -1473,7 +1565,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>write_json(<span class="kw-2">&amp;mut </span><span class="self">self</span>, str: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>write_json(<span class="kw-2">&amp;mut </span><span class="self">self</span>, str: <span class="kw-2">&amp;</span>JsonString&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span>PRETTY &amp;&amp; <span class="self">self</span>.is_at_line_start {
             <span class="self">self</span>.is_at_line_start = <span class="bool-val">false</span>;
 
@@ -1482,7 +1574,7 @@
             }
         }
 
-        <span class="macro">write!</span>(<span class="self">self</span>.writer, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, str.as_json())
+        <span class="macro">write!</span>(<span class="self">self</span>.writer, <span class="string">"\"{}\""</span>, str.as_json())
     }
 
     <span class="kw">fn </span>new_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
@@ -1494,41 +1586,41 @@
     }
 
     <span class="kw">fn </span>begin_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
-        <span class="self">self</span>.write(<span class="string">&quot;{&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.write(<span class="string">"{"</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.level += <span class="number">1</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>write_object_key_end(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
         <span class="kw">if </span>PRETTY {
-            <span class="self">self</span>.write(<span class="string">&quot;: &quot;</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.write(<span class="string">": "</span>)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="self">self</span>.write(<span class="string">&quot;:&quot;</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.write(<span class="string">":"</span>)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>end_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
         <span class="self">self</span>.level -= <span class="number">1</span>;
-        <span class="self">self</span>.write(<span class="string">&quot;}&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.write(<span class="string">"}"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>begin_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
-        <span class="self">self</span>.write(<span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.write(<span class="string">"["</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.level += <span class="number">1</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>end_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
         <span class="self">self</span>.level -= <span class="number">1</span>;
-        <span class="self">self</span>.write(<span class="string">&quot;]&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.write(<span class="string">"]"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Index&lt;usize&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Output = Value&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Index&lt;usize&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Output = Value&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="doccomment">/// Returns the contained value at `index`, if this is a [`Value::Array`].
     ///
@@ -1538,11 +1630,11 @@
     /// index is out of bounds of the array.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
-        <span class="self">self</span>.get_index(index).expect(<span class="string">&quot;index not found&quot;</span>)
+        <span class="self">self</span>.get_index(index).expect(<span class="string">"index not found"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IndexMut&lt;usize&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IndexMut&lt;usize&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a mutable reference to the contained value at `index`, if this
     /// is a [`Value::Array`].
     ///
@@ -1552,12 +1644,12 @@
     /// index is out of bounds of the array.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output {
-        <span class="self">self</span>.get_index_mut(index).expect(<span class="string">&quot;index not found&quot;</span>)
+        <span class="self">self</span>.get_index_mut(index).expect(<span class="string">"index not found"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>str&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Output = Value&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, <span class="lifetime">'a</span>&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>str&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Output = Value&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="doccomment">/// Returns the contained value associated with `key`, if this is a
     /// [`Value::Object`].
@@ -1571,19 +1663,19 @@
     ///
     /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
     /// operation being performed can be done with a single iteration over the
-    /// value&#39;s contents instead of multiple random accesses, the iteration
+    /// value's contents instead of multiple random accesses, the iteration
     /// should be preferred. Additional options to make random access faster in
     /// environments that can support it [are being considered][issue] for
     /// future releases.
     ///
     /// [issue]: https://github.com/khonsulabs/justjson/issues/7
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>str) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
-        <span class="self">self</span>.get(index).expect(<span class="string">&quot;key not found&quot;</span>)
+    </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>str) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
+        <span class="self">self</span>.get(index).expect(<span class="string">"key not found"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>&gt; IndexMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>str&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, <span class="lifetime">'a</span>&gt; IndexMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>str&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a mutable reference to the contained value associated with
     /// `key`, if this is a [`Value::Object`].
     ///
@@ -1596,56 +1688,56 @@
     ///
     /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
     /// operation being performed can be done with a single iteration over the
-    /// value&#39;s contents instead of multiple random accesses, the iteration
+    /// value's contents instead of multiple random accesses, the iteration
     /// should be preferred. Additional options to make random access faster in
     /// environments that can support it [are being considered][issue] for
     /// future releases.
     ///
     /// [issue]: https://github.com/khonsulabs/justjson/issues/7
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>str) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output {
-        <span class="self">self</span>.get_mut(index).expect(<span class="string">&quot;key not found&quot;</span>)
+    </span><span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>str) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output {
+        <span class="self">self</span>.get_mut(index).expect(<span class="string">"key not found"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;bool&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;bool&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>from(value: bool) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Boolean(value)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Object&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;Object&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(value: Object&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>from(value: Object&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Object(value)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Vec&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;Vec&lt;Value&lt;<span class="lifetime">'a</span>&gt;&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(value: Vec&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>from(value: Vec&lt;Value&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Array(value)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from(JsonString::from(value))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;String&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;String&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>from(value: String) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from(JsonString::from(value))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;JsonString&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(value: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>from(value: JsonString&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::String(value)
     }
 }
@@ -1656,7 +1748,7 @@
 ///
 /// [`Object`] uses a `Vec` of [`Entry`] types to store its entries. If the
 /// operation being performed can be done with a single iteration over the
-/// value&#39;s contents instead of multiple random accesses, the iteration should
+/// value's contents instead of multiple random accesses, the iteration should
 /// be preferred. Additional options to make random access faster in
 /// environments that can support it [are being considered][issue] for future
 /// releases.
@@ -1664,30 +1756,30 @@
 /// # Modifying an Object
 ///
 /// Because [`Object`] internally is just a `Vec&lt;Entry&gt;`, it implements
-/// `Deref`/`DerefMut` to its internal storage. This means that all of `Vec`&#39;s
+/// `Deref`/`DerefMut` to its internal storage. This means that all of `Vec`'s
 /// methods are available to change the contents of an object.
 ///
 /// ```rust
 /// use justjson::{Entry, Object, Value};
 ///
 /// let mut obj = Object::new();
-/// obj.push(Entry::new(&quot;hello&quot;, &quot;world&quot;));
+/// obj.push(Entry::new("hello", "world"));
 ///
-/// assert_eq!(Value::Object(obj).to_json(), r#&quot;{&quot;hello&quot;:&quot;world&quot;}&quot;#)
+/// assert_eq!(Value::Object(obj).to_json(), r#"{"hello":"world"}"#)
 /// ```
 ///
 /// [issue]: https://github.com/khonsulabs/justjson/issues/7
 </span><span class="attr">#[derive(Debug, Eq, PartialEq)]
-</span><span class="kw">pub struct </span>Object&lt;<span class="lifetime">&#39;a</span>&gt;(Vec&lt;Entry&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+</span><span class="kw">pub struct </span>Object&lt;<span class="lifetime">'a</span>&gt;(Vec&lt;Entry&lt;<span class="lifetime">'a</span>&gt;&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Default <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Default <span class="kw">for </span>Object&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Object&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Object&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns an empty object.
     </span><span class="attr">#[must_use]
     #[inline]
@@ -1706,7 +1798,7 @@
     <span class="doccomment">/// Returns the value associated with `key`, if found.
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="self">self</span>.iter()
             .find_map(|entry| (entry.key == key).then_some(<span class="kw-2">&amp;</span>entry.value))
     }
@@ -1715,7 +1807,7 @@
     /// found.
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Value&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="self">self</span>.get_entry_mut(key).map(|entry| <span class="kw-2">&amp;mut </span>entry.value)
     }
 
@@ -1723,13 +1815,13 @@
     /// found.
     </span><span class="attr">#[must_use]
     #[inline]
-    </span><span class="kw">pub fn </span>get_entry_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Entry&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get_entry_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Entry&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="self">self</span>.iter_mut().find(|entry| entry.key == key)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Deref <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Target = Vec&lt;Entry&lt;<span class="lifetime">&#39;a</span>&gt;&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Deref <span class="kw">for </span>Object&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Target = Vec&lt;Entry&lt;<span class="lifetime">'a</span>&gt;&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
@@ -1737,40 +1829,40 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DerefMut <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DerefMut <span class="kw">for </span>Object&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FromIterator&lt;(JsonString&lt;<span class="lifetime">&#39;a</span>&gt;, Value&lt;<span class="lifetime">&#39;a</span>&gt;)&gt; <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from_iter&lt;T: IntoIterator&lt;Item = (JsonString&lt;<span class="lifetime">&#39;a</span>&gt;, Value&lt;<span class="lifetime">&#39;a</span>&gt;)&gt;&gt;(iter: T) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FromIterator&lt;(JsonString&lt;<span class="lifetime">'a</span>&gt;, Value&lt;<span class="lifetime">'a</span>&gt;)&gt; <span class="kw">for </span>Object&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>from_iter&lt;T: IntoIterator&lt;Item = (JsonString&lt;<span class="lifetime">'a</span>&gt;, Value&lt;<span class="lifetime">'a</span>&gt;)&gt;&gt;(iter: T) -&gt; <span class="self">Self </span>{
         iter.into_iter()
             .map(|(key, value)| Entry { key, value })
             .collect()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FromIterator&lt;Entry&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from_iter&lt;T: IntoIterator&lt;Item = Entry&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;(iter: T) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FromIterator&lt;Entry&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>Object&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>from_iter&lt;T: IntoIterator&lt;Item = Entry&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;(iter: T) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(iter.into_iter().collect())
     }
 }
 
 <span class="doccomment">/// An key-value pair in an [`Object`].
 </span><span class="attr">#[derive(Debug, Eq, PartialEq)]
-</span><span class="kw">pub struct </span>Entry&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Entry&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The key of this entry.
-    </span><span class="kw">pub </span>key: JsonString&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span><span class="kw">pub </span>key: JsonString&lt;<span class="lifetime">'a</span>&gt;,
     <span class="doccomment">/// The value associated with the key.
-    </span><span class="kw">pub </span>value: Value&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span><span class="kw">pub </span>value: Value&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Entry&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Entry&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new entry for the given key and value.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>new(key: <span class="kw">impl </span>Into&lt;JsonString&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, value: <span class="kw">impl </span>Into&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(key: <span class="kw">impl </span>Into&lt;JsonString&lt;<span class="lifetime">'a</span>&gt;&gt;, value: <span class="kw">impl </span>Into&lt;Value&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             key: key.into(),
             value: value.into(),
@@ -1780,34 +1872,34 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>primitive_values() {
-    <span class="macro">assert_eq!</span>(Value::from_json(<span class="string">&quot;true&quot;</span>).unwrap(), Value::from(<span class="bool-val">true</span>));
-    <span class="macro">assert_eq!</span>(Value::from_json(<span class="string">&quot;false&quot;</span>).unwrap(), Value::from(<span class="bool-val">false</span>));
-    <span class="macro">assert_eq!</span>(Value::from_json(<span class="string">&quot;null&quot;</span>).unwrap(), Value::Null);
+    <span class="macro">assert_eq!</span>(Value::from_json(<span class="string">"true"</span>).unwrap(), Value::from(<span class="bool-val">true</span>));
+    <span class="macro">assert_eq!</span>(Value::from_json(<span class="string">"false"</span>).unwrap(), Value::from(<span class="bool-val">false</span>));
+    <span class="macro">assert_eq!</span>(Value::from_json(<span class="string">"null"</span>).unwrap(), Value::Null);
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>objects() {
     <span class="macro">assert_eq!</span>(
-        Value::from_json(<span class="string">&quot;{}&quot;</span>).unwrap(),
+        Value::from_json(<span class="string">"{}"</span>).unwrap(),
         Value::Object(Object::default())
     );
     <span class="macro">assert_eq!</span>(
-        Value::from_json(<span class="string">r#&quot;{&quot;hello&quot;:&quot;world&quot;}&quot;#</span>).unwrap(),
+        Value::from_json(<span class="string">r#"{"hello":"world"}"#</span>).unwrap(),
         Value::Object(Object::from_iter([(
-            JsonString::from_json(<span class="string">r#&quot;&quot;hello&quot;&quot;#</span>).unwrap(),
-            Value::String(JsonString::from_json(<span class="string">r#&quot;&quot;world&quot;&quot;#</span>).unwrap())
+            JsonString::from_json(<span class="string">r#""hello""#</span>).unwrap(),
+            Value::String(JsonString::from_json(<span class="string">r#""world""#</span>).unwrap())
         )]))
     );
     <span class="macro">assert_eq!</span>(
-        Value::from_json(<span class="string">r#&quot; { &quot;hello&quot; : &quot;world&quot; , &quot;another&quot; : &quot;value&quot; }&quot;#</span>).unwrap(),
+        Value::from_json(<span class="string">r#" { "hello" : "world" , "another" : "value" }"#</span>).unwrap(),
         Value::Object(Object::from_iter([
             Entry::new(
-                JsonString::from_json(<span class="string">r#&quot;&quot;hello&quot;&quot;#</span>).unwrap(),
-                Value::String(JsonString::from_json(<span class="string">r#&quot;&quot;world&quot;&quot;#</span>).unwrap())
+                JsonString::from_json(<span class="string">r#""hello""#</span>).unwrap(),
+                Value::String(JsonString::from_json(<span class="string">r#""world""#</span>).unwrap())
             ),
             Entry::new(
-                JsonString::from_json(<span class="string">r#&quot;&quot;another&quot;&quot;#</span>).unwrap(),
-                Value::String(JsonString::from_json(<span class="string">r#&quot;&quot;value&quot;&quot;#</span>).unwrap())
+                JsonString::from_json(<span class="string">r#""another""#</span>).unwrap(),
+                Value::String(JsonString::from_json(<span class="string">r#""value""#</span>).unwrap())
             )
         ]))
     );
@@ -1816,31 +1908,33 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>cow() {
     <span class="kw">let </span><span class="kw-2">mut </span>value =
-        Value::from_json_bytes(<span class="string">br#&quot;{&quot;a&quot;:1,&quot;b&quot;:true,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[],&quot;e&quot;:{}}&quot;#</span>).unwrap();
-    value[<span class="string">&quot;b&quot;</span>] = Value::from(<span class="bool-val">false</span>);
+        Value::from_json_bytes(<span class="string">br#"{"a":1,"b":true,"c":"hello","d":[],"e":{}}"#</span>).unwrap();
+    value[<span class="string">"b"</span>] = Value::from(<span class="bool-val">false</span>);
     <span class="kw">let </span>root = value.as_object_mut().unwrap();
-    root[<span class="number">0</span>].key = JsonString::from(<span class="string">&quot;newa&quot;</span>);
-    root[<span class="number">0</span>].value = JsonString::from(<span class="string">&quot;a&quot;</span>).into();
-    <span class="kw">let </span>Value::Array(d_array) = <span class="kw-2">&amp;mut </span>root[<span class="number">3</span>].value <span class="kw">else </span>{ <span class="macro">unreachable!</span>() };
+    root[<span class="number">0</span>].key = JsonString::from(<span class="string">"newa"</span>);
+    root[<span class="number">0</span>].value = JsonString::from(<span class="string">"a"</span>).into();
+    <span class="kw">let </span>Value::Array(d_array) = <span class="kw-2">&amp;mut </span>root[<span class="number">3</span>].value <span class="kw">else </span>{
+        <span class="macro">unreachable!</span>()
+    };
     d_array.push(Value::Null);
 
     <span class="comment">// Replace the newly inserted null (uses IndexMut on the array).
-    </span>value[<span class="string">&quot;d&quot;</span>][<span class="number">0</span>] = Value::from(<span class="bool-val">false</span>);
+    </span>value[<span class="string">"d"</span>][<span class="number">0</span>] = Value::from(<span class="bool-val">false</span>);
 
     <span class="kw">let </span>generated = value.to_json();
     <span class="macro">assert_eq!</span>(
         generated,
-        <span class="string">r#&quot;{&quot;newa&quot;:&quot;a&quot;,&quot;b&quot;:false,&quot;c&quot;:&quot;hello&quot;,&quot;d&quot;:[false],&quot;e&quot;:{}}&quot;#
+        <span class="string">r#"{"newa":"a","b":false,"c":"hello","d":[false],"e":{}}"#
     </span>);
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>index() {
-    <span class="kw">let </span><span class="kw-2">mut </span>value = Value::from_json_bytes(<span class="string">br#&quot;{&quot;b&quot;:true,&quot;a&quot;:[false]}&quot;#</span>).unwrap();
-    <span class="macro">assert_eq!</span>(value[<span class="string">&quot;b&quot;</span>], Value::from(<span class="bool-val">true</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>value = Value::from_json_bytes(<span class="string">br#"{"b":true,"a":[false]}"#</span>).unwrap();
+    <span class="macro">assert_eq!</span>(value[<span class="string">"b"</span>], Value::from(<span class="bool-val">true</span>));
     <span class="macro">assert_eq!</span>(value.get_index_mut(<span class="number">0</span>), <span class="prelude-val">None</span>);
-    <span class="macro">assert_eq!</span>(value[<span class="string">&quot;a&quot;</span>][<span class="number">0</span>], Value::from(<span class="bool-val">false</span>));
-    <span class="macro">assert_eq!</span>(value[<span class="string">&quot;a&quot;</span>].get_mut(<span class="string">&quot;a&quot;</span>), <span class="prelude-val">None</span>);
+    <span class="macro">assert_eq!</span>(value[<span class="string">"a"</span>][<span class="number">0</span>], Value::from(<span class="bool-val">false</span>));
+    <span class="macro">assert_eq!</span>(value[<span class="string">"a"</span>].get_mut(<span class="string">"a"</span>), <span class="prelude-val">None</span>);
 }
 
 <span class="attr">#[test]
@@ -1849,13 +1943,13 @@
     <span class="macro">assert_eq!</span>(Value::from(Object::new()), Value::Object(Object::new()));
     <span class="macro">assert_eq!</span>(Value::from(Vec::new()), Value::Array(Vec::new()));
     <span class="macro">assert_eq!</span>(
-        Value::from(String::from(<span class="string">&quot;a&quot;</span>)),
-        Value::String(JsonString::from(<span class="string">&quot;a&quot;</span>))
+        Value::from(String::from(<span class="string">"a"</span>)),
+        Value::String(JsonString::from(<span class="string">"a"</span>))
     );
-    <span class="macro">assert_eq!</span>(Value::from(<span class="string">&quot;a&quot;</span>), Value::String(JsonString::from(<span class="string">&quot;a&quot;</span>)));
+    <span class="macro">assert_eq!</span>(Value::from(<span class="string">"a"</span>), Value::String(JsonString::from(<span class="string">"a"</span>)));
     <span class="macro">assert_eq!</span>(
-        Value::from(JsonString::from(<span class="string">&quot;a&quot;</span>)),
-        Value::String(JsonString::from(<span class="string">&quot;a&quot;</span>))
+        Value::from(JsonString::from(<span class="string">"a"</span>)),
+        Value::String(JsonString::from(<span class="string">"a"</span>))
     );
 }
 </code></pre></div></section></main></body></html>
