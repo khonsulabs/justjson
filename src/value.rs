@@ -303,6 +303,11 @@ impl<'a> Value<'a> {
     /// This uses two spaces for indentation, and `\n` for end of lines. Use
     /// [`to_json_pretty_custom()`](Self::to_json_pretty_custom) to customize
     /// the formatting behavior.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if there is not enough memory to format the
+    /// JSON.
     #[must_use]
     pub fn to_json_pretty(&self) -> String {
         let mut out = String::new();
@@ -312,6 +317,11 @@ impl<'a> Value<'a> {
 
     /// Converts this value to its JSON representation, with extra whitespace to
     /// make it easier for a human to read.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if there is not enough memory to format the
+    /// JSON.
     #[must_use]
     pub fn to_json_pretty_custom(&self, indentation: &str, line_ending: &str) -> String {
         let mut out = String::new();
@@ -322,6 +332,11 @@ impl<'a> Value<'a> {
 
     /// Converts this value to its JSON representation, with no extraneous
     /// whitespace.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if there is not enough memory to format the
+    /// JSON.
     #[must_use]
     pub fn to_json(&self) -> String {
         let mut out = String::new();
@@ -356,6 +371,36 @@ impl<'a> Value<'a> {
         self.write_json::<W, true>(indentation, line_ending, destination)
     }
 }
+
+macro_rules! impl_as_number {
+    ($name:ident, $type:ident) => {
+        impl Value<'_> {
+            /// Parses the contained value as an
+            #[doc = concat!("[`", stringify!($type), "`]")]
+            /// if possible.
+            ///
+            /// If the source number is a floating point number or has a negative sign,
+            /// this will always return None.
+            #[must_use]
+            pub fn $name(&self) -> Option<$type> {
+                self.as_number().and_then(JsonNumber::$name)
+            }
+        }
+    };
+}
+
+impl_as_number!(as_u8, u8);
+impl_as_number!(as_u16, u16);
+impl_as_number!(as_u32, u32);
+impl_as_number!(as_u64, u64);
+impl_as_number!(as_u128, u128);
+impl_as_number!(as_usize, usize);
+impl_as_number!(as_i8, i8);
+impl_as_number!(as_i16, i16);
+impl_as_number!(as_i32, i32);
+impl_as_number!(as_i64, i64);
+impl_as_number!(as_i128, i128);
+impl_as_number!(as_isize, isize);
 
 #[test]
 fn value_ases() {
@@ -891,7 +936,9 @@ fn cow() {
     let root = value.as_object_mut().unwrap();
     root[0].key = JsonString::from("newa");
     root[0].value = JsonString::from("a").into();
-    let Value::Array(d_array) = &mut root[3].value else { unreachable!() };
+    let Value::Array(d_array) = &mut root[3].value else {
+        unreachable!()
+    };
     d_array.push(Value::Null);
 
     // Replace the newly inserted null (uses IndexMut on the array).

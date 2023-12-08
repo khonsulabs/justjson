@@ -1,3 +1,5 @@
+use core::str::FromStr;
+
 use crate::anystr::AnyStr;
 use crate::parser::{ParseDelegate, Parser};
 use crate::{Error, ErrorKind};
@@ -26,6 +28,16 @@ impl<'a> JsonNumber<'a> {
         self.source.as_ref()
     }
 
+    /// Parses the contained value as an [`f32`], if possible.
+    ///
+    /// The JSON parser only validates that the number takes a correct form. If
+    /// a number cannot be parsed by the underlying routine due to having too
+    /// many digits, it this function can return None.
+    #[must_use]
+    pub fn as_f32(&self) -> Option<f32> {
+        self.parse().ok()
+    }
+
     /// Parses the contained value as an [`f64`], if possible.
     ///
     /// The JSON parser only validates that the number takes a correct form. If
@@ -33,26 +45,44 @@ impl<'a> JsonNumber<'a> {
     /// many digits, it this function can return None.
     #[must_use]
     pub fn as_f64(&self) -> Option<f64> {
-        self.source().parse().ok()
+        self.parse().ok()
     }
 
-    /// Parses the contained value as an [`i64`], if possible.
-    ///
-    /// If the source number is a floating point number, this will always return None.
-    #[must_use]
-    pub fn as_i64(&self) -> Option<i64> {
-        self.source().parse().ok()
-    }
-
-    /// Parses the contained value as an [`u64`], if possible.
-    ///
-    /// If the source number is a floating point number or has a negative sign,
-    /// this will always return None.
-    #[must_use]
-    pub fn as_u64(&self) -> Option<u64> {
-        self.source().parse().ok()
+    /// Parses the contained value.
+    pub fn parse<T: FromStr>(&self) -> Result<T, T::Err> {
+        self.source().parse()
     }
 }
+
+macro_rules! impl_as_number {
+    ($name:ident, $type:ident) => {
+        impl JsonNumber<'_> {
+            /// Parses the contained value as an
+            #[doc = concat!("[`", stringify!($type), "`]")]
+            /// if possible.
+            ///
+            /// If the source number is a floating point number or has a negative sign,
+            /// this will always return None.
+            #[must_use]
+            pub fn $name(&self) -> Option<$type> {
+                self.parse().ok()
+            }
+        }
+    };
+}
+
+impl_as_number!(as_u8, u8);
+impl_as_number!(as_u16, u16);
+impl_as_number!(as_u32, u32);
+impl_as_number!(as_u64, u64);
+impl_as_number!(as_u128, u128);
+impl_as_number!(as_usize, usize);
+impl_as_number!(as_i8, i8);
+impl_as_number!(as_i16, i16);
+impl_as_number!(as_i32, i32);
+impl_as_number!(as_i64, i64);
+impl_as_number!(as_i128, i128);
+impl_as_number!(as_isize, isize);
 
 struct NumberParser;
 
@@ -143,7 +173,7 @@ fn json_number_from_json() {
         }
     );
 
-    let expected_number = JsonNumber::from_json(r#"true"#)
+    let expected_number = JsonNumber::from_json("true")
         .expect_err("shouldn't allow non-numbers")
         .kind;
     assert!(matches!(expected_number, ErrorKind::ExpectedNumber));

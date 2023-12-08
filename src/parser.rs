@@ -242,7 +242,7 @@ impl<'a, const GUARANTEED_UTF8: bool> Tokenizer<'a, GUARANTEED_UTF8> {
     #[inline]
     fn read_string_escape(&mut self, string_info: &mut JsonStringInfo) -> Result<(), Error> {
         match self.source.read()? {
-            (_, ch) if matches!(ch, b'"' | b'\\' | b'/' | b'b' | b'f' | b'r' | b'n' | b't') => {
+            (_, b'"' | b'\\' | b'/' | b'b' | b'f' | b'r' | b'n' | b't') => {
                 string_info.add_bytes_from_escape(1);
             }
             (offset, b'u') => {

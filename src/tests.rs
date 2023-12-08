@@ -171,30 +171,30 @@ fn numbers() {
     }
 
     test_json_parse(
-        br#"-1"#,
+        b"-1",
         &Value::Number(JsonNumber {
-            source: AnyStr::Borrowed(r#"-1"#),
+            source: AnyStr::Borrowed("-1"),
         }),
     );
 
     test_json_parse(
-        br#"-1.0"#,
+        b"-1.0",
         &Value::Number(JsonNumber {
-            source: AnyStr::Borrowed(r#"-1.0"#),
+            source: AnyStr::Borrowed("-1.0"),
         }),
     );
 
     test_json_parse(
-        br#"-1.0e1"#,
+        b"-1.0e1",
         &Value::Number(JsonNumber {
-            source: AnyStr::Borrowed(r#"-1.0e1"#),
+            source: AnyStr::Borrowed("-1.0e1"),
         }),
     );
 
     test_json_parse(
-        br#"-1.0E-1"#,
+        b"-1.0E-1",
         &Value::Number(JsonNumber {
-            source: AnyStr::Borrowed(r#"-1.0E-1"#),
+            source: AnyStr::Borrowed("-1.0E-1"),
         }),
     );
 }
@@ -207,7 +207,7 @@ fn object_of_everything() {
             (
                 JsonString::from_json(r#""a""#).unwrap(),
                 Value::Number(JsonNumber {
-                    source: AnyStr::Borrowed(r#"1"#),
+                    source: AnyStr::Borrowed("1"),
                 }),
             ),
             (JsonString::from_json(r#""b""#).unwrap(), Value::from(true)),
@@ -233,7 +233,7 @@ fn array_of_everything() {
         br#"[1,true,"hello",[],{}]"#,
         &Value::Array(vec![
             Value::Number(JsonNumber {
-                source: AnyStr::Borrowed(r#"1"#),
+                source: AnyStr::Borrowed("1"),
             }),
             Value::from(true),
             Value::from(JsonString::from_json(r#""hello""#).unwrap()),
@@ -261,7 +261,7 @@ macro_rules! assert_json_error_kind_matches {
 
 #[test]
 fn object_errors() {
-    assert_json_error_kind_matches!(r#"{1:true}"#, 1, ErrorKind::ObjectKeysMustBeStrings);
+    assert_json_error_kind_matches!("{1:true}", 1, ErrorKind::ObjectKeysMustBeStrings);
     assert_json_error_kind_matches!(r#"{"a": true,}"#, 11, ErrorKind::IllegalTrailingComma);
     assert_json_error_kind_matches!(r#"{"a": true,:"#, 11, ErrorKind::ExpectedObjectKey);
     assert_json_error_kind_matches!(r#"{"a"}"#, 4, ErrorKind::ExpectedColon);
@@ -273,32 +273,32 @@ fn object_errors() {
 
 #[test]
 fn array_errors() {
-    assert_json_error_kind_matches!(r#"[1,]"#, 3, ErrorKind::IllegalTrailingComma);
+    assert_json_error_kind_matches!("[1,]", 3, ErrorKind::IllegalTrailingComma);
 
-    assert_json_error_kind_matches!(r#"[1}"#, 2, ErrorKind::ExpectedCommaOrEndOfArray);
+    assert_json_error_kind_matches!("[1}", 2, ErrorKind::ExpectedCommaOrEndOfArray);
 
-    assert_json_error_kind_matches!(r#"[1,,}"#, 3, ErrorKind::Unexpected(b','));
+    assert_json_error_kind_matches!("[1,,}", 3, ErrorKind::Unexpected(b','));
 
-    assert_json_error_kind_matches!(r#"[1,"#, 3, ErrorKind::UnclosedArray);
+    assert_json_error_kind_matches!("[1,", 3, ErrorKind::UnclosedArray);
 
-    assert_json_error_kind_matches!(r#"["#, 1, ErrorKind::UnclosedArray);
+    assert_json_error_kind_matches!("[", 1, ErrorKind::UnclosedArray);
 }
 
 #[test]
 fn keyword_errors() {
-    assert_json_error_kind_matches!(r#"tru "#, 3, ErrorKind::Unexpected(b' '));
-    assert_json_error_kind_matches!(r#"tru"#, 3, ErrorKind::UnexpectedEof);
+    assert_json_error_kind_matches!("tru ", 3, ErrorKind::Unexpected(b' '));
+    assert_json_error_kind_matches!("tru", 3, ErrorKind::UnexpectedEof);
 }
 
 #[test]
 fn json_errors() {
-    assert_json_error_kind_matches!(r#"true true"#, 5, ErrorKind::TrailingNonWhitespace);
+    assert_json_error_kind_matches!("true true", 5, ErrorKind::TrailingNonWhitespace);
 
-    assert_json_error_kind_matches!(r#","#, 0, ErrorKind::Unexpected(b','));
+    assert_json_error_kind_matches!(",", 0, ErrorKind::Unexpected(b','));
 
-    assert_json_error_kind_matches!(r#"#"#, 0, ErrorKind::Unexpected(b'#'));
+    assert_json_error_kind_matches!("#", 0, ErrorKind::Unexpected(b'#'));
 
-    assert_json_error_kind_matches!(r#""#, 0, ErrorKind::UnexpectedEof);
+    assert_json_error_kind_matches!("", 0, ErrorKind::UnexpectedEof);
 }
 
 #[test]
@@ -322,22 +322,22 @@ fn string_errors() {
 
 #[test]
 fn number_errors() {
-    assert_json_error_kind_matches!(r#"- "#, 1, ErrorKind::ExpectedDigit);
+    assert_json_error_kind_matches!("- ", 1, ErrorKind::ExpectedDigit);
 
-    assert_json_error_kind_matches!(r#"1. "#, 2, ErrorKind::ExpectedDecimalDigit);
+    assert_json_error_kind_matches!("1. ", 2, ErrorKind::ExpectedDecimalDigit);
 
-    assert_json_error_kind_matches!(r#"1.0E "#, 4, ErrorKind::ExpectedExponent);
+    assert_json_error_kind_matches!("1.0E ", 4, ErrorKind::ExpectedExponent);
 
-    assert_json_error_kind_matches!(r#"1.0E- "#, 5, ErrorKind::ExpectedExponent);
+    assert_json_error_kind_matches!("1.0E- ", 5, ErrorKind::ExpectedExponent);
 
     // Same battery of tests but with an eof instead
-    assert_json_error_kind_matches!(r#"-"#, 1, ErrorKind::ExpectedDigit);
+    assert_json_error_kind_matches!("-", 1, ErrorKind::ExpectedDigit);
 
-    assert_json_error_kind_matches!(r#"1."#, 2, ErrorKind::ExpectedDecimalDigit);
+    assert_json_error_kind_matches!("1.", 2, ErrorKind::ExpectedDecimalDigit);
 
-    assert_json_error_kind_matches!(r#"1.0E"#, 4, ErrorKind::ExpectedExponent);
+    assert_json_error_kind_matches!("1.0E", 4, ErrorKind::ExpectedExponent);
 
-    assert_json_error_kind_matches!(r#"1.0E-"#, 5, ErrorKind::ExpectedExponent);
+    assert_json_error_kind_matches!("1.0E-", 5, ErrorKind::ExpectedExponent);
 }
 
 fn test_roundtrip_encoding(source: &str) {

@@ -534,12 +534,12 @@ fn json_string_from_json() {
     assert_eq!(
         JsonString::from_json(r#""Hello, World!""#).unwrap(),
         JsonString {
-            source: StringContents::Json(AnyStr::Borrowed(r#"Hello, World!"#)),
+            source: StringContents::Json(AnyStr::Borrowed("Hello, World!")),
             info: JsonStringInfo::new(false, 13),
         }
     );
 
-    let expected_string = JsonString::from_json(r#"true"#)
+    let expected_string = JsonString::from_json("true")
         .expect_err("shouldn't allow non-strings")
         .kind;
     assert!(matches!(expected_string, ErrorKind::ExpectedString));
@@ -565,16 +565,22 @@ fn json_string_from_raw() {
 #[cfg(feature = "alloc")]
 fn decode_if_needed() {
     let empty = JsonString::from_json(r#""""#).unwrap();
-    let AnyStr::Borrowed(string) = empty.decode_if_needed() else { unreachable!() };
+    let AnyStr::Borrowed(string) = empty.decode_if_needed() else {
+        unreachable!()
+    };
     assert_eq!(string, "");
     let has_escapes = JsonString::from_json(r#""\r""#).unwrap();
-    let AnyStr::Owned(string) = has_escapes.decode_if_needed() else { unreachable!() };
+    let AnyStr::Owned(string) = has_escapes.decode_if_needed() else {
+        unreachable!()
+    };
     assert_eq!(string, "\r");
     let decoded_via_display = alloc::format!("{}", has_escapes.decoded());
     assert_eq!(decoded_via_display, "\r");
 
-    let raw_string = JsonString::from(r#"raw string"#);
-    let AnyStr::Borrowed(string) = raw_string.decode_if_needed() else { unreachable!() };
+    let raw_string = JsonString::from("raw string");
+    let AnyStr::Borrowed(string) = raw_string.decode_if_needed() else {
+        unreachable!()
+    };
     assert_eq!(string, "raw string");
 
     let decoded_via_display = alloc::format!("{}", raw_string.decoded());
