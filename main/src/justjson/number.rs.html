@@ -211,6 +211,32 @@
 <a href="#211" id="211">211</a>
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::str::FromStr;
 
 <span class="kw">use </span><span class="kw">crate</span>::anystr::AnyStr;
@@ -423,5 +449,31 @@
         JsonNumber::from_json(<span class="string">"{}"</span>).unwrap_err().kind,
         ErrorKind::ExpectedNumber
     );
+}
+
+<span class="attr">#[test]
+#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">fn </span>as_es() {
+    <span class="macro">macro_rules! </span>test_as {
+        (<span class="macro-nonterminal">$</span><span class="kw">as</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
+            <span class="macro">assert_eq!</span>(JsonNumber::from_json(<span class="string">"1"</span>).unwrap().<span class="macro-nonterminal">$</span><span class="kw">as</span>(), <span class="prelude-val">Some</span>(<span class="number">1</span>));
+        };
+    }
+
+    <span class="macro">test_as!</span>(<span class="macro-nonterminal">as_i8</span>);
+    <span class="macro">test_as!</span>(as_i16);
+    <span class="macro">test_as!</span>(as_i32);
+    <span class="macro">test_as!</span>(as_i64);
+    <span class="macro">test_as!</span>(as_i128);
+    <span class="macro">test_as!</span>(as_isize);
+    <span class="macro">test_as!</span>(as_u8);
+    <span class="macro">test_as!</span>(as_u16);
+    <span class="macro">test_as!</span>(as_u32);
+    <span class="macro">test_as!</span>(as_u64);
+    <span class="macro">test_as!</span>(as_u128);
+    <span class="macro">test_as!</span>(as_usize);
+
+    <span class="macro">assert!</span>(JsonNumber::from_json(<span class="string">"0"</span>).unwrap().as_f32().unwrap().abs() &lt; f32::EPSILON);
+    <span class="macro">assert!</span>(JsonNumber::from_json(<span class="string">"0"</span>).unwrap().as_f64().unwrap().abs() &lt; f64::EPSILON);
 }
 </code></pre></div></section></main></body></html>
