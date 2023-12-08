@@ -17,7 +17,7 @@ alloc = []
 nightly = []      # Enables unstable documentation features outside of docs.rs
 
 [dependencies]
-heapless = { version = "0.7.16", optional = true }
+heapless = { version = "0.8.0", optional = true }
 
 
 [workspace]
