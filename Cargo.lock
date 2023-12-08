@@ -554,7 +554,7 @@ checksum = "5f63b421e16eb4100beb677af56f0b4f3a4f08bab74ef2af079ce5bb92c2683f"
 
 [[package]]
 name = "justjson"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "heapless",
 ]
