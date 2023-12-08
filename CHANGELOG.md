@@ -7,7 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## Changed
+### Added
+
+- `JsonNumber` and `Value` now have these additional helpers for converting to
+  native numeric types:
+
+  - `as_u8`
+  - `as_u16`
+  - `as_u32`
+  - `as_u64`
+  - `as_u128`
+  - `as_usize`
+  - `as_i8`
+  - `as_i16`
+  - `as_i32`
+  - `as_i64`
+  - `as_i128`
+  - `as_isize`
+  - `as_f32`
+  - `as_f64`
+
+- `JsonNumber::parse()` is a new function that uses a types `FromStr`
+  implementation to parse the source of the numeric literal.
+
+## v0.2.3 (2023-04-11)
+
+### Changed
 
 - This crate's MSRV has been changed to 1.65. This is not a breaking change,
   however, as the crate never supported its advertised MSRV, and this new MSRV
@@ -15,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to ensure the MSRV is always tested against. Thanks to @hr8 in #8 for
   reporting this.
 
-## Added
+### Added
 
 - `AnyStr::as_str()` has been added, which acts the same as
   `AsRef<str>`/`Borrow<str>`/`Deref<Target = str>`.
@@ -34,9 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Thank you to @indietyp in #13 for refactoring the parser to expose this
   functionality!
 
-## v0.2.2
+## v0.2.2 (2023-02-02)
 
-## Added
+### Added
 
 - `JsonString` now implements `Ord`, `PartialOrd`, and `PartialOrd<str>`, and
   `Hash`.
@@ -55,15 +80,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `From<&str>`, `From<String>`, `From<JsonString<'_>>`, `From<Object<'_>>`, and
   `From<bool>` have been implemented for `Value<'_>`.
 
-## v0.2.1
+## v0.2.1 (2023-01-25)
 
 This release contains no code changes. The `Cargo.toml` section for docs.rs has
 been updated in an attempt to enable `doc_auto_cfg`, which annotates what
 features flags are needed for any given item in the documentation.
 
-## v0.2.0
+## v0.2.0 (2023-01-25)
 
-## Breaking Changes
+### Breaking Changes
 
 - `Value`, `Object`, `JsonNumber`, and `JsonString` have all changed from having
   a generic parameter to having a single lifetime parameter. Internally, all
@@ -91,14 +116,14 @@ features flags are needed for any given item in the documentation.
   underlying document immediately and return the error in
   `ErrorKind::ErrorFromDelegate`.
 
-## Fixes
+### Fixes
 
 - Escaped UTF16 surrogate pairs are properly handled. Previously, all surrogates
   were considered invalid unicode.
 - Leading `+` signs are no longer allowed on numbers.
 - Leading `0`s are now disallowed on negative numbers.
 
-## Added
+### Added
 
 - `JsonString::from(&str)` has been added to convert from a Rust string to its
   JSON-encoded form.
@@ -116,19 +141,19 @@ features flags are needed for any given item in the documentation.
   To enable `GenericDocument` to work with types other than `Vec` and
   `heapless::Vec`, `NodeCollection` can be implemented for other Vec-like types.
 
-## Changed
+### Changed
 
 - `thiserror` has been removed from the dependencies in favor of manually
   implementing `std::error::Error`. This makes `justjson` dependency free
   without enabling extra feature flags.
 
-## v0.1.1
+## v0.1.1 (2023-01-20)
 
 ### Fixed
 
 - Fixed a panic when reporting an error during decoding of some invalid unicode
   escape sequences.
 
-## v0.1.0
+## v0.1.0 (2023-01-19)
 
 - Initial release
