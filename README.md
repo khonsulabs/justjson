@@ -3,7 +3,7 @@
 [![crate version](https://img.shields.io/crates/v/justjson.svg)](https://crates.io/crates/justjson)
 [![Live Build Status](https://img.shields.io/github/actions/workflow/status/khonsulabs/justjson/rust.yml?branch=main)](https://github.com/khonsulabs/justjson/actions?query=workflow:Tests)
 [![HTML Coverage Report for `main` branch](https://khonsulabs.github.io/justjson/coverage/badge.svg)](https://khonsulabs.github.io/justjson/coverage/)
-[![Documentation](https://img.shields.io/badge/docs-main-informational)](https://khonsulabs.github.io/justjson/main/justjson)
+[![Documentation](https://img.shields.io/badge/docs-main-informational)](https://docs.rs/justjson)
 
 An efficient JSON [`Value`][value] crate for Rust.
 
@@ -118,12 +118,12 @@ can be used to parse documents using the [heapless][heapless] crate's `Vec` type
 for storage. This enables parsing JSON in environments where the `alloc` crate
 isn't supported.
 
-[value]: https://khonsulabs.github.io/justjson/main/justjson/enum.Value.html
-[string]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonString.html
-[number]: https://khonsulabs.github.io/justjson/main/justjson/struct.JsonNumber.html
-[document]: https://khonsulabs.github.io/justjson/main/justjson/doc/type.Document.html
-[generic-doc]: https://khonsulabs.github.io/justjson/main/justjson/doc/struct.GenericDocument.html
-[heapless-doc]: https://khonsulabs.github.io/justjson/main/justjson/doc/type.HeaplessDocument.html
+[value]: https://docs.rs/justjson/*/justjson/enum.Value.html
+[string]: https://docs.rs/justjson/*/justjson/struct.JsonString.html
+[number]: https://docs.rs/justjson/*/justjson/struct.JsonNumber.html
+[document]: https://docs.rs/justjson/*/justjson/doc/type.Document.html
+[generic-doc]: https://docs.rs/justjson/*/justjson/doc/struct.GenericDocument.html
+[heapless-doc]: https://docs.rs/justjson/*/justjson/doc/type.HeaplessDocument.html
 [json-ld]: https://www.w3.org/TR/json-ld11/#compacted-document-form
 [fediverse]: https://en.wikipedia.org/wiki/Fediverse
 [activitypub]: https://www.w3.org/TR/activitypub/
@@ -133,8 +133,8 @@ isn't supported.
 
 ## Open-source Licenses
 
-This project, like all projects from [Khonsu Labs](https://khonsulabs.com/), are
-open-source. This repository is available under the [MIT License](./LICENSE-MIT)
-or the [Apache License 2.0](./LICENSE-APACHE).
+This project, like all projects from [Khonsu Labs](https://khonsulabs.com/), is open-source.
+This repository is available under the [MIT License](./LICENSE-MIT) or the
+[Apache License 2.0](./LICENSE-APACHE).
 
 To learn more about contributing, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
